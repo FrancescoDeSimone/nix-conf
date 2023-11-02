@@ -20,6 +20,12 @@
     enable = true;
     shellAliases = {
       ll = "ls -l";
+      dd="dd status=progress";
+      tb="nc termbin.com 9999";
+      fd="fd -j12";
+      drag="dragon";
+      drop="dragon -t";
+      aringa="| curl -LF \"aringa=<-\" --post301 arin.ga";
     };
     enableCompletion = true;
     enableSyntaxHighlighting = true;
@@ -46,6 +52,16 @@
       };
     }
     ];
+    initExtra = ''
+      bindkey '^[[1;5C' forward-word # Ctrl+RightArrow
+      bindkey '^[[1;5D' backward-word # Ctrl+LeftArrow
+
+      zstyle ':completion:*' completer _complete _match _approximate
+      zstyle ':completion:*:match:*' original only
+      zstyle ':completion:*:approximate:*' max-errors 1 numeric
+      zstyle ':completion:*' menu select
+      zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
+      '';
   };
 
   programs.tmux = {

@@ -24,7 +24,6 @@
     };
   };
 
-  # TODO: Set your username
   home = {
     username = "thinkcentre";
     homeDirectory = "/home/thinkcentre";
