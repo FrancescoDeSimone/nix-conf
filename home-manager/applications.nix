@@ -3,6 +3,7 @@
   home.packages = with pkgs; [ 
     home-manager
   ];
+  xdg.enable = true;
 
   programs.starship = {
     enable = true;
@@ -54,9 +55,25 @@
     }
     ];
     initExtra = ''
+      autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+      bindkey '^[[A' history-substring-search-up
+      bindkey '^[[B' history-substring-search-down
+      zle -N up-line-or-beginning-search
+      zle -N down-line-or-beginning-search
+      [[ -n "''${key[Up]}"   ]] && bindkey -- "''${key[Up]}"   up-line-or-beginning-search
+      [[ -n "''${key[Down]}" ]] && bindkey -- "''${key[Down]}" down-line-or-beginning-search
+
+
+
       bindkey '^[[1;5C' forward-word # Ctrl+RightArrow
       bindkey '^[[1;5D' backward-word # Ctrl+LeftArrow
       ZSH_FZF_HISTORY_SEARCH_FZF_ARGS="+s +m -x -e --height 40%  --height 20%  --layout reverse --info inline"
+      SAVEHIST=10000  # Save most-recent 1000 lines
+      HISTSIZE=10000
+      setopt appendhistory
+      setopt EXTENDED_HISTORY
+      setopt HIST_FIND_NO_DUPS
+      setopt HIST_IGNORE_ALL_DUPS
 
       zstyle ':completion:*' completer _complete _match _approximate
       zstyle ':completion:*:match:*' original only
@@ -73,11 +90,11 @@
     escapeTime = 0;
     plugins = with pkgs; [
       tmuxPlugins.better-mouse-mode
-      tmuxPlugins.tilish
-      tmuxPlugins.catppuccin
-      tmuxPlugins.yank
-      tmuxPlugins.sensible
-      tmuxPlugins.vim-tmux-navigator
+        tmuxPlugins.tilish
+        tmuxPlugins.catppuccin
+        tmuxPlugins.yank
+        tmuxPlugins.sensible
+        tmuxPlugins.vim-tmux-navigator
     ];
     extraConfig = ''
       set -g @tilish-easymode 'on'
@@ -98,10 +115,11 @@
     settings = {
       fields = with config.lib.htop.fields; [
         PID
-        USER
-        PERCENT_CPU
-        PERCENT_MEM
-        COMM
+          STATE
+          USER
+          PERCENT_CPU
+          PERCENT_MEM
+          COMM
       ];
       hide_kernel_threads = 0;
       hide_userland_threads = 0;
@@ -131,14 +149,14 @@
       delay = 15;
       hide_function_bar = 0;
       header_layout = "four_25_25_25_25";
-      column_meters_0 = "Hostname Date Uptime";
+      column_meters_0 = "Hostname Uptime DiskIO";
       column_meter_modes_0 = "2 2 2";
       column_meters_1 = "LeftCPUs2";
       column_meter_modes_1 = 1;
       column_meters_2 = "RightCPUs2";
       column_meter_modes_2 = 1;
-      column_meters_3 = "Memory Swap Battery";
-      column_meter_modes_3 = "1 1 1";
+      column_meters_3 = "Memory LoadAverage NetworkIO";
+      column_meter_modes_3 = "2 2 2";
       tree_view = 0;
       sort_key = 46;
       tree_sort_key = 0;

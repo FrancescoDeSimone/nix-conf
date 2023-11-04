@@ -1,30 +1,30 @@
-{
-  inputs,
-    outputs,
-    lib,
-    config,
-    pkgs,
-    ...
+{ inputs
+, outputs
+, lib
+, config
+, unstable
+, pkgs
+, ...
 }: {
-# You can import other NixOS modules here
+  # You can import other NixOS modules here
   imports = [
     ./homeserver/hardware-configuration.nix
-      ./homeserver/services.nix
-      ./homeserver/applications.nix
-      #./homeserver/disks.nix
-      ./homeserver/filesystem.nix
-      ./homeserver/nextcloud.nix
-      ./applications.nix
-      ./homeserver/docker.nix
-      ./general/lxd.nix
-      inputs.home-manager.nixosModules.home-manager
+    ./homeserver/services.nix
+    ./homeserver/applications.nix
+    #./homeserver/disks.nix
+    ./homeserver/filesystem.nix
+    ./homeserver/nextcloud.nix
+    ./applications.nix
+    ./homeserver/docker.nix
+    ./general/lxd.nix
+    inputs.home-manager.nixosModules.home-manager
   ];
 
   nixpkgs = {
     overlays = [
       outputs.overlays.additions
-        outputs.overlays.modifications
-        outputs.overlays.unstable-packages
+      outputs.overlays.modifications
+      outputs.overlays.unstable-packages
     ];
     config = {
       allowUnfree = true;
@@ -34,7 +34,7 @@
     enable = true;
   };
   nix = {
-    registry = lib.mapAttrs (_: value: {flake = value;}) inputs;
+    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
     optimise.automatic = true;
     gc = {
@@ -49,7 +49,7 @@
   };
 
   home-manager = {
-    extraSpecialArgs = { inherit inputs outputs; };
+    extraSpecialArgs = { inherit unstable inputs outputs; };
     users = {
       thinkcentre = import ../home-manager/homeserver.nix;
     };
@@ -69,6 +69,8 @@
   systemd.targets.suspend.enable = false;
   systemd.targets.hibernate.enable = false;
   systemd.targets.hybrid-sleep.enable = false;
+  security.tpm2.enable = false;
+  hardware.cpu.amd.updateMicrocode = true;
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
 
