@@ -73,6 +73,7 @@
   hardware.cpu.amd.updateMicrocode = true;
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
+  boot.loader.grub.memtest86.enable = true;
 
   time.timeZone = "Europe/Rome";
   i18n.defaultLocale = "en_US.UTF-8";
