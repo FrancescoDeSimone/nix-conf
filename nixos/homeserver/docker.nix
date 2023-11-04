@@ -9,13 +9,13 @@
       homer = {
         image = "b4bz/homer:latest";
         ports = [ "80:8080" ];
-        volumes = [ "/home/desi/.config/homer/config.yml/:/www/assets/config.yml" ];
+        volumes = [ "/home/thinkcentre/.config/homer/config.yml/:/www/assets/config.yml" ];
       };
-      #nginxproxymanager = {
-      #  image = "jc21/nginx-proxy-manager:latest";
-      #  ports = [ "81:81" "443:443" ];
-      #  volumes = [ "/home/desi/.config/npm/data:/data" "/home/desi/.config/npm/letsencrypt:/etc/letsencrypt" ];
-      #};
+      nginxproxymanager = {
+        image = "jc21/nginx-proxy-manager:latest";
+        ports = [ "81:81" "443:443" ];
+        volumes = [ "/home/thinkcentre/.config/npm/data:/data" "/home/thinkcentre/.config/npm/letsencrypt:/etc/letsencrypt" ];
+      };
       speedtesttracker = {
         image = "henrywhitaker3/speedtest-tracker";
         ports = [ "8765:80" ];

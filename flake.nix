@@ -4,15 +4,20 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixvim.url = "github:francescodesimone/nixvim";
     home-manager.url = "github:nix-community/home-manager/release-23.05";
-    nixvim.url = "github:francescoDeSimone/nixvim";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     nix-colors.url = "github:misterio77/nix-colors";
+    flake-utils.url = "github:numtide/flake-utils";
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs-unstable";
   };
 
   outputs = {
     self,
     nixpkgs,
+    flake-utils,
+    disko,
     home-manager,
     ...
   } @ inputs: let
@@ -38,6 +43,7 @@
         specialArgs = {inherit inputs outputs;};
         modules = [
           ./nixos/homeserver.nix
+	  disko.nixosModules.disko
         ];
       };
     };

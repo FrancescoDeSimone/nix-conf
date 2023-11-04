@@ -11,6 +11,9 @@
     ./homeserver/hardware-configuration.nix
       ./homeserver/services.nix
       ./homeserver/applications.nix
+      #./homeserver/disks.nix
+      ./homeserver/filesystem.nix
+      ./homeserver/nextcloud.nix
       ./applications.nix
       ./homeserver/docker.nix
       ./general/lxd.nix
@@ -52,15 +55,20 @@
     };
   };
 
+  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   networking.hostName = "homeserver";
   networking.networkmanager.enable = true;
-  systemd.coredump.enable = false;
-  services.journald.extraConfig = "Storage=volatile";
-  services.journald.forwardToSyslog = false;
-  systemd.services.systemd-journal-flush.enable = false;
-  services.logrotate.enable = false;
+  #systemd.coredump.enable = false;
+  #services.journald.extraConfig = "Storage=volatile";
+  #services.journald.forwardToSyslog = false;
+  #systemd.services.systemd-journal-flush.enable = false;
+  #services.logrotate.enable = false;
+  systemd.targets.sleep.enable = false;
+  systemd.targets.suspend.enable = false;
+  systemd.targets.hibernate.enable = false;
+  systemd.targets.hybrid-sleep.enable = false;
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
 
