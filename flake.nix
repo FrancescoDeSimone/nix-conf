@@ -14,39 +14,41 @@
     disko.inputs.nixpkgs.follows = "nixpkgs-unstable";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    disko,
-    home-manager,
-    ...
-  } @ inputs: let
-  inherit (self) outputs;
-  lib = nixpkgs.lib // home-manager.lib;
-  systems = [
-    "x86_64-linux"
-  ];
-  forEachSystem = f: lib.genAttrs systems (system: f pkgsFor.${system});
-  pkgsFor = lib.genAttrs systems (system: import nixpkgs {
-      inherit system;
-      config.allowUnfree = true;
+  outputs =
+    { self
+    , nixpkgs
+    , flake-utils
+    , disko
+    , home-manager
+    , ...
+    } @ inputs:
+    let
+      inherit (self) outputs;
+      lib = nixpkgs.lib // home-manager.lib;
+      systems = [
+        "x86_64-linux"
+      ];
+      forEachSystem = f: lib.genAttrs systems (system: f pkgsFor.${system});
+      pkgsFor = lib.genAttrs systems (system: import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
       });
-  in {
-    inherit lib;
-    packages = forEachSystem (pkgs: import ./pkgs { inherit pkgs; });
-    formatter = forEachSystem (pkgs: pkgs.nixpkgs-fmt);
-    overlays = import ./overlays {inherit inputs;};
-    nixosModules = import ./modules/nixos;
-    homeManagerModules = import ./modules/home-manager;
-    nixosConfigurations = {
-      homeserver = nixpkgs.lib.nixosSystem {
-        specialArgs = {inherit inputs outputs;};
-        modules = [
-          ./nixos/homeserver.nix
-	  disko.nixosModules.disko
-        ];
+    in
+    {
+      inherit lib;
+      packages = forEachSystem (pkgs: import ./pkgs { inherit pkgs; });
+      formatter = forEachSystem (pkgs: pkgs.nixpkgs-fmt);
+      overlays = import ./overlays { inherit inputs; };
+      nixosModules = import ./modules/nixos;
+      homeManagerModules = import ./modules/home-manager;
+      nixosConfigurations = {
+        homeserver = nixpkgs.lib.nixosSystem {
+          specialArgs = { inherit inputs outputs; };
+          modules = [
+            ./nixos/homeserver.nix
+            disko.nixosModules.disko
+          ];
+        };
       };
     };
-  };
 }

@@ -1,9 +1,9 @@
-{ pkgs, ...}:
+{ pkgs, ... }:
 {
-	environment.systemPackages = with pkgs; [
-   	yarr
-	glances
-        unstable.filebrowser
-   ];
+  environment.systemPackages = with pkgs; [
+    yarr
+    glances
+    unstable.filebrowser
+  ];
 
 }

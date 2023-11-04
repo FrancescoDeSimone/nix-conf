@@ -1,6 +1,6 @@
 { pkgs, lib, inputs, config, ... }:
 {
-  home.packages = with pkgs; [ 
+  home.packages = with pkgs; [
     home-manager
   ];
   xdg.enable = true;
@@ -9,11 +9,11 @@
     enable = true;
     settings = {
       directory.fish_style_pwd_dir_length = 1; # turn on fish directory truncation
-        directory.truncation_length = 2; # number of directories not to truncate
-        gcloud.disabled = true; # annoying to always have on
-        hostname.style = "bold green"; # don't like the default
-        memory_usage.disabled = true; # because it includes cached memory it's reported as full a lot
-        shlvl.disabled = false;
+      directory.truncation_length = 2; # number of directories not to truncate
+      gcloud.disabled = true; # annoying to always have on
+      hostname.style = "bold green"; # don't like the default
+      memory_usage.disabled = true; # because it includes cached memory it's reported as full a lot
+      shlvl.disabled = false;
       username.style_user = "bold blue"; # don't like the default
     };
   };
@@ -22,12 +22,12 @@
     enable = true;
     shellAliases = {
       ll = "ls -l";
-      dd="dd status=progress";
-      tb="nc termbin.com 9999";
-      fd="fd -j12";
-      drag="dragon";
-      drop="dragon -t";
-      aringa="| curl -LF \"aringa=<-\" --post301 arin.ga";
+      dd = "dd status=progress";
+      tb = "nc termbin.com 9999";
+      fd = "fd -j12";
+      drag = "dragon";
+      drop = "dragon -t";
+      aringa = "| curl -LF \"aringa=<-\" --post301 arin.ga";
     };
     enableCompletion = true;
     enableSyntaxHighlighting = true;
@@ -35,24 +35,24 @@
     defaultKeymap = "emacs";
     history.extended = true;
     plugins = [
-    {
-      name = "zsh-history-substring-search";
-      src = pkgs.fetchFromGitHub {
-        owner = "zsh-users";
-        repo = "zsh-history-substring-search";
-        rev = "master";
-        sha256 = "sha256-GSEvgvgWi1rrsgikTzDXokHTROoyPRlU0FVpAoEmXG4=";
-      };
-    }
-    {
-      name = "zsh-fzf-history-search";
-      src = pkgs.fetchFromGitHub {
-        owner = "joshskidmore";
-        repo = "zsh-fzf-history-search";
-        rev = "master";
-        sha256 = "sha256-4Dp2ehZLO83NhdBOKV0BhYFIvieaZPqiZZZtxsXWRaQ=";
-      };
-    }
+      {
+        name = "zsh-history-substring-search";
+        src = pkgs.fetchFromGitHub {
+          owner = "zsh-users";
+          repo = "zsh-history-substring-search";
+          rev = "master";
+          sha256 = "sha256-GSEvgvgWi1rrsgikTzDXokHTROoyPRlU0FVpAoEmXG4=";
+        };
+      }
+      {
+        name = "zsh-fzf-history-search";
+        src = pkgs.fetchFromGitHub {
+          owner = "joshskidmore";
+          repo = "zsh-fzf-history-search";
+          rev = "master";
+          sha256 = "sha256-4Dp2ehZLO83NhdBOKV0BhYFIvieaZPqiZZZtxsXWRaQ=";
+        };
+      }
     ];
     initExtra = ''
       autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
@@ -80,21 +80,20 @@
       zstyle ':completion:*:approximate:*' max-errors 1 numeric
       zstyle ':completion:*' menu select
       zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
-      '';
+    '';
   };
 
   programs.tmux = {
     enable = true;
-    terminal = "screen-256color";
+    #terminal = "screen-256color";
     keyMode = "emacs";
     escapeTime = 0;
     plugins = with pkgs; [
       tmuxPlugins.better-mouse-mode
-        tmuxPlugins.tilish
-        tmuxPlugins.catppuccin
-        tmuxPlugins.yank
-        tmuxPlugins.sensible
-        tmuxPlugins.vim-tmux-navigator
+      tmuxPlugins.tilish
+      tmuxPlugins.catppuccin
+      tmuxPlugins.yank
+      tmuxPlugins.sensible
     ];
     extraConfig = ''
       set -g @tilish-easymode 'on'
@@ -103,11 +102,12 @@
       set-option -g status on
       set -g status-position top
       set-option -g mouse on
+      set -ga terminal-overrides ",xterm-256color:Tc"
       bind -n M-g display-popup -E "tmux new-session -A -s scratch"
       bind-key -T copy-mode-vi v send-keys -X begin-selection
       bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
       bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
-      '';
+    '';
   };
 
   programs.htop = {
@@ -115,11 +115,11 @@
     settings = {
       fields = with config.lib.htop.fields; [
         PID
-          STATE
-          USER
-          PERCENT_CPU
-          PERCENT_MEM
-          COMM
+        STATE
+        USER
+        PERCENT_CPU
+        PERCENT_MEM
+        COMM
       ];
       hide_kernel_threads = 0;
       hide_userland_threads = 0;

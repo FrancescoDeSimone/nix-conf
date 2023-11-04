@@ -13,6 +13,7 @@
     fd
     neovim
     fzf
+    unstable.rsync
   ];
 
 }
