@@ -13,7 +13,7 @@
     #./homeserver/disks.nix
     ./homeserver/filesystem.nix
     ./homeserver/nextcloud.nix
-    ./homeserver/gogs.nix
+    ./homeserver/git.nix
     ./homeserver/cron.nix
     ./applications.nix
     ./homeserver/docker.nix
