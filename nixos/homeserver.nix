@@ -6,14 +6,15 @@
 , pkgs
 , ...
 }: {
-  # You can import other NixOS modules here
   imports = [
     ./homeserver/hardware-configuration.nix
     ./homeserver/services.nix
     ./homeserver/applications.nix
     #./homeserver/disks.nix
     ./homeserver/filesystem.nix
-    #./homeserver/nextcloud.nix
+    ./homeserver/nextcloud.nix
+    ./homeserver/gogs.nix
+    ./homeserver/cron.nix
     ./applications.nix
     ./homeserver/docker.nix
     ./general/lxd.nix
@@ -55,9 +56,25 @@
     };
   };
 
+
+  boot.kernelParams = [ "amd_iommu=off" ];
+  boot.initrd.kernelModules = [ "amdgpu" ];
+  services.xserver.videoDrivers = [ "amdgpu" ];
+  hardware.opengl.extraPackages = with pkgs; [
+    rocm-opencl-icd
+    rocm-opencl-runtime
+  ];
+  hardware.opengl.driSupport = true;
+
+  powerManagement.powertop.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.blacklistedKernelModules = [
+    "bluetooth"
+    "snd_hda_intel"
+  ];
+
   networking.hostName = "homeserver";
   networking.networkmanager.enable = true;
   systemd.coredump.enable = false;
@@ -73,7 +90,6 @@
   hardware.cpu.amd.updateMicrocode = true;
   programs.zsh.enable = true;
   users.defaultUserShell = pkgs.zsh;
-  boot.loader.grub.memtest86.enable = true;
 
   time.timeZone = "Europe/Rome";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -94,5 +110,5 @@
     extraGroups = [ "networkmanager" "wheel" "lxd" "docker" ];
   };
   services.openssh.enable = true;
-  system.stateVersion = "23.05"; # Did you read the comment?
+  system.stateVersion = "23.11"; # Did you read the comment?
 }

@@ -30,7 +30,7 @@
       aringa = "| curl -LF \"aringa=<-\" --post301 arin.ga";
     };
     enableCompletion = true;
-    enableSyntaxHighlighting = true;
+    syntaxHighlighting.enable = true;
     enableAutosuggestions = true;
     defaultKeymap = "emacs";
     history.extended = true;
@@ -140,8 +140,8 @@
       detailed_cpu_time = 1;
       cpu_count_from_one = 1;
       show_cpu_usage = 1;
-      show_cpu_frequency = 0;
-      show_cpu_temperature = 0;
+      show_cpu_frequency = 1;
+      show_cpu_temperature = 1;
       degree_fahrenheit = 0;
       update_process_names = 1;
       account_guest_in_cpu_meter = 1;
@@ -157,14 +157,12 @@
       column_meter_modes_2 = 1;
       column_meters_3 = "Memory LoadAverage NetworkIO";
       column_meter_modes_3 = "2 2 2";
-      tree_view = 0;
+      tree_view = 1;
       sort_key = 46;
-      tree_sort_key = 0;
       sort_direction = -1;
       tree_sort_direction = 1;
       tree_view_always_by_pid = 1;
       all_branches_collapsed = 0;
     };
   };
-
 }

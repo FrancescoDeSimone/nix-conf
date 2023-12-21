@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
   networking.firewall.enable = false;
   services.openssh.enable = true;
@@ -21,6 +21,7 @@
     openFirewall = true;
   };
 
+  systemd.services.navidrome.serviceConfig.Restart = lib.mkForce "always";
   services.navidrome = {
     enable = true;
     settings = {
@@ -40,12 +41,8 @@
   #  enable = true;
   #};
 
-  #services.duplicati = {
-  #  #package =duplicati;
-  #  enable = true;
-  #  interface = "any";
-  #};
 
+  systemd.services.transmission.serviceConfig.Restart = lib.mkForce "always";
   services.transmission = {
     enable = true;
     openRPCPort = true;

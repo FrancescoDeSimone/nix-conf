@@ -4,6 +4,8 @@
     yarr
     glances
     unstable.filebrowser
+    powertop
+    zenstates
   ];
 
 }

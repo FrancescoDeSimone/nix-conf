@@ -3,7 +3,7 @@
 {
   networking.nat = {
     enable = true;
-    internalInterfaces = ["ve-+"];
+    internalInterfaces = [ "ve-+" ];
     externalInterface = "enp1s0";
     enableIPv6 = true;
   };
@@ -11,10 +11,10 @@
   containers.nextcloud = {
     bindMounts = {
       "/nextcloud" =
-      {
-        hostPath ="/nextcloud";
-        isReadOnly = false;
-      };
+        {
+          hostPath = "/nextcloud";
+          isReadOnly = false;
+        };
     };
     autoStart = true;
     privateNetwork = true;
@@ -23,7 +23,9 @@
     hostAddress6 = "fc00::1";
     localAddress6 = "fc00::2";
     forwardPorts = [
-    { protocol = "tcp"; hostPort = 8010; containerPort = 80; }
+      { protocol = "tcp"; hostPort = 8010; containerPort = 80; }
+      { protocol = "tcp"; hostPort = 8200; containerPort = 8200; }
+      { protocol = "tcp"; hostPort = 28981; containerPort = 28981; }
     ];
 
     config = { config, pkgs, ... }: {
@@ -31,12 +33,23 @@
         enable = true;
         ensureDatabases = [ "nextcloud" ];
         ensureUsers = [
-        {
-          name = "nextcloud";
-          ensurePermissions."DATABASE nextcloud" = "ALL PRIVILEGES";
-        }
+          {
+            name = "nextcloud";
+            ensureDBOwnership = true;
+          }
         ];
       };
+
+      services.duplicati = {
+        enable = true;
+        interface = "any";
+      };
+
+      services.paperless = {
+        enable = true;
+        address = "0.0.0.0";
+      };
+
       services.nextcloud = {
         enable = true;
         https = true;
@@ -49,22 +62,32 @@
           deck = pkgs.fetchNextcloudApp rec {
             url = "https://github.com/nextcloud-releases/deck/releases/download/v1.10.0/deck-v1.10.0.tar.gz";
             sha256 = "sha256-8HavzNtdyzc4TDyxsuG8V4uew3VfeQon0FLbx51HRe4=";
+            license = "agpl3Only";
           };
           memories = pkgs.fetchNextcloudApp rec {
             url = "https://github.com/pulsejet/memories/releases/download/v5.2.1/memories.tar.gz";
             sha256 = "sha256-NGss+UBvwtDI73CLMc0gdVLCTp0YnNSeWzv/U6yD4mw=";
+            license = "agpl3Only";
           };
           richdocuments = pkgs.fetchNextcloudApp rec {
             url = "https://github.com/nextcloud-releases/richdocuments/releases/download/v8.1.1/richdocuments-v8.1.1.tar.gz";
             sha256 = "sha256-SkKEviqtq9823T7i2R6Fe8lLJFPxJgfxLMu6kTe8XRw=";
+            license = "agpl3Only";
           };
           mail = pkgs.fetchNextcloudApp rec {
             url = "https://github.com/nextcloud-releases/mail/releases/download/v1.14.1/mail-v1.14.1.tar.gz";
             sha256 = "sha256-sQUsYC3cco6fj9pF2l1NrCEhA3KJoOvJRhXvBlVpNqo=";
+            license = "agpl3Only";
           };
           contacts = pkgs.fetchNextcloudApp rec {
             url = "https://github.com/nextcloud-releases/contacts/releases/download/v4.2.2/contacts-v4.2.2.tar.gz";
             sha256 = "sha256-eTc51pkg3OdHJB7X4/hD39Ce+9vKzw1nlJ7BhPOzdy0=";
+            license = "agpl3Only";
+          };
+          extract = pkgs.fetchNextcloudApp rec {
+            url = "https://github.com/PaulLereverend/NextcloudExtract/releases/download/1.3.6/extract.tar.gz";
+            sha256 = "sha256-d6M7LMU1bMmi4GQOVcG07ckw1HOSS0MNLQQQXm12GKg=";
+            license = "agpl3Only";
           };
         };
         config = {
@@ -82,11 +105,11 @@
         after = [ "postgresql.service" ];
       };
 
-      system.stateVersion = "23.05";
+      system.stateVersion = "23.11";
 
       networking.firewall = {
         enable = true;
-        allowedTCPPorts = [ 80 443];
+        allowedTCPPorts = [ 80 443 8200 28981 ];
       };
 
       environment.etc."resolv.conf".text = "nameserver 8.8.8.8";
