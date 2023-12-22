@@ -11,7 +11,7 @@
     # ...
     # });
     neovim = inputs.nixvim.packages.${prev.system}.default;
-    duplicati = inputs.nixpkgs-unstable.packages.${prev.system}.default;
+    # duplicati = inputs.nixpkgs-unstable.packages.${prev.system}.default;
   };
 
   # When applied, the unstable nixpkgs set (declared in the flake inputs) will

@@ -4,7 +4,7 @@
   networking.nat = {
     enable = true;
     internalInterfaces = [ "ve-+" ];
-    externalInterface = "enp1s0";
+    externalInterface = "eno1";
     enableIPv6 = true;
   };
 
@@ -30,8 +30,14 @@
 
     config = { config, pkgs, ... }: {
       services.postgresql = {
+        package = pkgs.postgresql_14;
         enable = true;
         ensureDatabases = [ "nextcloud" ];
+        authentication = pkgs.lib.mkOverride 10 ''
+          #type database  DBuser  auth-method
+          local all       all     trust
+          host all        all  127.0.0.1/32   trust
+        '';
         ensureUsers = [
           {
             name = "nextcloud";
@@ -43,6 +49,7 @@
       services.duplicati = {
         enable = true;
         interface = "any";
+        user = "root";
       };
 
       services.paperless = {

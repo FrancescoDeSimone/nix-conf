@@ -37,11 +37,6 @@
     user = "thinkcentre";
   };
 
-  #services.gogs = {
-  #  enable = true;
-  #};
-
-
   systemd.services.transmission.serviceConfig.Restart = lib.mkForce "always";
   services.transmission = {
     enable = true;
