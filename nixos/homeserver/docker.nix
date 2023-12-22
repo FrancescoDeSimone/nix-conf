@@ -24,6 +24,15 @@
           OOKLA_EULA_GDPR = "true";
         };
       };
+      collabora = {
+        image = "docker.io/collabora/code:latest";
+        ports = [ "9980:9980/tcp" ];
+        environment = {
+          # domain = "https://nextcloud.desimedia.duckdns.org";
+          extra_params = "--o:ssl.enable=false --o:ssl.termination=true";
+        };
+        extraOptions = [ "--cap-add" "MKNOD" ];
+      };
       scrutiny = {
         image = "ghcr.io/analogj/scrutiny:master-omnibus";
         ports = [ "8081:8080" "8086:8086" ];

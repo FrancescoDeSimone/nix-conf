@@ -27,7 +27,6 @@
       { protocol = "tcp"; hostPort = 8200; containerPort = 8200; }
       { protocol = "tcp"; hostPort = 28981; containerPort = 28981; }
     ];
-
     config = { config, pkgs, ... }: {
       services.postgresql = {
         package = pkgs.postgresql_14;
@@ -94,6 +93,11 @@
           extract = pkgs.fetchNextcloudApp rec {
             url = "https://github.com/PaulLereverend/NextcloudExtract/releases/download/1.3.6/extract.tar.gz";
             sha256 = "sha256-d6M7LMU1bMmi4GQOVcG07ckw1HOSS0MNLQQQXm12GKg=";
+            license = "agpl3Only";
+          };
+          quicknotes = pkgs.fetchNextcloudApp rec {
+            url = "https://github.com/matiasdelellis/quicknotes/releases/download/v0.8.10/quicknotes.tar.gz";
+            sha256 = "sha256-HifiUd2kr3C+qbz+22v6iTfIZVYRbNtDVt75GtekUBk=";
             license = "agpl3Only";
           };
         };
