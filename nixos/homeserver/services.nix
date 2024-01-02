@@ -70,15 +70,15 @@
     };
   };
 
-  systemd.services.yarr = {
-    enable = true;
-    wantedBy = [ "default.target" ];
-    serviceConfig = {
-      User = "thinkcentre";
-      Group = "users";
-      ExecStart = "/run/current-system/sw/bin/yarr -addr 0.0.0.0:7070";
-    };
-  };
+  # systemd.services.yarr = {
+  #   enable = true;
+  #   wantedBy = [ "default.target" ];
+  #   serviceConfig = {
+  #     User = "thinkcentre";
+  #     Group = "users";
+  #     ExecStart = "/run/current-system/sw/bin/yarr -addr 0.0.0.0:7070";
+  #   };
+  # };
 
   services.jellyfin = {
     enable = true;

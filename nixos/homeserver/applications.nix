@@ -2,7 +2,7 @@
   environment.systemPackages = with pkgs; [
     #amule-daemon
     #amule-web
-    yarr
+    # yarr
     glances
     unstable.filebrowser
     powertop
