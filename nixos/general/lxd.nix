@@ -3,6 +3,7 @@
   virtualisation.lxd = {
     enable = true;
     recommendedSysctlSettings = true;
+    ui.enable = true;
   };
 
   # This enables lxcfs, which is a FUSE fs that sets up some things so that

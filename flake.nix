@@ -17,22 +17,22 @@
   outputs =
     { self
     , nixpkgs
+    , nixpkgs-unstable
     , flake-utils
     , disko
     , home-manager
     , ...
-    } @ inputs:
+    }@inputs:
     let
       inherit (self) outputs;
       lib = nixpkgs.lib // home-manager.lib;
-      systems = [
-        "x86_64-linux"
-      ];
+      systems = [ "x86_64-linux" ];
       forEachSystem = f: lib.genAttrs systems (system: f pkgsFor.${system});
-      pkgsFor = lib.genAttrs systems (system: import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-      });
+      pkgsFor = lib.genAttrs systems (system:
+        import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        });
     in
     {
       inherit lib;
@@ -44,10 +44,7 @@
       nixosConfigurations = {
         homeserver = nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs outputs; };
-          modules = [
-            ./nixos/homeserver.nix
-            disko.nixosModules.disko
-          ];
+          modules = [ ./nixos/homeserver.nix disko.nixosModules.disko ];
         };
       };
     };
