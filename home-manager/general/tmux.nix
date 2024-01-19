@@ -1,66 +1,28 @@
 { pkgs, lib, inputs, config, ... }: {
-  programs.zsh = {
+  programs.tmux = {
     enable = true;
-    shellAliases = {
-      ll = "ls -l";
-      dd = "dd status=progress";
-      tb = "nc termbin.com 9999";
-      fd = "fd -j12";
-      drag = "dragon";
-      drop = "dragon -t";
-      aringa = ''| curl -LF "aringa=<-" --post301 arin.ga'';
-    };
-    enableCompletion = true;
-    syntaxHighlighting.enable = true;
-    enableAutosuggestions = true;
-    defaultKeymap = "emacs";
-    history.extended = true;
-    plugins = [
-      {
-        name = "zsh-history-substring-search";
-        src = pkgs.fetchFromGitHub {
-          owner = "zsh-users";
-          repo = "zsh-history-substring-search";
-          rev = "master";
-          sha256 = "sha256-GSEvgvgWi1rrsgikTzDXokHTROoyPRlU0FVpAoEmXG4=";
-        };
-      }
-      {
-        name = "zsh-fzf-history-search";
-        src = pkgs.fetchFromGitHub {
-          owner = "joshskidmore";
-          repo = "zsh-fzf-history-search";
-          rev = "master";
-          sha256 = "sha256-4Dp2ehZLO83NhdBOKV0BhYFIvieaZPqiZZZtxsXWRaQ=";
-        };
-      }
+    #terminal = "screen-256color";
+    keyMode = "emacs";
+    escapeTime = 0;
+    plugins = with pkgs; [
+      tmuxPlugins.better-mouse-mode
+      tmuxPlugins.tilish
+      tmuxPlugins.catppuccin
+      tmuxPlugins.yank
+      tmuxPlugins.sensible
     ];
-    initExtra = ''
-      autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
-      bindkey '^[[A' history-substring-search-up
-      bindkey '^[[B' history-substring-search-down
-      zle -N up-line-or-beginning-search
-      zle -N down-line-or-beginning-search
-      [[ -n "''${key[Up]}"   ]] && bindkey -- "''${key[Up]}"   up-line-or-beginning-search
-      [[ -n "''${key[Down]}" ]] && bindkey -- "''${key[Down]}" down-line-or-beginning-search
-
-
-
-      bindkey '^[[1;5C' forward-word # Ctrl+RightArrow
-      bindkey '^[[1;5D' backward-word # Ctrl+LeftArrow
-      ZSH_FZF_HISTORY_SEARCH_FZF_ARGS="+s +m -x -e --height 40%  --height 20%  --layout reverse --info inline"
-      SAVEHIST=10000  # Save most-recent 1000 lines
-      HISTSIZE=10000
-      setopt appendhistory
-      setopt EXTENDED_HISTORY
-      setopt HIST_FIND_NO_DUPS
-      setopt HIST_IGNORE_ALL_DUPS
-
-      zstyle ':completion:*' completer _complete _match _approximate
-      zstyle ':completion:*:match:*' original only
-      zstyle ':completion:*:approximate:*' max-errors 1 numeric
-      zstyle ':completion:*' menu select
-      zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
+    extraConfig = ''
+      set -g @tilish-easymode 'on'
+      set -g base-index 1
+      setw -g pane-base-index 1
+      set-option -g status on
+      set -g status-position top
+      set-option -g mouse on
+      set -ga terminal-overrides ",xterm-256color:Tc"
+      bind -n M-g display-popup -E "tmux new-session -A -s scratch"
+      bind-key -T copy-mode-vi v send-keys -X begin-selection
+      bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
+      bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
     '';
   };
 }
