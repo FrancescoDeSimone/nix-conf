@@ -1,6 +1,6 @@
 { inputs, outputs, lib, config, pkgs, ... }: {
   # You can import other home-manager modules here
-  imports = [ ./homeserver/default.nix ./applications/default.nix ];
+  imports = [ ./homeserver/default.nix ./general/default.nix ];
 
   nixpkgs = {
     overlays = [
