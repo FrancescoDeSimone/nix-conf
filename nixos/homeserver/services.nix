@@ -1,5 +1,4 @@
-{ pkgs, lib, ... }:
-{
+{ pkgs, inputs, lib, ... }: {
   networking.firewall.enable = false;
   services.openssh.enable = true;
   services.smartd.enable = true;
@@ -70,15 +69,16 @@
     };
   };
 
-  # systemd.services.yarr = {
-  #   enable = true;
-  #   wantedBy = [ "default.target" ];
-  #   serviceConfig = {
-  #     User = "thinkcentre";
-  #     Group = "users";
-  #     ExecStart = "/run/current-system/sw/bin/yarr -addr 0.0.0.0:7070";
-  #   };
-  # };
+  disabledModules = [ "services/monitoring/scrutiny.nix" ];
+  imports = [
+    "${inputs.nixpkgs-unstable}/nixos/modules/services/monitoring/scrutiny.nix"
+  ];
+  services.scrutiny = {
+    package = pkgs.unstable.scrutiny;
+    enable = true;
+    settings.web.listen.port = 8081;
+    openFirewall = true;
+  };
 
   services.jellyfin = {
     enable = true;
@@ -88,7 +88,8 @@
       jellyfin-web = pkgs.jellyfin-web.overrideAttrs (oldAttrs: {
         patches = [
           (pkgs.fetchpatch {
-            url = "https://github.com/jellyfin/jellyfin-web/compare/v${oldAttrs.version}...FrancescoDeSimone:jellyfin-web:intros.diff";
+            url =
+              "https://github.com/jellyfin/jellyfin-web/compare/v${oldAttrs.version}...FrancescoDeSimone:jellyfin-web:intros.diff";
             hash = "sha256-ehjsGAGSy8QL/O/gSdOhwhVJJBT6ljqdHTlct4NxiOY=";
           })
         ];
@@ -102,7 +103,8 @@
     serviceConfig = {
       User = "root";
       Group = "wheel";
-      ExecStart = "/run/current-system/sw/bin/filebrowser --database /var/lib/filebrowser/filebrowser.db --address 0.0.0.0 -p 8080";
+      ExecStart =
+        "/run/current-system/sw/bin/filebrowser --database /var/lib/filebrowser/filebrowser.db --address 0.0.0.0 -p 8080";
     };
   };
 }

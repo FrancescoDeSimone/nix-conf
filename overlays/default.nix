@@ -11,20 +11,12 @@
     # ...
     # });
     neovim = inputs.nixvim.packages.${prev.system}.default;
-    # duplicati = inputs.nixpkgs-unstable.packages.${prev.system}.default;
   };
 
   # When applied, the unstable nixpkgs set (declared in the flake inputs) will
   # be accessible through 'pkgs.unstable'
   unstable-packages = final: _prev: {
     unstable = import inputs.nixpkgs-unstable {
-      system = final.system;
-      config.allowUnfree = true;
-    };
-  };
-
-  unstable-services = final: _prev: {
-    unstable = import inputs.nixpkgs-unstable.services {
       system = final.system;
       config.allowUnfree = true;
     };

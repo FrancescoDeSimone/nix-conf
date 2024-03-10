@@ -36,18 +36,18 @@
         };
         extraOptions = [ "--cap-add" "MKNOD" ];
       };
-      scrutiny = {
-        image = "ghcr.io/analogj/scrutiny:master-omnibus";
-        ports = [ "8081:8080" "8086:8086" ];
-        volumes = [ "/run/udev:/run/udev:ro" ];
-        extraOptions = [
-          "--privileged"
-          "--cap-add=SYS_RAWIO"
-          "--device=/dev/sda"
-          "--device=/dev/sdb"
-          "--device=/dev/sdd"
-        ];
-      };
+      # scrutiny = {
+      #   image = "ghcr.io/analogj/scrutiny:master-omnibus";
+      #   ports = [ "8081:8080" "8086:8086" ];
+      #   volumes = [ "/run/udev:/run/udev:ro" ];
+      #   extraOptions = [
+      #     "--privileged"
+      #     "--cap-add=SYS_RAWIO"
+      #     "--device=/dev/sda"
+      #     "--device=/dev/sdb"
+      #     "--device=/dev/sdd"
+      #   ];
+      # };
     };
   };
 }
