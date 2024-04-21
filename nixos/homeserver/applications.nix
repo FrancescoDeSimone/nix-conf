@@ -7,6 +7,7 @@
     unstable.filebrowser
     powertop
     zenstates
+    ryzenadj
   ];
 
 }

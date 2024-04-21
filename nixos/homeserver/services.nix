@@ -97,6 +97,13 @@
     };
   };
 
+ # services.ollama = {
+ #   package = pkgs.unstable.ollama;
+ #   listenAddress = "0.0.0.0:11434";
+ #   enable = true;
+ #   acceleration = "rocm";
+ # };
+
   systemd.services.filebrowser = {
     enable = true;
     wantedBy = [ "default.target" ];
@@ -104,7 +111,7 @@
       User = "root";
       Group = "wheel";
       ExecStart =
-        "/run/current-system/sw/bin/filebrowser --database /var/lib/filebrowser/filebrowser.db --address 0.0.0.0 -p 8080";
+        "/run/current-system/sw/bin/filebrowser --database /var/lib/filebrowser/filebrowser.db --address 0.0.0.0 -p 8082";
     };
   };
 }

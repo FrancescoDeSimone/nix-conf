@@ -1,11 +1,4 @@
-{ inputs
-, outputs
-, lib
-, config
-, unstable
-, pkgs
-, ...
-}: {
+{ inputs, outputs, lib, config, unstable, pkgs, ... }: {
   imports = [
     ./homeserver/hardware-configuration.nix
     ./homeserver/services.nix
@@ -18,6 +11,7 @@
     ./applications.nix
     ./homeserver/docker.nix
     ./general/lxd.nix
+    ./homeserver/homepage.nix
     inputs.home-manager.nixosModules.home-manager
   ];
 
@@ -27,16 +21,13 @@
       outputs.overlays.modifications
       outputs.overlays.unstable-packages
     ];
-    config = {
-      allowUnfree = true;
-    };
+    config = { allowUnfree = true; };
   };
-  system.autoUpgrade = {
-    enable = true;
-  };
+  system.autoUpgrade = { enable = true; };
   nix = {
     registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
-    nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
+    nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}")
+      config.nix.registry;
     optimise.automatic = true;
     gc = {
       automatic = true;
@@ -51,29 +42,25 @@
 
   home-manager = {
     extraSpecialArgs = { inherit unstable inputs outputs; };
-    users = {
-      thinkcentre = import ../home-manager/homeserver.nix;
-    };
+    users = { thinkcentre = import ../home-manager/homeserver.nix; };
   };
-
 
   boot.kernelParams = [ "amd_iommu=off" ];
   boot.initrd.kernelModules = [ "amdgpu" ];
   services.xserver.videoDrivers = [ "amdgpu" ];
-  hardware.opengl.extraPackages = with pkgs; [
-    rocm-opencl-icd
-    rocm-opencl-runtime
-  ];
-  hardware.opengl.driSupport = true;
-
-  powerManagement.powertop.enable = true;
+  hardware.opengl = {
+    enable = true;
+    extraPackages = with pkgs; [
+      rocm-opencl-icd
+      rocm-opencl-runtime
+      vaapiVdpau
+      libvdpau-va-gl
+    ];
+  };
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.blacklistedKernelModules = [
-    "bluetooth"
-    "snd_hda_intel"
-  ];
+  boot.blacklistedKernelModules = [ "bluetooth" "snd_hda_intel" ];
 
   networking.hostName = "homeserver";
   networking.networkmanager.enable = true;
