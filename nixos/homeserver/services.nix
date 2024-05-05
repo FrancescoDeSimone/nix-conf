@@ -20,22 +20,6 @@
     openFirewall = true;
   };
 
-  systemd.services.navidrome.serviceConfig.Restart = lib.mkForce "always";
-  services.navidrome = {
-    enable = true;
-    settings = {
-      MusicFolder = "/data/Media/Music/";
-      Address = "0.0.0.0";
-      Port = 4533;
-    };
-  };
-
-  services.lidarr = {
-    enable = true;
-    openFirewall = true;
-    user = "thinkcentre";
-  };
-
   systemd.services.transmission.serviceConfig.Restart = lib.mkForce "always";
   services.transmission = {
     enable = true;

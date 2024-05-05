@@ -24,6 +24,21 @@
         image = "frooodle/s-pdf:latest";
         ports = [ "8080:8080" ];
       };
+      deemix = {
+        image = "registry.gitlab.com/bockiii/deemix-docker";
+        ports = [ "6595:6595" ];
+        environment = {
+          PUID = "1000";
+          PGID = "1000";
+          UMASK_SET = "22";
+          DEEMIX_SINGLE_USER = "true";
+        };
+        volumes = [
+          "/data/Media/Music/deemix:/downloads"
+          "/home/thinkcentre/.config/deemix:/config"
+        ];
+      };
     };
+
   };
 }
