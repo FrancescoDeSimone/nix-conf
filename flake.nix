@@ -41,6 +41,14 @@
       overlays = import ./overlays { inherit inputs; };
       nixosModules = import ./modules/nixos;
       homeManagerModules = import ./modules/home-manager;
+      homeConfigurations = {
+        "fdesi@lenovop16v" = home-manager.lib.homeManagerConfiguration {
+          pkgs =
+            nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+          extraSpecialArgs = { inherit inputs outputs; };
+          modules = [ ./home-manager/lenovop16v.nix ];
+        };
+      };
       nixosConfigurations = {
         homeserver = nixpkgs.lib.nixosSystem {
           specialArgs = { inherit inputs outputs; };
