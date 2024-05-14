@@ -20,6 +20,7 @@
     , nixpkgs-unstable
     , flake-utils
     , disko
+    , nix-colors
     , home-manager
     , ...
     }@inputs:
@@ -45,7 +46,7 @@
         "fdesi@lenovop16v" = home-manager.lib.homeManagerConfiguration {
           pkgs =
             nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
-          extraSpecialArgs = { inherit inputs outputs; };
+          extraSpecialArgs = { inherit inputs outputs nix-colors; };
           modules = [ ./home-manager/lenovop16v.nix ];
         };
       };

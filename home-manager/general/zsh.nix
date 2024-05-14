@@ -1,4 +1,4 @@
-{ pkgs, lib, inputs, config, ... }: {
+{ pkgs, ... }: {
   programs.zsh = {
     enable = true;
     shellAliases = {
@@ -12,7 +12,6 @@
     };
     enableCompletion = true;
     syntaxHighlighting.enable = true;
-    enableAutosuggestions = true;
     defaultKeymap = "emacs";
     history.extended = true;
     plugins = [
@@ -23,6 +22,15 @@
           repo = "zsh-history-substring-search";
           rev = "master";
           sha256 = "sha256-GSEvgvgWi1rrsgikTzDXokHTROoyPRlU0FVpAoEmXG4=";
+        };
+      }
+      {
+        name = "zsh-autosuggestions";
+        src = pkgs.fetchFromGitHub {
+          owner = "zsh-users";
+          repo = "zsh-autosuggestions";
+          rev = "master";
+          sha256 = "sha256-B+Kz3B7d97CM/3ztpQyVkE6EfMipVF8Y4HJNfSRXHtU=";
         };
       }
       {

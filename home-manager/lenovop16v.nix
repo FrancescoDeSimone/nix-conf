@@ -1,6 +1,6 @@
 { inputs, outputs, lib, config, pkgs, ... }: {
   # You can import other home-manager modules here
-  imports = [ ./general/default.nix ];
+  imports = [ ./lenovop16v/default.nix ./general/default.nix ];
 
   nixpkgs = {
     overlays = [
