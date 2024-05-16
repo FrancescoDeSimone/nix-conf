@@ -12,7 +12,7 @@ in
     settings = {
       main = {
         box-drawings-uses-font-glyphs = true;
-        font = "Fira Code:size=9";
+      font = "Fira Code:size=12";
         dpi-aware = "yes";
         include = "${catppuccinDrv}";
       };

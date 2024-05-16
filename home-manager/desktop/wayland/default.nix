@@ -1,5 +1,5 @@
 { inputs, pkgs, ... }: {
-  imports = [ ./foot.nix ./firefox.nix ./wofi.nix ];
+  imports = [ ./hyprland.nix ./foot.nix ./wofi.nix ];
   home.packages = with pkgs; [
     nerdfonts
     fira-code-nerdfont
@@ -8,13 +8,17 @@
     fira-code-symbols
     brave
     xdragon
+    playerctl
+    wf-recorder
+    grimblast
+    libva-utils
+    wmctrl
     wl-clipboard
     clipman
     slurp
     grim
     fira-code
     wev
-    wdisplays
     ydotool
     tauon
   ];
