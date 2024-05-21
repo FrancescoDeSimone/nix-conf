@@ -1,5 +1,5 @@
 { inputs, pkgs, ... }: {
-  imports = [ ./hyprland.nix ./foot.nix ./wofi.nix ];
+  imports = [ ./hyprland.nix ./foot.nix ];
   home.packages = with pkgs; [
     nerdfonts
     fira-code-nerdfont

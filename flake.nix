@@ -7,7 +7,7 @@
     nixvim.url = "github:francescodesimone/nixvim";
     home-manager.url = "github:nix-community/home-manager/release-23.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    nix-colors.url = "github:misterio77/nix-colors";
+    catppuccin.url = "github:catppuccin/nix";
     flake-utils.url = "github:numtide/flake-utils";
     # nixified-ai = "github:nixified-ai/flake";
     disko.url = "github:nix-community/disko";
@@ -19,8 +19,8 @@
     , nixpkgs
     , nixpkgs-unstable
     , flake-utils
+    , catppuccin
     , disko
-    , nix-colors
     , home-manager
     , ...
     }@inputs:
@@ -46,8 +46,11 @@
         "fdesi@lenovop16v" = home-manager.lib.homeManagerConfiguration {
           pkgs =
             nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
-          extraSpecialArgs = { inherit inputs outputs nix-colors; };
-          modules = [ ./home-manager/lenovop16v.nix ];
+          extraSpecialArgs = { inherit inputs outputs; };
+          modules = [
+            ./home-manager/lenovop16v.nix
+            catppuccin.homeManagerModules.catppuccin
+          ];
         };
       };
       nixosConfigurations = {

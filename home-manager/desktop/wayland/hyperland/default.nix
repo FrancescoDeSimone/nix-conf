@@ -1,16 +1,12 @@
-{ pkgs, ... }:
+{ ... }:
 let
-  catppuccinDrv = pkgs.fetchurl {
-    url =
-      "https://raw.githubusercontent.com/catppuccin/hyprland/main/themes/mocha.conf";
-    hash = "sha256-SxVNvZZjfuPA2yB9xA0EHHEnE9eIQJAFVBIUuDiSIxQ=";
-  };
   keybinds = builtins.readFile ./config/keybinds.conf;
   exec = builtins.readFile ./config/exec.conf;
   vars = builtins.readFile ./config/vars.conf;
 in
 {
   wayland.windowManager.hyprland = {
+    catppuccin.enable = true;
     enable = true;
     settings = {
       misc = { force_default_wallpaper = 1; };
@@ -58,7 +54,6 @@ in
       # See https://wiki.hyprland.org/Configuring/Window-Rules/ for more
       windowrulev2 = suppressevent maximize, class:.* # You'll probably like this.
 
-      source=${catppuccinDrv}
       ${vars}
       ${exec}
       ${keybinds}
