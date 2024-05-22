@@ -1,5 +1,5 @@
 { pkgs, ... }: {
-  imports = [ ./hyperland/default.nix ];
+  imports = [ ./hyperland/default.nix ./waybar/default.nix ];
 
   systemd.user.services.waybar = {
     Unit = { Description = "waybar unit"; };
@@ -7,5 +7,5 @@
     Service = { ExecStart = "${pkgs.waybar}/bin/waybar"; };
   };
 
-  home.packages = with pkgs; [ waybar ];
+  home.packages = with pkgs; [ ];
 }

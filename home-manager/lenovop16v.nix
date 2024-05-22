@@ -3,8 +3,10 @@
   imports =
     [ ./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix ];
 
+  home.packages = with pkgs; [ ollama ];
+
   catppuccin.enable = true;
-  catppuccin.flavour = "mocha";
+  catppuccin.flavor = "mocha";
   nixpkgs = {
     overlays = [
       outputs.overlays.additions
