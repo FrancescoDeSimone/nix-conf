@@ -2,7 +2,7 @@
   programs.zsh = {
     enable = true;
     shellAliases = {
-      ll = "ls -l";
+      ll = "ls -larth";
       dd = "dd status=progress";
       tb = "nc termbin.com 9999";
       fd = "fd -j12";

@@ -8,9 +8,11 @@
     fira-code-symbols
     brave
     xdragon
+    mpv
     wl-clipboard
     clipman
     slurp
+    obs-studio
     grim
     fira-code
     wev
