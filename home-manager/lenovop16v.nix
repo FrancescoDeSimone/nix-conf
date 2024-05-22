@@ -1,4 +1,4 @@
-{ inputs, outputs, lib, config, pkgs, ... }: {
+{ outputs, pkgs, ... }: {
   # You can import other home-manager modules here
   imports =
     [ ./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix ];
