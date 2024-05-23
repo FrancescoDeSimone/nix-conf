@@ -13,6 +13,7 @@
     };
     enableCompletion = true;
     syntaxHighlighting.enable = true;
+    syntaxHighlighting.catppuccin.enable = true;
     defaultKeymap = "emacs";
     history.extended = true;
     plugins = [
