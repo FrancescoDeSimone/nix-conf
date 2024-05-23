@@ -1,5 +1,5 @@
 { inputs, pkgs, ... }: {
-  imports = [ ./firefox.nix ./rofi/rofi.nix ];
+  imports = [ ./dunst.nix ./firefox.nix ./rofi/rofi.nix ./pass.nix ];
   home.packages = with pkgs; [
     nerdfonts
     fira-code-nerdfont
@@ -17,16 +17,17 @@
     fira-code
     wev
     ydotool
-    tauon
+    sshuttle
+    supersonic
+    pavucontrol
   ];
   fonts.fontconfig.enable = true;
-  # exec-once = wl-paste -t text --watch clipman store --no-persist
   systemd.user.services.clipboard = {
     Unit = { Description = "start clipboard daemon"; };
     Install = { WantedBy = [ "hyprland-session.target" ]; };
     Service = {
       ExecStart =
-        "${pkgs.wl-clipboard}/bin/wl-paste -t text --watch ${pkgs.clipman}/bin/clipman store --no-persist";
+        "${pkgs.wl-clipboard}/bin/wl-paste -t text --watch ${pkgs.clipman}/bin/clipman store --max-items=1000000";
     };
   };
 

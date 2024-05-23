@@ -8,6 +8,7 @@
       fd = "fd -j12";
       drag = "dragon";
       drop = "dragon -t";
+      ssh = "TERM=xterm-256color ssh";
       aringa = ''| curl -LF "aringa=<-" --post301 arin.ga'';
     };
     enableCompletion = true;

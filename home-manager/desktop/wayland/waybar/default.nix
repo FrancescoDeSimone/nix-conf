@@ -7,8 +7,6 @@
     settings = {
       mainBar = {
         position = "bottom";
-        height = 10;
-
         modules-left = [
           "custom/menu"
           "custom/separator#dot-line"

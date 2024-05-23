@@ -15,12 +15,12 @@
     wmctrl
     wl-clipboard
     clipman
+    swaybg
     slurp
     grim
     fira-code
     wev
     ydotool
-    tauon
   ];
   fonts.fontconfig.enable = true;
 }

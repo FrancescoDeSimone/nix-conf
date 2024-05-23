@@ -82,7 +82,7 @@
           padding-top: 2px;
           padding-bottom: 2px;
             padding-right: 4px;
-            padding-left: 4px;    
+            padding-left: 4px;
         }
 
         #workspaces button {
