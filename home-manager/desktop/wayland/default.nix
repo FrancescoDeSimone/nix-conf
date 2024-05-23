@@ -6,7 +6,6 @@
     swaycons
     telegram-desktop
     fira-code-symbols
-    brave
     xdragon
     playerctl
     wf-recorder
