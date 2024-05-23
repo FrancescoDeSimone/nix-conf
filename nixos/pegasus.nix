@@ -1,17 +1,17 @@
 { inputs, outputs, lib, config, unstable, pkgs, ... }: {
   imports = [
-    ./homeserver/hardware-configuration.nix
-    ./homeserver/services.nix
-    ./homeserver/applications.nix
-    #./homeserver/disks.nix
-    ./homeserver/filesystem.nix
-    ./homeserver/nextcloud.nix
-    ./homeserver/git.nix
-    ./homeserver/cron.nix
+    ./pegasus/hardware-configuration.nix
+    ./pegasus/services.nix
+    ./pegasus/applications.nix
+    #./pegasus/disks.nix
+    ./pegasus/filesystem.nix
+    ./pegasus/nextcloud.nix
+    ./pegasus/git.nix
+    ./pegasus/cron.nix
     ./applications.nix
-    ./homeserver/docker.nix
+    ./pegasus/docker.nix
     ./general/lxd.nix
-    ./homeserver/homepage.nix
+    ./pegasus/homepage.nix
     inputs.home-manager.nixosModules.home-manager
   ];
 
@@ -42,7 +42,7 @@
 
   home-manager = {
     extraSpecialArgs = { inherit unstable inputs outputs; };
-    users = { thinkcentre = import ../home-manager/homeserver.nix; };
+    users = { thinkcentre = import ../home-manager/pegasus.nix; };
   };
 
   boot.kernelParams = [ "amd_iommu=off" ];
@@ -62,7 +62,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
   boot.blacklistedKernelModules = [ "bluetooth" "snd_hda_intel" ];
 
-  networking.hostName = "homeserver";
+  networking.hostName = "pegasus";
   networking.networkmanager.enable = true;
   systemd.coredump.enable = false;
   services.journald.extraConfig = "Storage=volatile";
