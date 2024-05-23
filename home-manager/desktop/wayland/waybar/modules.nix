@@ -6,8 +6,19 @@
 
     "modules-left" = [ "hyprland/workspaces" ];
     "modules-center" = [ ];
-    "modules-right" =
-      [ "temperature" "backlight" "pulseaudio" "battery" "clock" "tray" ];
+    "modules-right" = [
+      "custom/playerctl"
+      "custom/separator#line"
+      "temperature"
+      "network#speed"
+      "backlight"
+      "pulseaudio"
+      "custom/separator#line"
+      "battery"
+      "clock"
+      "custom/separator#line"
+      "tray"
+    ];
 
     "hyprland/workspaces" = { };
     "tray" = {
@@ -37,11 +48,45 @@
       "interval" = 30;
     };
 
+    "custom/separator#line" = {
+      "format" = "|";
+      "interval" = "once";
+      "tooltip" = false;
+    };
+
+    "custom/playerctl" = {
+      "format" = "<span>{}</span>";
+      "return-type" = "json";
+      "max-length" = 35;
+      "exec" = ''
+        $HOME/.nix-profile/bin/playerctl -a metadata --format '{"text": "{{artist}} ~ {{markup_escape(title)}}", "tooltip": "{{playerName}} : {{markup_escape(title)}}", "alt": "{{status}}", "class": "{{status}}"}' -F'';
+      "on-click-middle" = "playerctl play-pause";
+      "on-click" = "playerctl previous";
+      "on-click-right" = "playerctl next";
+      "scroll-step" = 5.0;
+      "smooth-scrolling-threshold" = 1;
+    };
+
     "temperature" = {
       "thermal-zone" = 0;
       "format" = "{icon} {temperatureC}°C";
       "format-icons" = [ "" ];
       "interval" = 30;
+    };
+
+    "network#speed" = {
+      "interval" = 1;
+      "format" = "{ifname}";
+      "format-wifi" = "{icon}  {bandwidthUpBytes}  {bandwidthDownBytes}";
+      "format-ethernet" = "󰌘   {bandwidthUpBytes}  {bandwidthDownBytes}";
+      "format-disconnected" = "󰌙";
+      "tooltip-format" = "{ipaddr}";
+      "format-linked" = "󰈁 {ifname} (No IP)";
+      "tooltip-format-wifi" = "{essid} {icon} {signalStrength}%";
+      "tooltip-format-ethernet" = "{ifname} 󰌘";
+      "tooltip-format-disconnected" = "󰌙 Disconnected";
+      "max-length" = 50;
+      "format-icons" = [ "󰤯" "󰤟" "󰤢" "󰤥" "󰤨" ];
     };
 
     "backlight" = {
