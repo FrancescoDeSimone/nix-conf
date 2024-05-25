@@ -7,12 +7,10 @@
     telegram-desktop
     fira-code-symbols
     xdragon
-    mpv
     wl-clipboard
     clipman
     slurp
     networkmanagerapplet
-    obs-studio
     grim
     fira-code
     wev
