@@ -20,7 +20,7 @@ in
         kb_layout = "us";
         follow_mouse = 1;
         repeat_rate = 50;
-        repeat_delay = 300;
+        repeat_delay = 200;
         touchpad = { natural_scroll = true; };
         sensitivity = 0;
       };
