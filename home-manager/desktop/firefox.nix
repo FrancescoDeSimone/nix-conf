@@ -39,11 +39,16 @@ in
       # Valid strings for installation_mode are "allowed", "blocked",
       # "force_installed" and "normal_installed".
       ExtensionSettings = {
-        "*".installation_mode =
-          "blocked"; # blocks all addons except the ones specified below
+        # "*".installation_mode =
+        #   "blocked"; # blocks all addons except the ones specified below
         "{7be2ba16-0f1e-4d93-9ebc-5164397477a9}" = {
           install_url =
             "https://addons.mozilla.org/firefox/downloads/file/3756025/videospeed-0.6.3.3.xpi";
+          installation_mode = "force_installed";
+        };
+        "addon@darkreader.org" = {
+          install_url =
+            "https://addons.mozilla.org/firefox/downloads/file/4286925/darkreader-4.9.85.xpi";
           installation_mode = "force_installed";
         };
         "sponsorBlocker@ajay.app" = {
