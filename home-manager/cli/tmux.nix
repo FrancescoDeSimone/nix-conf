@@ -9,7 +9,6 @@
     escapeTime = 0;
     sensibleOnTop = false;
     plugins = with pkgs; [
-      tmuxPlugins.cpu
       {
         plugin = tmuxPlugins.resurrect;
         extraConfig = "set -g @resurrect-strategy-nvim 'session'";
