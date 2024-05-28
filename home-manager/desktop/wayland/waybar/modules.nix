@@ -11,9 +11,10 @@
       "custom/separator#line"
       "network#speed"
       "custom/separator#line"
-      "temperature"
-      "disk"
+      "cpu"
       "memory"
+      "disk"
+      "temperature"
       "backlight"
       "custom/separator#line"
       "pulseaudio"
@@ -33,6 +34,12 @@
     "clock" = {
       "format" = "{:%a %b %e  %R}";
       "interval" = 30;
+    };
+
+    "cpu" = {
+      "interval" = 1;
+      "format" = "  {icon0}{icon1}{icon2}{icon3} {usage:>2}% ";
+      "format-icons" = [ "▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" ];
     };
 
     "battery" = {
@@ -73,8 +80,8 @@
     };
 
     "memory" = {
-      "format" = " 󰍛 {}% ";
       "interval" = 30;
+      "format" = "  {used:0.1f}G/{total:0.1f}G ";
     };
 
     "disk" = {
