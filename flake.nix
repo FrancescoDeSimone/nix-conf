@@ -43,6 +43,15 @@
       nixosModules = import ./modules/nixos;
       homeManagerModules = import ./modules/home-manager;
       homeConfigurations = {
+        pegasus = home-manager.lib.homeManagerConfiguration {
+          pkgs =
+            nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+          extraSpecialArgs = { inherit inputs outputs; };
+          modules = [
+            ./home-manager/pegasus.nix
+            catppuccin.homeManagerModules.catppuccin
+          ];
+        };
         "fdesi@phoenix" = home-manager.lib.homeManagerConfiguration {
           pkgs =
             nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance

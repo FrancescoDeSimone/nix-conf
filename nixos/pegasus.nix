@@ -12,7 +12,7 @@
     ./pegasus/docker.nix
     ./general/lxd.nix
     ./pegasus/homepage.nix
-    inputs.home-manager.nixosModules.home-manager
+    #inputs.home-manager.nixosModules.home-manager
   ];
 
   nixpkgs = {
@@ -40,10 +40,10 @@
     };
   };
 
-  home-manager = {
-    extraSpecialArgs = { inherit unstable inputs outputs; };
-    users = { thinkcentre = import ../home-manager/pegasus.nix; };
-  };
+  #home-manager = {
+  #  extraSpecialArgs = { inherit unstable inputs outputs; };
+  #  users = { thinkcentre = import ../home-manager/pegasus.nix; };
+  #};
 
   boot.kernelParams = [ "amd_iommu=off" ];
   boot.initrd.kernelModules = [ "amdgpu" ];
