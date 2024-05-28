@@ -3,7 +3,7 @@
   imports =
     [ ./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix ];
 
-  home.packages = with pkgs; [ ollama ];
+  home.packages = with pkgs; [ ollama brightnessctl ];
 
   catppuccin.enable = true;
   catppuccin.flavor = "mocha";
