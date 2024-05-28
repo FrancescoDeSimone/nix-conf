@@ -9,12 +9,16 @@
     "modules-right" = [
       "custom/playerctl"
       "custom/separator#line"
-      "temperature"
       "network#speed"
-      "backlight"
-      "pulseaudio"
       "custom/separator#line"
+      "temperature"
+      "disk"
+      "memory"
+      "backlight"
+      "custom/separator#line"
+      "pulseaudio"
       "battery"
+      "custom/separator#line"
       "clock"
       "custom/separator#line"
       "tray"
@@ -57,7 +61,8 @@
     "custom/playerctl" = {
       "format" = "<span>{}</span>";
       "return-type" = "json";
-      "max-length" = 35;
+      "max-length" = 30;
+      "min-length" = 30;
       "exec" = ''
         $HOME/.nix-profile/bin/playerctl -a metadata --format '{"text": "{{artist}} ~ {{markup_escape(title)}}", "tooltip": "{{playerName}} : {{markup_escape(title)}}", "alt": "{{status}}", "class": "{{status}}"}' -F'';
       "on-click-middle" = "playerctl play-pause";
@@ -67,9 +72,19 @@
       "smooth-scrolling-threshold" = 1;
     };
 
+    "memory" = {
+      "format" = " 󰍛 {}% ";
+      "interval" = 30;
+    };
+
+    "disk" = {
+      "format" = "  {percentage_used}% ";
+      "interval" = 30;
+    };
+
     "temperature" = {
       "thermal-zone" = 0;
-      "format" = "{icon} {temperatureC}°C";
+      "format" = " {icon} {temperatureC}°C ";
       "format-icons" = [ "" ];
       "interval" = 30;
     };
@@ -77,27 +92,27 @@
     "network#speed" = {
       "interval" = 1;
       "format" = "{ifname}";
-      "format-wifi" = "{icon}  {bandwidthUpBytes}  {bandwidthDownBytes}";
-      "format-ethernet" = "󰌘   {bandwidthUpBytes}  {bandwidthDownBytes}";
+      "format-wifi" = " {bandwidthUpBytes}  {bandwidthDownBytes}";
+      "format-ethernet" = " {bandwidthUpBytes}  {bandwidthDownBytes}";
       "format-disconnected" = "󰌙";
       "tooltip-format" = "{ipaddr}";
       "format-linked" = "󰈁 {ifname} (No IP)";
       "tooltip-format-wifi" = "{essid} {icon} {signalStrength}%";
       "tooltip-format-ethernet" = "{ifname} 󰌘";
       "tooltip-format-disconnected" = "󰌙 Disconnected";
-      "max-length" = 50;
-      "format-icons" = [ "󰤯" "󰤟" "󰤢" "󰤥" "󰤨" ];
+      "max-length" = 24;
+      "min-length" = 24;
     };
 
     "backlight" = {
       "device" = "intel_backlight";
-      "format" = "{icon}  {percent}%  ";
+      "format" = " 󱍖 {percent}% ";
       "interval" = 60;
     };
 
     "pulseaudio" = {
       "format" = "{icon}  {volume}%  ";
-      "format-bluetooth" = "  {volume}%  ";
+      "format-bluetooth" = "   {volume}% ";
       "format-muted" = "Mute";
       "interval" = 60;
 
