@@ -81,12 +81,12 @@
     # };
   };
 
-  services.ollama = {
-    package = pkgs.unstable.ollama;
-    listenAddress = "0.0.0.0:11434";
-    enable = true;
-    acceleration = "rocm";
-  };
+  # services.ollama = {
+  #   package = pkgs.unstable.ollama;
+  #   listenAddress = "0.0.0.0:11434";
+  #   enable = true;
+  #   acceleration = "rocm";
+  # };
 
   systemd.services.filebrowser = {
     enable = true;

@@ -14,8 +14,16 @@
     hostAddress = "192.168.200.10";
     localAddress = "192.168.200.11";
     forwardPorts = [
-      { protocol = "tcp"; hostPort = 3000; containerPort = 3000; }
-      { protocol = "tcp"; hostPort = 3001; containerPort = 3001; }
+      {
+        protocol = "tcp";
+        hostPort = 3000;
+        containerPort = 3000;
+      }
+      {
+        protocol = "tcp";
+        hostPort = 3001;
+        containerPort = 3001;
+      }
     ];
 
     config = { config, pkgs, ... }: {
@@ -50,15 +58,12 @@
 
       services.gitea = {
         enable = true;
-        database = {
-          type = "postgres";
-        };
+        database = { type = "postgres"; };
         settings.server = {
           HTTP_ADDR = "0.0.0.0";
           HTTP_PORT = 3001;
         };
       };
-
 
       systemd.services."gitea" = {
         requires = [ "postgresql.service" ];
@@ -70,7 +75,7 @@
       #   after = [ "postgresql.service" ];
       # };
 
-      system.stateVersion = "23.11";
+      system.stateVersion = "24.05";
 
       networking.firewall = {
         enable = true;

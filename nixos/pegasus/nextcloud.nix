@@ -67,7 +67,7 @@
         enable = true;
         https = true;
         home = "/nextcloud";
-        package = pkgs.nextcloud27;
+        package = pkgs.nextcloud29;
         hostName = "nextcloud.desimedia.duckdns.org";
         extraAppsEnable = true;
         configureRedis = true;
@@ -142,7 +142,7 @@
         after = [ "postgresql.service" ];
       };
 
-      system.stateVersion = "23.11";
+      system.stateVersion = "24.05";
 
       networking.firewall = {
         enable = true;
