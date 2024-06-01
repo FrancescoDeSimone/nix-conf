@@ -3,7 +3,7 @@ let
   rofi_menu = pkgs.writeShellScriptBin "rofi_menu" ''
     XDG_DATA_DIRS=/usr/local/share:/usr/share:/home/fdesi/.nix-profile/share:/nix/var/nix/profiles/default/share:/home/fdesi/.nix-profile/share:/nix/var/nix/profiles/default/share
     XDG_DATA_HOME=/home/fdesi/.local/share
-    $HOME/.nix-profile/bin/rofi -show drun
+    $HOME/.nix-profile/bin/rofi -show drun -sorting-method fzf -sort -i
   '';
   supersonicprev = pkgs.writeShellScriptBin "supersonicprev" ''
     $HOME/.nix-profile/bin/playerctl -p Supersonic previous
