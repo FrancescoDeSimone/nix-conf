@@ -3,8 +3,15 @@ let
   keybinds = builtins.readFile ./config/keybinds.conf;
   exec = builtins.readFile ./config/exec.conf;
   vars = builtins.readFile ./config/vars.conf;
+  hyprlock = builtins.readFile ./config/hyprlock.conf;
 in
 {
+  programs.hyprlock = {
+    enable = true;
+    extraConfig = ''
+      ${hyprlock}
+    '';
+  };
   wayland.windowManager.hyprland = {
     catppuccin.enable = true;
     enable = true;

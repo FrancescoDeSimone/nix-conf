@@ -1,8 +1,15 @@
-{ pkgs, ... }: {
+{ inputs, pkgs, ... }: {
   programs.rofi = {
     enable = true;
-    package = pkgs.rofi-wayland;
-    plugins = [ pkgs.rofi-calc ];
+    package = pkgs.rofi-wayland.override {
+      plugins = with pkgs; [
+        rofi-calc
+        rofi-bluetooth
+        rofi-mpd
+        rofi-top
+        rofi-vpn
+      ];
+    };
     pass.enable = true;
     pass.package = pkgs.rofi-pass-wayland;
     pass.stores = [ "$HOME/.config/.password-store" ];

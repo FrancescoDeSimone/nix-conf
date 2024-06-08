@@ -1,6 +1,10 @@
 { pkgs, ... }: {
   programs.zsh = {
     enable = true;
+    sessionVariables = {
+      EDITOR = "nvim";
+      TERM = "xterm-256color";
+    };
     shellAliases = {
       ls = "ls --color=auto";
       ll = "ls -lahi";
@@ -9,7 +13,6 @@
       fd = "fd -j12";
       drag = "dragon";
       drop = "dragon -t";
-      ssh = "TERM=xterm-256color ssh";
       aringa = ''| curl -LF "aringa=<-" --post301 arin.ga'';
     };
     enableCompletion = true;
