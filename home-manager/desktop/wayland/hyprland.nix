@@ -6,14 +6,18 @@ let
     $HOME/.nix-profile/bin/rofi -show drun -sorting-method fzf -sort -i
   '';
   supersonicprev = pkgs.writeShellScriptBin "supersonicprev" ''
-    $HOME/.nix-profile/bin/playerctl -p Supersonic previous
+    $HOME/.nix-profile/bin/playerctl previous
   '';
   supersonicplaypause = pkgs.writeShellScriptBin "supersonicplaypause" ''
-    $HOME/.nix-profile/bin/playerctl -p Supersonic play-pause
+    $HOME/.nix-profile/bin/playerctl play-pause
   '';
 
   supersonicnext = pkgs.writeShellScriptBin "supersonicnext" ''
-    $HOME/.nix-profile/bin/playerctl -p Supersonic next
+    $HOME/.nix-profile/bin/playerctl next
+  '';
+
+  lockscreen = pkgs.writeShellScriptBin "lockscreen" ''
+    /usr/local/bin/hyprlock -c ~/.config/hypr/hyprlock.conf -q
   '';
 in
 {
@@ -33,6 +37,7 @@ in
 
   home.packages = with pkgs; [
     rofi_menu
+    lockscreen
     supersonicplaypause
     supersonicnext
     supersonicprev
