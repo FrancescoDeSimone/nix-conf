@@ -16,6 +16,7 @@
     clipman
     swaybg
     slurp
+    nwg-displays
     grim
     fira-code
     wev

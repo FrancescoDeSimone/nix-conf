@@ -6,6 +6,30 @@ let
   hyprlock = builtins.readFile ./config/hyprlock.conf;
 in
 {
+
+  services = {
+    hypridle = {
+      enable = true;
+      settings = {
+        general = {
+          after_sleep_cmd = "hyprctl dispatch dpms on";
+          ignore_dbus_inhibit = false;
+          lock_cmd = "hyprlock";
+        };
+        listener = [
+          {
+            timeout = 900;
+            on-timeout = "hyprlock";
+          }
+          {
+            timeout = 1200;
+            on-timeout = "hyprctl dispatch dpms off";
+            on-resume = "hyprctl dispatch dpms on";
+          }
+        ];
+      };
+    };
+  };
   programs.hyprlock = {
     enable = true;
     extraConfig = ''
@@ -51,7 +75,6 @@ in
         "9,monitor:eDP-1"
         "0,monitor:eDP-1"
       ];
-      monitor = [ "eDP-1, 1920x1200, 1920x0, 1" "HDMI-A-1, 1920x1080, 0x0, 1" ];
     };
     extraConfig = ''
       # Example windowrule v1
@@ -60,6 +83,7 @@ in
       # windowrulev2 = float,class:^(kitty)$,title:^(kitty)$
       # See https://wiki.hyprland.org/Configuring/Window-Rules/ for more
       windowrulev2 = suppressevent maximize, class:.* # You'll probably like this.
+      source = ~/.config/hypr/monitors.conf
 
       ${vars}
       ${exec}
