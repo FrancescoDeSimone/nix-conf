@@ -24,18 +24,17 @@
         image = "frooodle/s-pdf:latest";
         ports = [ "8080:8080" ];
       };
-      deemix = {
-        image = "registry.gitlab.com/bockiii/deemix-docker";
-        ports = [ "6595:6595" ];
+      lidarr-on-steroids = {
+        image = "youegraillot/lidarr-on-steroids";
+        ports = [ "8686:8686" "6595:6595" ];
         environment = {
-          PUID = "1000";
-          PGID = "1000";
-          UMASK_SET = "22";
-          DEEMIX_SINGLE_USER = "true";
+          CLEAN_DOWNLOADS = "true";
+          AUTOCONFIG = "true";
         };
         volumes = [
-          "/data/Media/Music/deemix:/downloads"
-          "/home/thinkcentre/.config/deemix:/config"
+          "/home/thinkcentre/.config/lidaar-on-steroids/lidaar:/config"
+          "/home/thinkcentre/.config/lidaar-on-steroids/deemix:/config_deemix"
+          "/data/Media/Music/:/music"
         ];
       };
     };
