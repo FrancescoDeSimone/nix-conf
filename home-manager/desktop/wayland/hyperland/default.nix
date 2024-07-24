@@ -1,12 +1,9 @@
-{ ... }:
-let
+{...}: let
   keybinds = builtins.readFile ./config/keybinds.conf;
   exec = builtins.readFile ./config/exec.conf;
   vars = builtins.readFile ./config/vars.conf;
   hyprlock = builtins.readFile ./config/hyprlock.conf;
-in
-{
-
+in {
   services = {
     hypridle = {
       enable = true;
@@ -40,7 +37,7 @@ in
     catppuccin.enable = true;
     enable = true;
     settings = {
-      misc = { force_default_wallpaper = 1; };
+      misc = {force_default_wallpaper = 1;};
 
       master = {
         new_is_master = false;
@@ -52,10 +49,10 @@ in
         follow_mouse = 1;
         repeat_rate = 50;
         repeat_delay = 200;
-        touchpad = { natural_scroll = true; };
+        touchpad = {natural_scroll = true;};
         sensitivity = 0;
       };
-      animations = { enabled = false; };
+      animations = {enabled = false;};
       general = {
         gaps_in = 1;
         gaps_out = 1;
@@ -69,10 +66,10 @@ in
         "3,monitor:HDMI-A-1"
         "4,monitor:HDMI-A-1"
         "5,monitor:HDMI-A-1"
-        "6,monitor:eDP-1"
-        "7,monitor:eDP-1"
-        "8,monitor:eDP-1"
-        "9,monitor:eDP-1"
+        "6,monitor:HDMI-A-1"
+        "7,monitor:HDMI-A-1"
+        "8,monitor:HDMI-A-1"
+        "9,monitor:HDMI-A-1"
         "0,monitor:eDP-1"
       ];
     };
