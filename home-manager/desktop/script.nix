@@ -15,7 +15,7 @@
     $HOME/.nix-profile/bin/playerctl next
   '';
 
-  bg_run = pkgs.writeShellScriptBin "bg_run" ''
+  bgr = pkgs.writeShellScriptBin "bgr" ''
     nohup $1 > /dev/null  2>&1 &
   '';
 
@@ -29,6 +29,6 @@ in {
     playpause_player
     next_player
     prev_player
-    bg_run
+    bgr
   ];
 }
