@@ -22,7 +22,7 @@
   fonts.fontconfig.enable = true;
   systemd.user.services.nm-applet = {
     Unit = {Description = "start nm-applet";};
-    Install = {WantedBy = ["graphical.target"];};
+    Install = {WantedBy = ["display-manager.target"];};
     Service = {ExecStart = "${pkgs.networkmanagerapplet}/bin/nm-applet";};
   };
 }
