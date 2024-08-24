@@ -1,7 +1,7 @@
 {pkgs, ...}: let
   rofi_menu = pkgs.writeShellScriptBin "rofi_menu" ''
-    XDG_DATA_DIRS=/snap/bin:/usr/local/share:/usr/share:/home/fdesi/.nix-profile/share:/nix/var/nix/profiles/default/share:/home/fdesi/.nix-profile/share:/nix/var/nix/profiles/default/share
-    XDG_DATA_HOME=/home/fdesi/.local/share
+    XDG_DATA_DIRS="/var/lib/snapd/desktop:/usr/local/share:/usr/share:/home/fdesi/.nix-profile/share:/nix/var/nix/profiles/default/share:/home/fdesi/.nix-profile/share:/nix/var/nix/profiles/default/share"
+    XDG_DATA_HOME="/home/fdesi/.local/share"
     $HOME/.nix-profile/bin/rofi -show drun -sorting-method fzf -sort -i
   '';
   prev_player = pkgs.writeShellScriptBin "prev_player" ''
