@@ -1,4 +1,10 @@
-{ pkgs, lib, inputs, config, ... }: {
+{
+  pkgs,
+  lib,
+  inputs,
+  config,
+  ...
+}: {
   programs.tmux = {
     enable = true;
     terminal = "screen-256color";
@@ -40,7 +46,10 @@
       bind-key -T copy-mode-vi v send-keys -X begin-selection
       bind-key -T copy-mode-vi C-v send-keys -X rectangle-toggle
       bind-key -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+      # for yazi
+      set -g allow-passthrough on
+      set -ga update-environment TERM
+      set -ga update-environment TERM_PROGRAM
     '';
   };
-
 }

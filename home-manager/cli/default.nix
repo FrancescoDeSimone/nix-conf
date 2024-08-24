@@ -9,6 +9,7 @@
     fd
     fzf
     unstable.rsync
+    yazi
   ];
   xdg.enable = true;
 }
