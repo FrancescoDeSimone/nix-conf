@@ -1,4 +1,9 @@
-{ pkgs, inputs, lib, ... }: {
+{
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: {
   networking.firewall.enable = false;
   services.openssh.enable = true;
   services.smartd.enable = true;
@@ -45,7 +50,7 @@
 
   systemd.services.glances = {
     enable = true;
-    wantedBy = [ "default.target" ];
+    wantedBy = ["default.target"];
     serviceConfig = {
       User = "thinkcentre";
       Group = "users";
@@ -53,9 +58,10 @@
     };
   };
 
-  disabledModules = [ "services/monitoring/scrutiny.nix" ];
+  disabledModules = ["services/monitoring/scrutiny.nix" "services/web-apps/stirling-pdf.nix"];
   imports = [
     "${inputs.nixpkgs-unstable}/nixos/modules/services/monitoring/scrutiny.nix"
+    "${inputs.nixpkgs-unstable}/nixos/modules/services/web-apps/stirling-pdf.nix"
   ];
   services.scrutiny = {
     package = pkgs.unstable.scrutiny;
@@ -81,21 +87,22 @@
     # };
   };
 
-  # services.ollama = {
-  #   package = pkgs.unstable.ollama;
-  #   listenAddress = "0.0.0.0:11434";
-  #   enable = true;
-  #   acceleration = "rocm";
-  # };
+  services.stirling-pdf = {
+    enable = true;
+    package = pkgs.unstable.stirling-pdf;
+    environment = {
+      INSTALL_BOOK_AND_ADVANCED_HTML_OPS = "true";
+      SERVER_PORT = 8080;
+    };
+  };
 
   systemd.services.filebrowser = {
     enable = true;
-    wantedBy = [ "default.target" ];
+    wantedBy = ["default.target"];
     serviceConfig = {
       User = "root";
       Group = "wheel";
-      ExecStart =
-        "/run/current-system/sw/bin/filebrowser --database /var/lib/filebrowser/filebrowser.db --address 0.0.0.0 -p 8082";
+      ExecStart = "/run/current-system/sw/bin/filebrowser --database /var/lib/filebrowser/filebrowser.db --address 0.0.0.0 -p 8082";
     };
   };
 }
