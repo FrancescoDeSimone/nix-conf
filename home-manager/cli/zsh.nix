@@ -1,9 +1,10 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   programs.zsh = {
     enable = true;
     sessionVariables = {
       EDITOR = "nvim";
       TERM = "xterm-256color";
+      TERM_PROGRAM = "foot"; # for yazi image preview
     };
     shellAliases = {
       ls = "ls --color=auto";
