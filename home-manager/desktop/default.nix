@@ -3,18 +3,12 @@
   home.packages = with pkgs; [
     nerdfonts
     fira-code-nerdfont
-    swaycons
+    playerctl
     telegram-desktop
     fira-code-symbols
     xdragon
-    wl-clipboard
-    clipman
-    slurp
     networkmanagerapplet
-    grim
     fira-code
-    wev
-    ydotool
     sshuttle
     supersonic
     pavucontrol
