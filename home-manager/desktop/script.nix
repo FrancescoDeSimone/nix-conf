@@ -22,6 +22,22 @@
   lockscreen = pkgs.writeShellScriptBin "lockscreen" ''
     /usr/local/bin/hyprlock -c ~/.config/hypr/hyprlock.conf -q
   '';
+  changegroupactiveormovefocus = pkgs.writeShellScriptBin "changegroupactiveormovefocus" ''
+    hypr="/usr/local/bin/hyprctl"
+    activewindow="$(/usr/local/bin/hyprctl activewindow -j)"
+    readonly activewindow
+    if ! jq -e '.grouped[]' <<< "$activewindow" >/dev/null; then
+      $hypr dispatch movefocus "$1"
+    elif [[ "$1" == l ]] && /usr/bin/jq -e '.address == .grouped[0]' <<< "$activewindow" >/dev/null; then
+      $hypr dispatch movefocus l
+    elif [[ "$1" == l ]]; then
+      $hypr dispatch changegroupactive b
+    elif [[ "$1" == r ]] && /usr/bin/jq -e '.address == .grouped[-1]' <<< "$activewindow" >/dev/null; then
+      $hypr dispatch movefocus r
+    else
+      $hypr dispatch changegroupactive f
+    fi
+  '';
 in {
   home.packages = with pkgs; [
     rofi_menu
@@ -29,6 +45,7 @@ in {
     playpause_player
     next_player
     prev_player
+    changegroupactiveormovefocus
     bgr
   ];
 }
