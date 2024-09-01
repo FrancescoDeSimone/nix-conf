@@ -12,6 +12,7 @@
     sshuttle
     supersonic
     pavucontrol
+    freetube
   ];
   fonts.fontconfig.enable = true;
   systemd.user.services.nm-applet = {
