@@ -42,6 +42,9 @@ in {
       master = {
         new_is_master = false;
         orientation = "left";
+        allow_small_split = true;
+        mfact = "0.50";
+        no_gaps_when_only = 1;
       };
 
       input = {
