@@ -13,6 +13,7 @@
     supersonic
     pavucontrol
     freetube
+    obsidian
   ];
   fonts.fontconfig.enable = true;
   systemd.user.services.nm-applet = {
