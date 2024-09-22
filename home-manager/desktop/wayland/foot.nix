@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   programs.foot = {
     catppuccin.enable = true;
     enable = true;
@@ -8,8 +8,8 @@
         font = "Fira Code:size=12";
         dpi-aware = "yes";
       };
-      scrollback = { lines = 10000; };
-      url = { protocols = "http, https, ftp, ftps, file"; };
+      scrollback = {lines = 10000;};
+      url = {protocols = "http, https, ftp, ftps, file";};
     };
   };
 }
