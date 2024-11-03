@@ -12,13 +12,17 @@
     sshuttle
     supersonic
     pavucontrol
-    freetube
+    unstable.freetube
     obsidian
+    unstable.finamp
   ];
   fonts.fontconfig.enable = true;
-  systemd.user.services.nm-applet = {
-    Unit = {Description = "start nm-applet";};
-    Install = {WantedBy = ["display-manager.target"];};
-    Service = {ExecStart = "${pkgs.networkmanagerapplet}/bin/nm-applet";};
+  systemd.user = {
+    enable = true;
+    services.nm-applet = {
+      Unit = {Description = "start nm-applet";};
+      Install = {WantedBy = ["display-manager.target"];};
+      Service = {ExecStart = "${pkgs.networkmanagerapplet}/bin/nm-applet";};
+    };
   };
 }
