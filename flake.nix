@@ -2,6 +2,7 @@
   description = "Nix config";
 
   inputs = {
+    private.url = "git+ssh://git@github.com/FrancescoDeSimone/nix-conf-secrets";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixvim.url = "github:francescodesimone/nixvim";
@@ -9,13 +10,14 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix";
     flake-utils.url = "github:numtide/flake-utils";
-    # nixified-ai = "github:nixified-ai/flake";
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs-unstable";
-    arkenfox = {
-      url = "github:dwarfmaster/arkenfox-nixos";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    agenix.url = "github:ryantm/agenix";
+    # nixified-ai = "github:nixified-ai/flake";
+    # arkenfox = {
+    #   url = "github:dwarfmaster/arkenfox-nixos";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
 
   outputs = {
@@ -23,10 +25,11 @@
     nixpkgs,
     nixpkgs-unstable,
     flake-utils,
-    arkenfox,
+    private,
     catppuccin,
     disko,
     home-manager,
+    agenix,
     ...
   } @ inputs: let
     inherit (self) outputs;
@@ -42,7 +45,6 @@
     inherit lib;
     packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs;});
     formatter = forEachSystem (pkgs: pkgs.nixpkgs-fmt);
-    arkenfox = arkenfox.hmModules.default;
     overlays = import ./overlays {inherit inputs;};
     nixosModules = import ./modules/nixos;
     homeManagerModules = import ./modules/home-manager;
@@ -69,12 +71,21 @@
     extraLib = {
       system = flake-utils.lib.system;
       allSystems = flake-utils.lib.allSystems;
-      arkenfox = arkenfox.lib.arkenfox;
     };
     nixosConfigurations = {
       pegasus = nixpkgs.lib.nixosSystem {
-        specialArgs = {inherit inputs outputs;};
-        modules = [./nixos/pegasus.nix disko.nixosModules.disko];
+        specialArgs = {
+          inherit inputs outputs;
+          inherit private;
+        };
+        modules = [
+          ./nixos/pegasus.nix
+          disko.nixosModules.disko
+          agenix.nixosModules.default
+          {
+            environment.systemPackages = [agenix.packages.x86_64-linux.default];
+          }
+        ];
       };
     };
   };

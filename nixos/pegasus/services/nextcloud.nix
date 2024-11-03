@@ -1,11 +1,9 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
+{private, ...}: let
+  domain = private.nginx.domain;
+in {
   networking.nat = {
     enable = true;
-    internalInterfaces = ["ve-+"];
+    internalInterfaces = ["ve-nextcloud"];
     externalInterface = "eno1";
     enableIPv6 = true;
   };
@@ -78,7 +76,7 @@
         https = true;
         home = "/nextcloud";
         package = pkgs.nextcloud29;
-        hostName = "nextcloud.desimedia.duckdns.org";
+        hostName = "nextcloud." + domain;
         extraAppsEnable = true;
         configureRedis = true;
         extraApps = {
@@ -108,8 +106,8 @@
             license = "agpl3Only";
           };
           news = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud/news/releases/download/25.0.0-alpha7/news.tar.gz";
-            sha256 = "sha256-oePj7YBR5cMelEN2ystIk8v6rPQJbrwdn8bgSE8NQVs=";
+            url = "https://github.com/nextcloud/news/releases/download/25.0.0-alpha8/news.tar.gz";
+            sha256 = "sha256-V92f+FiS5vZEkq15A51pHoDpUOBfUOEVIcsXdP/rSMQ=";
             license = "agpl3Only";
           };
           notes = pkgs.fetchNextcloudApp rec {
@@ -120,6 +118,11 @@
           epubview = pkgs.fetchNextcloudApp rec {
             url = "https://github.com/devnoname120/epubviewer/releases/download/1.6.3/epubviewer-1.6.3.tar.gz";
             sha256 = "sha256-3ceE5BO20lE0Dk2InAKaFY8Tf93CjkcEAjqXnprTYmk=";
+            license = "agpl3Only";
+          };
+          phonetrack = pkgs.fetchNextcloudApp rec {
+            url = "https://github.com/julien-nc/phonetrack/releases/download/v0.8.1/phonetrack-0.8.1.tar.gz";
+            sha256 = "sha256-V92f+FiS5vZEkq15A51pHoDpUOBfUOEVIcsXdP/rSMQ=";
             license = "agpl3Only";
           };
         };
