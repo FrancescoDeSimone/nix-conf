@@ -15,6 +15,11 @@
     #inputs.home-manager.nixosModules.home-manager
   ];
 
+  age.secrets = {
+    provider = {
+      file = ../secrets/provider.age;
+    };
+  };
   nixpkgs = {
     overlays = [
       outputs.overlays.additions
