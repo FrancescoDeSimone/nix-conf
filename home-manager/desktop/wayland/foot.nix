@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{
   programs.foot = {
     catppuccin.enable = true;
     enable = true;
