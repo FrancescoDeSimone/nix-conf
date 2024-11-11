@@ -28,7 +28,7 @@
     Unit = {Description = "start clipboard daemon";};
     Install = {WantedBy = ["hyprland-session.target"];};
     Service = {
-      ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste -t text --watch ${pkgs.clipman}/bin/clipman store --max-items=1000000";
+      ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste -t text --watch ${pkgs.clipman}/bin/clipman store --max-items=10000";
     };
   };
 }
