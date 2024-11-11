@@ -43,6 +43,10 @@ in {
           install_url = "https://addons.mozilla.org/firefox/downloads/file/3756025/videospeed-0.6.3.3.xpi";
           installation_mode = "force_installed";
         };
+        "{74145f27-f039-47ce-a470-a662b129930a}" = {
+          install_url = "https://addons.mozilla.org/firefox/downloads/file/4064884/clearurls-1.26.1.xpi";
+          installation_mode = "force_installed";
+        };
         "addon@darkreader.org" = {
           install_url = "https://addons.mozilla.org/firefox/downloads/file/4286925/darkreader-4.9.85.xpi";
           installation_mode = "force_installed";
