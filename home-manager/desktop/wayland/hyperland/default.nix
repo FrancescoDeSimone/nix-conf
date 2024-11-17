@@ -52,6 +52,7 @@ in {
         follow_mouse = 1;
         repeat_rate = 50;
         repeat_delay = 200;
+        scroll_factor = 2;
         touchpad = {natural_scroll = true;};
         sensitivity = 0;
       };
