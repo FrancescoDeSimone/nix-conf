@@ -66,16 +66,16 @@ in {
         user = "root";
       };
 
-      services.paperless = {
-        enable = true;
-        address = "0.0.0.0";
-      };
+      # services.paperless = {
+      #   enable = true;
+      #   address = "0.0.0.0";
+      # };
 
       services.nextcloud = {
         enable = true;
         https = true;
         home = "/nextcloud";
-        package = pkgs.nextcloud29;
+        package = pkgs.nextcloud30;
         hostName = "nextcloud." + domain;
         extraAppsEnable = true;
         configureRedis = true;
@@ -107,7 +107,7 @@ in {
           };
           news = pkgs.fetchNextcloudApp rec {
             url = "https://github.com/nextcloud/news/releases/download/25.0.0-alpha8/news.tar.gz";
-            sha256 = "sha256-V92f+FiS5vZEkq15A51pHoDpUOBfUOEVIcsXdP/rSMQ=";
+            sha256 = "sha256-AhTZGQCLeNgsRBF5w3+Lf9JtNN4D1QncB5t+odU+XUc=";
             license = "agpl3Only";
           };
           notes = pkgs.fetchNextcloudApp rec {
