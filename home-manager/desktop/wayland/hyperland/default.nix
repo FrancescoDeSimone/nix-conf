@@ -89,6 +89,10 @@ in {
       ${vars}
       ${exec}
       ${keybinds}
+      device {
+          name = nordic-perimice-720-mouse
+          scroll_method = on_button_down
+      }
     '';
   };
 }
