@@ -49,6 +49,15 @@
     nixosModules = import ./modules/nixos;
     homeManagerModules = import ./modules/home-manager;
     homeConfigurations = {
+      "ubuntu@orangebox" = home-manager.lib.homeManagerConfiguration {
+        pkgs =
+          nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+        extraSpecialArgs = {inherit inputs outputs;};
+        modules = [
+          ./home-manager/orangebox.nix
+          catppuccin.homeManagerModules.catppuccin
+        ];
+      };
       pegasus = home-manager.lib.homeManagerConfiguration {
         pkgs =
           nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
