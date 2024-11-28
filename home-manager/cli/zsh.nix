@@ -37,7 +37,7 @@
           owner = "zsh-users";
           repo = "zsh-autosuggestions";
           rev = "master";
-          sha256 = "sha256-B+Kz3B7d97CM/3ztpQyVkE6EfMipVF8Y4HJNfSRXHtU=";
+          sha256 = "sha256-vpTyYq9ZgfgdDsWzjxVAE7FZH4MALMNZIFyEOBLm5Qo=";
         };
       }
       {
