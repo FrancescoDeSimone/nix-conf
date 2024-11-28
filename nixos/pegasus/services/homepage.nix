@@ -1,11 +1,52 @@
 {
   pkgs,
+  config,
   private,
   ...
 }: let
   domain = private.nginx.domain;
   provider = private.nginx.provider;
   provider-statistic = private.nginx.provider-statistic;
+
+  servicesList = builtins.map (
+    name: let
+      service = config.services.${name};
+    in
+      if builtins.hasAttr "enable" service
+      then {
+        name = name;
+        value = service;
+      }
+      else null
+  ) (builtins.attrNames config.services);
+
+  validServices = builtins.filter (service: service != null) servicesList;
+
+  enabledServices = builtins.filter (service: service.value.enable == true) validServices;
+
+  services =
+    builtins.map (service: {
+      name = service.name;
+      enable = service.value.enable;
+      port = service.value.port or null;
+    })
+    enabledServices;
+
+  homepageDashboardServices = builtins.concatLists (
+    builtins.map (service: [
+      {
+        "My First Group" = [
+          {
+            "My First Service" = {
+              description = "Homepage is awesome";
+              href = "http://localhost/";
+            };
+          }
+        ];
+      }
+    ])
+    services
+  );
 in {
   services.homepage-dashboard = {
     enable = true;
@@ -28,138 +69,7 @@ in {
         ];
       }
     ];
-    services = [
-      {
-        "media" = [
-          {
-            "jellyfin" = {
-              description = "Jellyfin Media Player";
-              href = "http://192.168.188.53:8096";
-            };
-          }
-          {
-            "jellyseer" = {
-              description = "";
-              href = "";
-            };
-          }
-          {
-            "transmission" = {
-              description = "Transmission Torrent Client";
-              href = "http://192.168.188.53:9091";
-            };
-          }
-        ];
-      }
-      {
-        "*arr" = [
-          {
-            "sonarr" = {
-              description = "Sonarr TV Show Tracker";
-              href = "http://192.168.188.53:8989";
-            };
-          }
-          {
-            "radar" = {
-              description = "Radar Movie Tracker";
-              href = "http://192.168.188.53:8890";
-            };
-          }
-          {
-            "prowlarr" = {
-              description = "Prowlarr Index";
-              href = "http://192.168.188.53:8901";
-            };
-          }
-          {
-            "lidarr" = {
-              description = "Lidarr Music Tracker";
-              href = "http://192.168.188.53:8899";
-            };
-          }
-          {
-            "flaresolverr" = {
-              description = "";
-              href = "";
-            };
-          }
-        ];
-      }
-      {
-        "data" = [
-          {
-            "duplicati" = {
-              description = "Duplicati Backup System";
-              href = "http://192.168.188.53:8005";
-            };
-          }
-          {
-            "nextcloud" = {
-              description = "NextCloud File and Document Storage";
-              href = "https://nextcloud." + domain;
-            };
-          }
-          {
-            "paperless" = {
-              description = "";
-              href = "";
-            };
-          }
-          {
-            "gitea" = {
-              description = "";
-              href = "";
-            };
-          }
-        ];
-      }
-      {
-        "tool" = [
-          {
-            "nginx-proxy-manager" = {
-              description = "";
-              href = "";
-            };
-          }
-          {
-            "speedtest-tracker" = {
-              description = "";
-              href = "";
-            };
-          }
-          {
-            "13ft" = {
-              description = "";
-              href = "";
-            };
-          }
-          {
-            "filebrowser " = {
-              description = "";
-              href = "";
-            };
-          }
-          {
-            "stirling-pdf" = {
-              description = "";
-              href = "";
-            };
-          }
-          {
-            "scrutiny" = {
-              description = "";
-              href = "";
-            };
-          }
-          {
-            "glances" = {
-              description = "";
-              href = "";
-            };
-          }
-        ];
-      }
-    ];
+    services = homepageDashboardServices;
     widgets = [
       {
         resources = {
