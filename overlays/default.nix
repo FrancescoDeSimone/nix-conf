@@ -18,7 +18,13 @@
   unstable-packages = final: _prev: {
     unstable = import inputs.nixpkgs-unstable {
       system = final.system;
-      config.allowUnfree = true;
+      config = {
+        allowUnfree = true;
+        permittedInsecurePackages = [
+          "dotnet-sdk-6.0.428"
+          "aspnetcore-runtime-6.0.36"
+        ];
+      };
     };
   };
 }

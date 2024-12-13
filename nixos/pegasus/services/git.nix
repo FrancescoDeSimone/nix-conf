@@ -66,7 +66,7 @@
         after = ["postgresql.service"];
       };
 
-      system.stateVersion = "24.05";
+      system.stateVersion = "24.11";
 
       networking.firewall = {
         enable = true;

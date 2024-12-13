@@ -5,6 +5,6 @@
     powertop
     zenstates
     ryzenadj
-    archivebox
+    # archivebox # python3.12-django-3.1.14
   ];
 }

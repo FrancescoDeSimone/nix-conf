@@ -3,10 +3,10 @@
 
   inputs = {
     private.url = "git+ssh://git@github.com/FrancescoDeSimone/nix-conf-secrets";
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixvim.url = "github:francescodesimone/nixvim";
-    home-manager.url = "github:nix-community/home-manager/release-24.05";
+    home-manager.url = "github:nix-community/home-manager/release-24.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix";
     flake-utils.url = "github:numtide/flake-utils";
@@ -89,7 +89,7 @@
         };
         modules = [
           ./nixos/pegasus.nix
-          disko.nixosModules.disko
+          # disko.nixosModules.disko
           agenix.nixosModules.default
           {
             environment.systemPackages = [agenix.packages.x86_64-linux.default];

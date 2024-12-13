@@ -22,9 +22,6 @@
     };
   };
   nixpkgs = {
-    config.permittedInsecurePackages = [
-      "python3.11-django-3.1.14"
-    ];
     overlays = [
       outputs.overlays.additions
       outputs.overlays.modifications
@@ -51,11 +48,15 @@
   };
 
   services.xserver.videoDrivers = ["amdgpu"];
-  hardware.opengl = {
+  hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [
-      rocm-opencl-icd
-      rocm-opencl-runtime
+      # rocm-opencl-icd
+      # rocm-opencl-runtime
+      rocmPackages_5.clr.icd
+      rocmPackages_5.clr
+      rocmPackages_5.rocminfo
+      rocmPackages_5.rocm-runtime
       vaapiVdpau
       libvdpau-va-gl
     ];
@@ -109,5 +110,5 @@
       extraGroups = ["networkmanager" "wheel" "lxd" "docker"];
     };
   };
-  system.stateVersion = "24.05"; # Did you read the comment?
+  system.stateVersion = "24.11"; # Did you read the comment?
 }
