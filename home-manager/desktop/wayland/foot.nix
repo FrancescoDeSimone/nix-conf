@@ -1,6 +1,5 @@
-{
+{config, ...}: {
   programs.foot = {
-    catppuccin.enable = true;
     enable = true;
     settings = {
       main = {
@@ -12,4 +11,5 @@
       url = {protocols = "http, https, ftp, ftps, file";};
     };
   };
+  catppuccin.foot.enable = config.catppuccin.enable;
 }

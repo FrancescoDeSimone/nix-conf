@@ -1,8 +1,4 @@
-{
-  inputs,
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   imports = [./hyprland.nix ./foot.nix];
   home.packages = with pkgs; [
     swaycons

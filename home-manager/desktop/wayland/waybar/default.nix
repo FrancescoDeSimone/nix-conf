@@ -1,8 +1,7 @@
-{ ... }: {
-  imports = [ ./modules.nix ./style.nix ];
+{config, ...}: {
+  imports = [./modules.nix ./style.nix];
   programs.waybar = {
     enable = true;
-    catppuccin.enable = false;
-
   };
+  catppuccin.waybar.enable = config.catppuccin.enable;
 }

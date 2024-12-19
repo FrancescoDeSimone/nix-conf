@@ -1,4 +1,4 @@
-{...}: let
+{config, ...}: let
   keybinds = builtins.readFile ./config/keybinds.conf;
   exec = builtins.readFile ./config/exec.conf;
   vars = builtins.readFile ./config/vars.conf;
@@ -34,7 +34,6 @@ in {
     '';
   };
   wayland.windowManager.hyprland = {
-    catppuccin.enable = true;
     enable = true;
     settings = {
       misc = {force_default_wallpaper = 1;};
@@ -95,4 +94,5 @@ in {
       }
     '';
   };
+  catppuccin.hyprland.enable = config.catppuccin.enable;
 }

@@ -1,4 +1,4 @@
-{
+{config, ...}: {
   services.dunst = {
     enable = true;
     settings = {
@@ -32,6 +32,6 @@
         max_icon_size = 128;
       };
     };
-    catppuccin.enable = true;
   };
+  catppuccin.dunst.enable = config.catppuccin.enable;
 }

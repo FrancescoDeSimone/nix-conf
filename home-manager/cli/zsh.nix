@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  config,
+  ...
+}: {
   programs.zsh = {
     enable = true;
     sessionVariables = {
@@ -18,7 +22,6 @@
     };
     enableCompletion = true;
     syntaxHighlighting.enable = true;
-    syntaxHighlighting.catppuccin.enable = true;
     defaultKeymap = "emacs";
     history.extended = true;
     plugins = [
@@ -37,7 +40,7 @@
           owner = "zsh-users";
           repo = "zsh-autosuggestions";
           rev = "master";
-          sha256 = "sha256-vpTyYq9ZgfgdDsWzjxVAE7FZH4MALMNZIFyEOBLm5Qo=";
+          sha256 = "sha256-85aw9OM2pQPsWklXjuNOzp9El1MsNb+cIiZQVHUzBnk=";
         };
       }
       {
@@ -78,4 +81,5 @@
       zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
     '';
   };
+  catppuccin.zsh-syntax-highlighting.enable = config.catppuccin.enable;
 }

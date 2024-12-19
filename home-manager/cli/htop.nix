@@ -1,4 +1,4 @@
-{ pkgs, lib, inputs, config, ... }: {
+{config, ...}: {
   programs.htop = {
     enable = true;
     settings = {
@@ -15,7 +15,7 @@
       shadow_other_users = 0;
       show_thread_names = 0;
       show_program_path = 0;
-      color_scheme=1;
+      color_scheme = 1;
       highlight_base_name = 1;
       highlight_deleted_exe = 1;
       highlight_megabytes = 1;
@@ -55,5 +55,4 @@
       all_branches_collapsed = 0;
     };
   };
-
 }
