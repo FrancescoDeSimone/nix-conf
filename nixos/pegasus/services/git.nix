@@ -25,6 +25,7 @@
     }: {
       services.postgresql = {
         enable = true;
+        package = pkgs.postgresql_15;
         ensureDatabases = ["gitea"];
         authentication = pkgs.lib.mkOverride 10 ''
           #type database  DBuser  auth-method
