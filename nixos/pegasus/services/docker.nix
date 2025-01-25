@@ -1,6 +1,9 @@
 {
-  # virtualisation.docker.enable = true;
   virtualisation.oci-containers.backend = "docker";
+  virtualisation.docker = {
+    enable = true;
+    autoPrune.enable = true;
+  };
   virtualisation.oci-containers = {
     containers = {
       flaresolverr = {
@@ -24,8 +27,8 @@
           AUTOCONFIG = "true";
         };
         volumes = [
-          "/home/thinkcentre/.config/lidaar-on-steroids/lidaar:/config"
-          "/home/thinkcentre/.config/lidaar-on-steroids/deemix:/config_deemix"
+          "/home/thinkcentre/.config/lidarr-on-steroids/lidarr:/config"
+          "/home/thinkcentre/.config/lidarr-on-steroids/deemix:/config_deemix"
           "/data/Media/Music/:/music"
         ];
       };
