@@ -92,6 +92,11 @@ in {
           name = nordic-perimice-720-mouse
           scroll_method = on_button_down
       }
+
+      device {
+          name = compx-2.4g-receiver-mouse
+          scroll_method = on_button_down
+      }
     '';
   };
   catppuccin.hyprland.enable = config.catppuccin.enable;
