@@ -13,6 +13,11 @@
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs-unstable";
     agenix.url = "github:ryantm/agenix";
+    nixpkgs-android.url = "github:NixOS/nixpkgs/nixos-24.05";
+    nix-on-droid = {
+      url = "github:nix-community/nix-on-droid/release-24.05";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # nixified-ai = "github:nixified-ai/flake";
     # arkenfox = {
     #   url = "github:dwarfmaster/arkenfox-nixos";
@@ -23,11 +28,11 @@
   outputs = {
     self,
     nixpkgs,
-    nixpkgs-unstable,
+    nixpkgs-android,
+    nix-on-droid,
     flake-utils,
     private,
     catppuccin,
-    disko,
     home-manager,
     agenix,
     ...
@@ -51,7 +56,7 @@
     homeConfigurations = {
       "ubuntu@orangebox" = home-manager.lib.homeManagerConfiguration {
         pkgs =
-          nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+          nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {inherit inputs outputs;};
         modules = [
           ./home-manager/orangebox.nix
@@ -60,7 +65,7 @@
       };
       pegasus = home-manager.lib.homeManagerConfiguration {
         pkgs =
-          nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+          nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {inherit inputs outputs;};
         modules = [
           ./home-manager/pegasus.nix
@@ -69,7 +74,7 @@
       };
       "fdesi@phoenix" = home-manager.lib.homeManagerConfiguration {
         pkgs =
-          nixpkgs.legacyPackages.x86_64-linux; # Home-manager requires 'pkgs' instance
+          nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {inherit inputs outputs;};
         modules = [
           ./home-manager/phoenix.nix
@@ -81,6 +86,10 @@
       system = flake-utils.lib.system;
       allSystems = flake-utils.lib.allSystems;
     };
+    nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
+      pkgs = import nixpkgs-android {system = "aarch64-linux";};
+      modules = [./nixos/nix-on-droid.nix];
+    };
     nixosConfigurations = {
       pegasus = nixpkgs.lib.nixosSystem {
         specialArgs = {
@@ -89,7 +98,6 @@
         };
         modules = [
           ./nixos/pegasus.nix
-          # disko.nixosModules.disko
           agenix.nixosModules.default
           {
             environment.systemPackages = [agenix.packages.x86_64-linux.default];
