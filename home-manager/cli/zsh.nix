@@ -12,13 +12,12 @@
     };
     shellAliases = {
       ls = "ls --color=auto";
-      ll = "ls -lahi";
+      ll = "ls -lah";
       dd = "dd status=progress";
       tb = "nc termbin.com 9999";
       fd = "fd -j12";
       drag = "dragon";
       drop = "dragon -t";
-      aringa = ''| curl -LF "aringa=<-" --post301 arin.ga'';
     };
     enableCompletion = true;
     syntaxHighlighting.enable = true;
