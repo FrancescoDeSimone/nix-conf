@@ -7,7 +7,7 @@
     "modules-left" = ["hyprland/workspaces"];
     "modules-center" = [];
     "modules-right" = [
-      "custom/playerctl"
+      # "custom/playerctl"
       "custom/separator#line"
       "network#speed"
       "custom/separator#line"
