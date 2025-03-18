@@ -20,6 +20,9 @@
     provider = {
       file = ../secrets/provider.age;
     };
+    hoarder = {
+      file = ../secrets/hoarder.age;
+    };
   };
   nixpkgs = {
     overlays = [

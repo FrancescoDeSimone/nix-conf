@@ -17,7 +17,10 @@
     ./services/sonarr.nix
     ./services/stirling-pdf.nix
     ./services/transmission.nix
-     ./services/linkwarden.nix
+
+    ./services/ollama.nix
+    # ./services/linkwarden.nix
+    ./services/hoarder.nix
     # ./services/ntopng.nix
     # ./services/photoprism.nix
   ];
