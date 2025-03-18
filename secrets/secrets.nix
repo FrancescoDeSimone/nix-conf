@@ -5,4 +5,5 @@ let
   ];
 in {
   "provider.age".publicKeys = keys;
+  "hoarder.age".publicKeys = keys;
 }
