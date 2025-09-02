@@ -56,10 +56,10 @@
     extraPackages = with pkgs; [
       # rocm-opencl-icd
       # rocm-opencl-runtime
-      rocmPackages_5.clr.icd
-      rocmPackages_5.clr
-      rocmPackages_5.rocminfo
-      rocmPackages_5.rocm-runtime
+      rocmPackages.clr.icd
+      rocmPackages.clr
+      rocmPackages.rocminfo
+      rocmPackages.rocm-runtime
       vaapiVdpau
       libvdpau-va-gl
     ];
@@ -113,5 +113,5 @@
       extraGroups = ["networkmanager" "wheel" "lxd" "docker"];
     };
   };
-  system.stateVersion = "24.11"; # Did you read the comment?
+  system.stateVersion = "25.05"; # Did you read the comment?
 }
