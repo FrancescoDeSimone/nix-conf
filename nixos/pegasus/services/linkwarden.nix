@@ -1,86 +1,120 @@
+# Auto-generated using compose2nix v0.3.2-pre.
 {
-  networking.nat = {
+  pkgs,
+  lib,
+  ...
+}: {
+  # Runtime
+  virtualisation.docker = {
     enable = true;
-    internalInterfaces = ["ve-git"];
-    externalInterface = "eno1";
-    enableIPv6 = true;
+    autoPrune.enable = true;
   };
-  containers.linkwarden = {
-    autoStart = true;
-    privateNetwork = false;
-    hostAddress = "192.168.200.10";
-    localAddress = "192.168.200.12";
-    specialArgs = {system-call-filter = "add_key bpf keyctl";};
-    forwardPorts = [
-      {
-        protocol = "tcp";
-        hostPort = 3000;
-        containerPort = 3000;
-      }
-    ];
-
-    config = {
-      config,
-      pkgs,
-      lib,
-      ...
-    }: {
-      virtualisation = {
-        podman = {
-          enable = true;
-          # autoPrune.enable = true;
-          # rootless = {
-          #   enable = true;
-          #   setSocketVariable = true;
-          # };
-        };
-        oci-containers = {
-          backend = "podman";
-          containers."linkwarden" = {
-            image = "ghcr.io/linkwarden/linkwarden:latest";
-            extraOptions = ["--network=host"];
-            environment = {
-              "DATABASE_URL" = "postgresql://postgres:linkwarden@127.0.0.1:5432/postgres";
-              "NEXTAUTH_SECRET" = "lolztest";
-              "NEXTAUTH_URL" = "http://0.0.0.0:3000/api/v1/auth";
-              "NEXT_PUBLIC_OLLAMA_ENDPOINT_URL" = "http://0.0.0.0:11434";
-              "OLLAMA_MODEL" = "phi3:mini-4k";
-            };
-            volumes = [
-              "./linkwarden/data:/data/data:rw"
-            ];
-          };
-        };
-      };
-      services.ollama = {
-        enable = true;
-        acceleration = "rocm";
-        openFirewall = true;
-      };
-
-      services.postgresql = {
-        ensureDatabases = ["linkwarden"];
-        enable = true;
-        authentication = pkgs.lib.mkOverride 10 ''
-          #type database  DBuser  auth-method
-          local all       all     trust
-          host all        all  127.0.0.1/32   trust
-        '';
-        ensureUsers = [
-          {
-            name = "linkwarden";
-            ensureDBOwnership = true;
-          }
-        ];
-      };
-      system.stateVersion = "24.11";
-
-      networking.firewall = {
-        enable = true;
-        allowedTCPPorts = [3000];
-      };
-
-      environment.etc."resolv.conf".text = "nameserver 8.8.8.8";
+  virtualisation.oci-containers.backend = "docker";
+  # Containers
+  virtualisation.oci-containers.containers."linkwarden-web" = {
+    image = "ghcr.io/linkwarden/linkwarden:latest";
+    environment = {
+      "DATABASE_URL" = "postgresql://postgres:postgres@postgres:5432/postgres";
+      "NEXTAUTH_SECRET" = "i1WLoRwcT0bGvCGdVFDejaTv5+YpBQ1Jz439UpohXy1+ANWA";
+      "NEXTAUTH_URL" = "http://localhost:3000/api/v1/auth";
+      "NEXT_PUBLIC_OLLAMA_ENDPOINT_URL" = "127.0.0.1:11434";
+      "OLLAMA_MODEL" = "gemma3:1b";
+      "POSTGRES_PASSWORD" = "postgres";
     };
+    volumes = [
+      "/home/thinkcentre/data:/data/data:rw"
+    ];
+    ports = [
+      "3333:3000/tcp"
+    ];
+    dependsOn = [
+      "linkwarden-postgres"
+    ];
+    log-driver = "journald";
+    extraOptions = [
+      "--network-alias=linkwarden"
+      "--network=linkwarden_default"
+    ];
+  };
+  systemd.services."docker-linkwarden-web" = {
+    serviceConfig = {
+      Restart = lib.mkOverride 90 "always";
+      RestartMaxDelaySec = lib.mkOverride 90 "1m";
+      RestartSec = lib.mkOverride 90 "100ms";
+      RestartSteps = lib.mkOverride 90 9;
+    };
+    after = [
+      "docker-network-linkwarden_default.service"
+    ];
+    requires = [
+      "docker-network-linkwarden_default.service"
+    ];
+    partOf = [
+      "docker-compose-linkwarden-root.target"
+    ];
+    wantedBy = [
+      "docker-compose-linkwarden-root.target"
+    ];
+  };
+  virtualisation.oci-containers.containers."linkwarden-postgres" = {
+    image = "postgres:16-alpine";
+    environment = {
+      "POSTGRES_PASSWORD" = "postgres";
+      "POSTGRES_USER" = "postgres";
+      "POSTGRES_DB" = "postgres";
+    };
+    volumes = [
+      "/home/thinkcentre/pgdata:/var/lib/postgresql/data:rw"
+    ];
+    log-driver = "journald";
+    extraOptions = [
+      "--network-alias=postgres"
+      "--network=linkwarden_default"
+    ];
+  };
+  systemd.services."docker-linkwarden-postgres" = {
+    serviceConfig = {
+      Restart = lib.mkOverride 90 "always";
+      RestartMaxDelaySec = lib.mkOverride 90 "1m";
+      RestartSec = lib.mkOverride 90 "100ms";
+      RestartSteps = lib.mkOverride 90 9;
+    };
+    after = [
+      "docker-network-linkwarden_default.service"
+    ];
+    requires = [
+      "docker-network-linkwarden_default.service"
+    ];
+    partOf = [
+      "docker-compose-linkwarden-root.target"
+    ];
+    wantedBy = [
+      "docker-compose-linkwarden-root.target"
+    ];
+  };
+
+  # Networks
+  systemd.services."docker-network-linkwarden_default" = {
+    path = [pkgs.docker];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStop = "docker network rm -f linkwarden_default";
+    };
+    script = ''
+      docker network inspect linkwarden_default || docker network create linkwarden_default
+    '';
+    partOf = ["docker-compose-linkwarden-root.target"];
+    wantedBy = ["docker-compose-linkwarden-root.target"];
+  };
+
+  # Root service
+  # When started, this will automatically create all resources and start
+  # the containers. When stopped, this will teardown all resources.
+  systemd.targets."docker-compose-linkwarden-root" = {
+    unitConfig = {
+      Description = "Root target generated by compose2nix.";
+    };
+    wantedBy = ["multi-user.target"];
   };
 }
