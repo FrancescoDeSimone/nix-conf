@@ -12,7 +12,7 @@
     sshuttle
     supersonic
     pavucontrol
-    unstable.freetube
+    # unstable.freetube
     obsidian
     unstable.finamp
   ];

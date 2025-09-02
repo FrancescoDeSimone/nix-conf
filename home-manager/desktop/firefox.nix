@@ -1,4 +1,4 @@
-{...}: let
+{pkgs, ...}: let
   lock-false = {
     Value = false;
     Status = "locked";
@@ -9,6 +9,7 @@
   };
 in {
   programs.firefox = {
+    # package = pkgs.librewolf;
     enable = true;
 
     # ---- POLICIES ----

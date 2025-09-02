@@ -52,7 +52,7 @@
     formatter = forEachSystem (pkgs: pkgs.nixpkgs-fmt);
     overlays = import ./overlays {inherit inputs;};
     nixosModules = import ./modules/nixos;
-    homeManagerModules = import ./modules/home-manager;
+    homeModules = import ./modules/home-manager;
     homeConfigurations = {
       "ubuntu@orangebox" = home-manager.lib.homeManagerConfiguration {
         pkgs =
@@ -60,7 +60,7 @@
         extraSpecialArgs = {inherit inputs outputs;};
         modules = [
           ./home-manager/orangebox.nix
-          catppuccin.homeManagerModules.catppuccin
+          catppuccin.homeModules.catppuccin
         ];
       };
       pegasus = home-manager.lib.homeManagerConfiguration {
@@ -69,7 +69,7 @@
         extraSpecialArgs = {inherit inputs outputs;};
         modules = [
           ./home-manager/pegasus.nix
-          catppuccin.homeManagerModules.catppuccin
+          catppuccin.homeModules.catppuccin
         ];
       };
       "fdesi@phoenix" = home-manager.lib.homeManagerConfiguration {
@@ -78,7 +78,7 @@
         extraSpecialArgs = {inherit inputs outputs;};
         modules = [
           ./home-manager/phoenix.nix
-          catppuccin.homeManagerModules.catppuccin
+          #catppuccin.homeModules.catppuccin
         ];
       };
     };

@@ -99,5 +99,5 @@ in {
       }
     '';
   };
-  catppuccin.hyprland.enable = config.catppuccin.enable;
+  # catppuccin.hyprland.enable = config.catppuccin.enable;
 }

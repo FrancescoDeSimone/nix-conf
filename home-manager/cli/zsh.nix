@@ -18,6 +18,7 @@
       fd = "fd -j12";
       drag = "dragon";
       drop = "dragon -t";
+      kvim = "NVIM_APPNAME=kvim /home/fdesi/.local/bin/nvim/bin/nvim";
     };
     enableCompletion = true;
     syntaxHighlighting.enable = true;
@@ -78,7 +79,13 @@
       zstyle ':completion:*:approximate:*' max-errors 1 numeric
       zstyle ':completion:*' menu select
       zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
+      FNM_PATH="/home/fdesi/.local/share/fnm"
+      if [ -d "$FNM_PATH" ]; then
+        export PATH="/home/fdesi/.local/share/fnm:$PATH"
+        eval "`fnm env`"
+      fi
+      . "$HOME/.cargo/env"
     '';
   };
-  catppuccin.zsh-syntax-highlighting.enable = config.catppuccin.enable;
+  # catppuccin.zsh-syntax-highlighting.enable = config.catppuccin.enable;
 }

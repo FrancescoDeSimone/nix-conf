@@ -8,8 +8,8 @@
 
   home.packages = with pkgs; [brightnessctl];
 
-  catppuccin.enable = true;
-  catppuccin.flavor = "mocha";
+  #catppuccin.enable = true;
+  #catppuccin.flavor = "mocha";
   nixpkgs = {
     overlays = [
       (final: prev: {

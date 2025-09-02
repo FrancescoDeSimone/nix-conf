@@ -33,5 +33,5 @@
       };
     };
   };
-  catppuccin.dunst.enable = config.catppuccin.enable;
+  # catppuccin.dunst.enable = config.catppuccin.enable;
 }

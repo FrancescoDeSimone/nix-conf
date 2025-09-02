@@ -2,7 +2,7 @@
   imports = [./zsh.nix ./htop.nix ./tmux.nix ./starship.nix];
   home.packages = with pkgs; [
     home-manager
-    neovim
+    #neovim
     git
     ripgrep
     cht-sh
