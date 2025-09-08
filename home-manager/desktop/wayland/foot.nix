@@ -8,7 +8,7 @@
         dpi-aware = "yes";
       };
       scrollback = {lines = 10000;};
-      url = {protocols = "http, https, ftp, ftps, file";};
+      # url = {protocols = "http, https, ftp, ftps, file";};
     };
   };
   # catppuccin.foot.enable = config.catppuccin.enable;
