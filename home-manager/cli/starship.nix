@@ -1,6 +1,7 @@
 {...}: {
   programs.starship = {
     enable = true;
+    enableZshIntegration = true;
     settings = {
       directory.fish_style_pwd_dir_length =
         1; # turn on fish directory truncation
@@ -11,6 +12,9 @@
         true; # because it includes cached memory it's reported as full a lot
       shlvl.disabled = false;
       username.style_user = "bold blue"; # don't like the default
+      python = {
+        disabled = true;
+      };
     };
   };
 }
