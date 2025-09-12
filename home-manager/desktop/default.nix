@@ -2,11 +2,6 @@
   imports = [./dunst.nix ./firefox.nix ./rofi/rofi.nix ./pass.nix ./script.nix];
   home.packages = with pkgs;
     [
-      # nerdfonts
-      # nerd-fonts.fira-code
-      # nerd-fonts.fira-mono
-      # nerd-fonts.ubuntu
-      fira-code-nerdfont
       playerctl
       telegram-desktop
       fira-code-symbols
