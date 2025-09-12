@@ -16,9 +16,8 @@
       dd = "dd status=progress";
       tb = "nc termbin.com 9999";
       fd = "fd -j12";
-      drag = "dragon";
-      drop = "dragon -t";
-      kvim = "NVIM_APPNAME=kvim /home/fdesi/.local/bin/nvim/bin/nvim";
+      drag = "dragon-drop";
+      drop = "dragon-drop -t";
     };
     enableCompletion = true;
     syntaxHighlighting.enable = true;
@@ -53,7 +52,7 @@
         };
       }
     ];
-    initExtra = ''
+    initContent = ''
       autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
       bindkey '^[[A' history-substring-search-up
       bindkey '^[[B' history-substring-search-down
@@ -84,7 +83,9 @@
         export PATH="/home/fdesi/.local/share/fnm:$PATH"
         eval "`fnm env`"
       fi
+      if [ -f "$HOME/.cargo/env" ]; then
       . "$HOME/.cargo/env"
+      fi
     '';
   };
   # catppuccin.zsh-syntax-highlighting.enable = config.catppuccin.enable;
