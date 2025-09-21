@@ -1,8 +1,7 @@
 {pkgs, ...}: {
-  imports = [./zsh.nix ./htop.nix ./tmux.nix ./starship.nix];
+  imports = [./zsh.nix ./htop.nix ./tmux.nix ./starship.nix ./neovim.nix];
   home.packages = with pkgs; [
     home-manager
-    #neovim
     git
     ripgrep
     cht-sh
