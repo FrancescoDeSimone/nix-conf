@@ -11,5 +11,4 @@
       # url = {protocols = "http, https, ftp, ftps, file";};
     };
   };
-  # catppuccin.foot.enable = config.catppuccin.enable;
 }

@@ -88,5 +88,4 @@
       fi
     '';
   };
-  # catppuccin.zsh-syntax-highlighting.enable = config.catppuccin.enable;
 }

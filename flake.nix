@@ -8,7 +8,7 @@
     nixvim.url = "github:francescodesimone/nixvim";
     home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    catppuccin.url = "github:catppuccin/nix";
+    catppuccin.url = "github:catppuccin/nix/release-25.05";
     flake-utils.url = "github:numtide/flake-utils";
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs-unstable";
@@ -78,7 +78,7 @@
         extraSpecialArgs = {inherit inputs outputs;};
         modules = [
           ./home-manager/phoenix.nix
-          #catppuccin.homeModules.catppuccin
+          catppuccin.homeModules.catppuccin
         ];
       };
     };

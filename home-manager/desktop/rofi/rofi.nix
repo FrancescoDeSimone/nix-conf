@@ -15,5 +15,5 @@
     theme = "~/.nix-profile/share/rofi/themes/Arc-Dark.rasi";
     terminal = "${pkgs.foot}/bin/foot";
   };
-  # catppuccin.rofi.enable = false;
+  catppuccin.rofi.enable = false;
 }

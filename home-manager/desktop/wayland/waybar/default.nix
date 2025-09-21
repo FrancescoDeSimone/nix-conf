@@ -3,5 +3,4 @@
   programs.waybar = {
     enable = true;
   };
-  # catppuccin.waybar.enable = config.catppuccin.enable;
 }

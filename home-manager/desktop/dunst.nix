@@ -33,5 +33,4 @@
       };
     };
   };
-  # catppuccin.dunst.enable = config.catppuccin.enable;
 }
