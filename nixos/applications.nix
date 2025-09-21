@@ -5,5 +5,6 @@
     XDG_CACHE_HOME = "$HOME/var/cache";
   };
   environment.systemPackages = with pkgs; [
+    unstable.neovim
   ];
 }

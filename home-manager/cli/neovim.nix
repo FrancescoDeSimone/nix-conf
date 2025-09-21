@@ -10,10 +10,6 @@
     sha256 = "sha256-aZGJmUMzL1M/oe34K4i3uWGvoB58ZBJsCtSWTI/UUq0=";
   };
 in {
-  programs.neovim = {
-    enable = true;
-  };
-
   xdg.configFile."nvim" = {
     source = kickstart-nvim;
     recursive = true;

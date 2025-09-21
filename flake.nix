@@ -5,7 +5,7 @@
     private.url = "git+ssh://git@github.com/FrancescoDeSimone/nix-conf-secrets";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixvim.url = "github:francescodesimone/nixvim";
+    # nixvim.url = "github:francescodesimone/nixvim";
     home-manager.url = "github:nix-community/home-manager/release-25.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix/release-25.05";
