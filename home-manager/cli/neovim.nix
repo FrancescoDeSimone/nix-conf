@@ -6,8 +6,8 @@
   kickstart-nvim = pkgs.fetchFromGitHub {
     owner = "FrancescoDeSimone";
     repo = "kickstart.nvim";
-    rev = "698d78f5144c2b4ffb8cacf3dab7575e5cf06691";
-    sha256 = "sha256-aZGJmUMzL1M/oe34K4i3uWGvoB58ZBJsCtSWTI/UUq0=";
+    rev = "7a8fea8982a0f7401d68c01c6b8f6fb91d56b5b4";
+    sha256 = "sha256-o2cK6JrDfWBotpUWDJ8kBfU1ib0SNWdkOVUPGHdM5/g=";
   };
 in {
   xdg.configFile."nvim" = {
