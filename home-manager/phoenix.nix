@@ -6,7 +6,7 @@
   # You can import other home-manager modules here
   imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
 
-  home.packages = with pkgs; [brightnessctl];
+  home.packages = with pkgs; [brightnessctl jellyfin-tui];
 
   catppuccin.enable = true;
   catppuccin.flavor = "mocha";
@@ -34,5 +34,5 @@
   };
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
-  home.stateVersion = "24.11";
+  home.stateVersion = "25.05";
 }
