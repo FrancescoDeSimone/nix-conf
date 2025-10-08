@@ -6,7 +6,7 @@
   # You can import other home-manager modules here
   imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
 
-  home.packages = with pkgs; [brightnessctl jellyfin-tui];
+  home.packages = with pkgs; [brightnessctl jellyfin-tui yq jq];
 
   catppuccin.enable = true;
   catppuccin.flavor = "mocha";
