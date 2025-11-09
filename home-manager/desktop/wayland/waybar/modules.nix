@@ -18,6 +18,7 @@
       "backlight"
       "custom/separator#line"
       "pulseaudio"
+      "bluetooth"
       "battery"
       "custom/separator#line"
       "clock"
@@ -116,6 +117,16 @@
       "format" = " 󱍖 {percent}% ";
       "interval" = 60;
     };
+    "bluetooth" = {
+      format-connected-battery = " {device_battery_percentage}% ";
+      format-connected = "";
+      format-on = " On";
+      format-off = " Off";
+      tooltip-format-connected = "Connected devices:\n{device_enumerate}";
+      tooltip-format-enumerate-connected = "{device_alias}";
+      tooltip-format-enumerate-connected-battery = "{device_alias} {device_battery_percentage}%";
+      on-click = "blueman-manager";
+    };
 
     "pulseaudio" = {
       "format" = "{icon}  {volume}%  ";
@@ -125,7 +136,7 @@
 
       "format-icons" = {"default" = [""];};
 
-      "on-click" = "blueman-manager";
+      "on-click" = "~/.nix-profile/bin/pavucontrol";
     };
   };
 }

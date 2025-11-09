@@ -4,7 +4,7 @@
     settings = {
       main = {
         box-drawings-uses-font-glyphs = true;
-        font = "Fira Code:size=12";
+        font = "Fira Code:size=13";
         dpi-aware = "yes";
       };
       scrollback = {lines = 10000;};
