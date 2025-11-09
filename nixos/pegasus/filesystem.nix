@@ -6,7 +6,7 @@
   };
 
   fileSystems."/nextcloud" = {
-    device = "/dev/sda2";
+    device = "/dev/disk/by-uuid/a8d7fad4-7b06-4ec0-a417-d8ffa22a4fb4";
     fsType = "ext4";
     options = ["nofail" "defaults" "noatime" "data=writeback" "barrier=0" "nobh" "errors=continue" "commit=100"];
   };
