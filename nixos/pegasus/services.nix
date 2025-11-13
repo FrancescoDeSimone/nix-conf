@@ -17,6 +17,7 @@
     ./services/sonarr.nix
     ./services/stirling-pdf.nix
     ./services/transmission.nix
+    ./services/opencloud.nix
 
     ./services/ollama.nix
     # ./services/linkwarden.nix

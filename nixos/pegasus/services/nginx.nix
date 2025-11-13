@@ -1,6 +1,7 @@
 {
   config,
   private,
+  pkgs,
   ...
 }: let
   email = private.nginx.email;
