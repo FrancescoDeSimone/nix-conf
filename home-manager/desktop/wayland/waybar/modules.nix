@@ -119,9 +119,9 @@
     };
     "bluetooth" = {
       format-connected-battery = " {device_battery_percentage}% ";
-      format-connected = "";
-      format-on = " On";
-      format-off = " Off";
+      format-connected = " ";
+      format-on = " On ";
+      format-off = " Off ";
       tooltip-format-connected = "Connected devices:\n{device_enumerate}";
       tooltip-format-enumerate-connected = "{device_alias}";
       tooltip-format-enumerate-connected-battery = "{device_alias} {device_battery_percentage}%";
