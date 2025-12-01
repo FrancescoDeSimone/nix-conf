@@ -1,7 +1,7 @@
 {...}: {
-  virtualisation.lxd = {
+  networking.nftables.enable = true;
+  virtualisation.incus = {
     enable = true;
-    recommendedSysctlSettings = true;
     ui.enable = true;
   };
 
