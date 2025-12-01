@@ -20,6 +20,9 @@
     provider = {
       file = ../secrets/provider.age;
     };
+    slskd = {
+      file = ../secrets/slskd.age;
+    };
     hoarder = {
       file = ../secrets/hoarder.age;
     };

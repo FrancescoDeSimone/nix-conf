@@ -6,4 +6,5 @@ let
 in {
   "provider.age".publicKeys = keys;
   "hoarder.age".publicKeys = keys;
+  "slskd.age".publicKeys = keys;
 }
