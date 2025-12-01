@@ -75,7 +75,7 @@ in {
         enable = true;
         https = true;
         home = "/nextcloud";
-        package = pkgs.nextcloud30;
+        package = pkgs.nextcloud32;
         hostName = "nextcloud." + domain;
         extraAppsEnable = true;
         configureRedis = true;
@@ -86,8 +86,8 @@ in {
             license = "agpl3Only";
           };
           memories = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/pulsejet/memories/releases/download/v7.3.1/memories.tar.gz";
-            sha256 = "sha256-tzxeffvwMwthvBRG+/cLCXZkVS32rlf5v7XOKTbGoOo=";
+            url = "https://github.com/pulsejet/memories/releases/download/v7.7.0/memories.tar.gz";
+            sha256 = "sha256-ORv+6XkN+qTk5bXMFKv2Mv/jU+7F12IbWE9JjV2ot9o=";
             license = "agpl3Only";
           };
           mail = pkgs.fetchNextcloudApp rec {
@@ -96,8 +96,8 @@ in {
             license = "agpl3Only";
           };
           contacts = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/contacts/releases/download/v6.0.0/contacts-v6.0.0.tar.gz";
-            sha256 = "sha256-48ERJ9DQ9w71encT2XVvcVaV+EbthgExQliKO1sQ+1A=";
+            url = "https://github.com/nextcloud-releases/contacts/releases/download/v8.1.0/contacts-v8.1.0.tar.gz";
+            sha256 = "sha256-kQ6OunNZbj0UjDinkDhj2ZYDeoEWqvAvgpHDDTFdlW8=";
             license = "agpl3Only";
           };
           extract = pkgs.fetchNextcloudApp rec {
@@ -106,23 +106,23 @@ in {
             license = "agpl3Only";
           };
           news = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud/news/releases/download/25.0.0-alpha8/news.tar.gz";
-            sha256 = "sha256-nj1yR2COwQ6ZqZ1/8v9csb/dipXMa61e45XQmA5WPwg=";
+            url = "https://github.com/nextcloud/news/releases/download/28.0.0-beta.1/news.tar.gz";
+            sha256 = "sha256-52P1o2b5RIuSXaCMl6Fk6336J8zNtEd6JivGnQbGZc4=";
             license = "agpl3Only";
           };
           notes = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/notes/releases/download/v4.10.0/notes-v4.10.0.tar.gz";
-            sha256 = "sha256-ZSXmot6OmD45dDIUEa6as42OGG3jrXyHWtx+hXzDXRc=";
+            url = "https://github.com/nextcloud-releases/notes/releases/download/v4.12.4/notes-v4.12.4.tar.gz";
+            sha256 = "sha256-iiNXIvq+rUbbecU646pyRpHP0EjUdQT1ybKMS2JQbwc=";
             license = "agpl3Only";
           };
           epubview = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/devnoname120/epubviewer/releases/download/1.6.3/epubviewer-1.6.3.tar.gz";
-            sha256 = "sha256-No4nS1l1J2HMMFiMRaWd3BbgND240UBrWzzg+6xGMqA=";
+            url = "https://github.com/devnoname120/epubviewer/releases/download/1.8.1/epubviewer-1.8.1.tar.gz";
+            sha256 = "sha256-0AYCutDNvCfwul+VIh+g7FkD8LJVmd0ZNSZHDcpdU3I=";
             license = "agpl3Only";
           };
           phonetrack = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/julien-nc/phonetrack/releases/download/v0.8.1/phonetrack-0.8.1.tar.gz";
-            sha256 = "sha256-zQt+3t86HZJVT/wiETHkPdTwV6Qy+iNkH3/THtTe1Xs=";
+            url = "https://github.com/julien-nc/phonetrack/releases/download/v0.9.1/phonetrack-0.9.1.tar.gz";
+            sha256 = "sha256-Le3yvewei8vty8frz66X7ij2H9ju2h4JWdGNf46L9MY=";
             license = "agpl3Only";
           };
         };
