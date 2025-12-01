@@ -60,7 +60,7 @@
       rocmPackages.clr
       rocmPackages.rocminfo
       rocmPackages.rocm-runtime
-      vaapiVdpau
+      libva-vdpau-driver
       libvdpau-va-gl
     ];
   };
@@ -110,8 +110,8 @@
     users.thinkcentre = {
       isNormalUser = true;
       description = "thinkcentre";
-      extraGroups = ["networkmanager" "wheel" "lxd" "docker"];
+      extraGroups = ["networkmanager" "wheel" "incus" "docker"];
     };
   };
-  system.stateVersion = "25.05"; # Did you read the comment?
+  system.stateVersion = "25.11"; # Did you read the comment?
 }
