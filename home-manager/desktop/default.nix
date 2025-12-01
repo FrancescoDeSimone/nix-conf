@@ -3,7 +3,6 @@
   home.packages = with pkgs;
     [
       playerctl
-      telegram-desktop
       fira-code-symbols
       xdragon
       networkmanagerapplet

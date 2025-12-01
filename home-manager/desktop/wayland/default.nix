@@ -2,7 +2,7 @@
   imports = [./hyprland.nix ./foot.nix];
   home.packages = with pkgs; [
     swaycons
-    telegram-desktop
+    ayugram-desktop
     fira-code-symbols
     wf-recorder
     grimblast
