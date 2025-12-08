@@ -1,10 +1,10 @@
 {pkgs, ...}: {
-  imports = [./hyprland.nix ./foot.nix];
+  imports = [./hyprland.nix ./foot.nix ./sway.nix ./portal.nix];
   home.packages = with pkgs; [
     swaycons
-    ayugram-desktop
     fira-code-symbols
     wf-recorder
+    brightnessctl
     grimblast
     libva-utils
     wmctrl
