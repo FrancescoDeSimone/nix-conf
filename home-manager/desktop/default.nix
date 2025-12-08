@@ -4,7 +4,7 @@
     [
       playerctl
       fira-code-symbols
-      xdragon
+      dragon-drop
       networkmanagerapplet
       fira-code
       sshuttle

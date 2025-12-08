@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   programs.rofi = {
     enable = true;
-    package = pkgs.rofi-wayland.override {
+    package = pkgs.rofi.override {
       plugins = with pkgs; [
         rofi-calc
         rofi-top
