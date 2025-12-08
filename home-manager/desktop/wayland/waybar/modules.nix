@@ -1,10 +1,14 @@
-{
+{pkgs, ...}: {
   programs.waybar.settings.mainBar = {
     "layer" = "bottom";
     "position" = "bottom";
     "height" = 15;
 
-    "modules-left" = ["hyprland/workspaces"];
+    "modules-left" = [
+      "sway/workspaces"
+      "sway/mode"
+      "hyprland/workspaces"
+    ];
     "modules-center" = [];
     "modules-right" = [
       # "custom/playerctl"
@@ -23,8 +27,19 @@
       "custom/separator#line"
       "clock"
       "custom/separator#line"
+      "custom/dunst"
+      "custom/separator#line"
       "tray"
     ];
+
+    "sway/workspaces" = {
+      "disable-scroll" = true;
+      "all-outputs" = false;
+      "format" = "{name}";
+    };
+    "sway/mode" = {
+      "format" = "<span style=\"italic\">{}</span>";
+    };
 
     "hyprland/workspaces" = {};
     "tray" = {
@@ -35,12 +50,14 @@
     "clock" = {
       "format" = "{:%a %b %e  %R}";
       "interval" = 30;
+      "tooltip-format" = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
     };
 
     "cpu" = {
       "interval" = 1;
       "format" = "  {icon0}{icon1}{icon2}{icon3} {usage:>2}% ";
       "format-icons" = ["▁" "▂" "▃" "▄" "▅" "▆" "▇" "█"];
+      "tooltip" = true;
     };
 
     "battery" = {
@@ -58,6 +75,7 @@
       "format-full" = "   {capacity}%";
       "format-icons" = ["" "" "" "" ""];
       "interval" = 30;
+      "tooltip-format" = "{timeTo}\nPower: {power}W\nHealth: {health}%";
     };
 
     "custom/separator#line" = {
@@ -65,7 +83,22 @@
       "interval" = "once";
       "tooltip" = false;
     };
-
+    "custom/dunst" = {
+      "return-type" = "json";
+      "exec" = pkgs.writeShellScript "dunst-status" ''
+        COUNT=$(${pkgs.dunst}/bin/dunstctl count waiting)
+        ENABLED=""
+        DISABLED=""
+        if ${pkgs.dunst}/bin/dunstctl is-paused | grep -q "true"; then
+          printf '{"text": "%s", "tooltip": "Dunst is Paused", "class": "paused"}\n' "$DISABLED"
+        else
+          printf '{"text": "%s", "tooltip": "Dunst is Active", "class": "active"}\n' "$ENABLED"
+        fi
+      '';
+      "on-click" = "${pkgs.dunst}/bin/dunstctl set-paused toggle; ${pkgs.procps}/bin/pkill -RTMIN+8 waybar";
+      "signal" = 8;
+      "restart-interval" = 2;
+    };
     "custom/playerctl" = {
       "format" = "<span>{}</span>";
       "return-type" = "json";
@@ -83,11 +116,13 @@
     "memory" = {
       "interval" = 30;
       "format" = "  {used:0.1f}G/{total:0.1f}G ";
+      "tooltip-format" = "RAM: {used:0.1f}GiB / {total:0.1f}GiB ({percentage}%)\nSwap: {swapUsed:0.1f}GiB / {swapTotal:0.1f}GiB ({swapPercentage}%)";
     };
 
     "disk" = {
       "format" = "  {percentage_used}% ";
       "interval" = 30;
+      "tooltip-format" = "{path}: {used} used / {total} total ({percentage_used}%)";
     };
 
     "temperature" = {
@@ -95,6 +130,7 @@
       "format" = " {icon} {temperatureC}°C ";
       "format-icons" = [""];
       "interval" = 30;
+      "tooltip-format" = "Thermal Zone: {thermal_zone}\nCritical: {critical}°C";
     };
 
     "network#speed" = {
@@ -105,27 +141,28 @@
       "format-disconnected" = "󰌙";
       "tooltip-format" = "{ipaddr}";
       "format-linked" = "󰈁 {ifname} (No IP)";
-      "tooltip-format-wifi" = "{essid} {icon} {signalStrength}%";
-      "tooltip-format-ethernet" = "{ifname} 󰌘";
-      "tooltip-format-disconnected" = "󰌙 Disconnected";
       "max-length" = 24;
       "min-length" = 24;
+      "tooltip-format-wifi" = "{essid} ({frequency}GHz) {icon} {signalStrength}%\nIP: {ipaddr}";
+      "tooltip-format-ethernet" = "{ifname} 󰌘\nIP: {ipaddr}";
+      "tooltip-format-disconnected" = "󰌙 Disconnected";
     };
 
     "backlight" = {
       "device" = "intel_backlight";
       "format" = " 󱍖 {percent}% ";
       "interval" = 60;
+      "tooltip-format" = "Backlight: {percent}%";
     };
     "bluetooth" = {
       format-connected-battery = " {device_battery_percentage}% ";
       format-connected = " ";
       format-on = " On ";
       format-off = " Off ";
-      tooltip-format-connected = "Connected devices:\n{device_enumerate}";
-      tooltip-format-enumerate-connected = "{device_alias}";
-      tooltip-format-enumerate-connected-battery = "{device_alias} {device_battery_percentage}%";
       on-click = "blueman-manager";
+      "tooltip-format-connected" = "Connected:\n{device_enumerate}";
+      "tooltip-format-enumerate-connected" = "{device_alias}";
+      "tooltip-format-enumerate-connected-battery" = "{device_alias} ({device_battery_percentage}%)";
     };
 
     "pulseaudio" = {
@@ -133,10 +170,9 @@
       "format-bluetooth" = "   {volume}% ";
       "format-muted" = "Mute";
       "interval" = 60;
-
       "format-icons" = {"default" = [""];};
-
       "on-click" = "~/.nix-profile/bin/pavucontrol";
+      "tooltip-format" = "{desc} ({volume}%)";
     };
   };
 }

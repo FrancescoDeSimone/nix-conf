@@ -8,6 +8,10 @@
     	min-height: 0;
     	margin: 0px;
     }
+    #custom-dunst {
+        padding: 0 5px;
+        color: #ffffff;
+    }
 
     window#waybar {
     	background: rgba(0, 0, 0, 0.7);
