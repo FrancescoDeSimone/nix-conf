@@ -7,31 +7,54 @@
   master-layout =
     pkgs.writers.writePython3Bin "sway-master-layout" {
       libraries = [pkgs.python3Packages.i3ipc];
-      flakeIgnore = ["E302" "E305" "E501" "W391" "E261" "F841"];
+      flakeIgnore = ["E302" "E305" "E501" "W391" "E261" "F841" "E701"];
     } ''
       from i3ipc import Connection, Event
+      def on_window_close(ipc, event):
+          tree = ipc.get_tree()
+          focused = tree.find_focused()
+          if not focused: return
+          ws = focused.workspace()
+          if ws is None or ws.layout in ["tabbed", "stacked"]: return
+          if len(ws.nodes) == 1 and ws.nodes[0].layout == "tabbed":
+              commands = [
+                  f"[con_id={focused.id}] move to workspace current",
+                  f"[con_id={focused.id}] move left",
+                  f"[con_id={focused.id}] layout splith"
+              ]
+              ipc.command("; ".join(commands))
       def on_window_new(ipc, event):
-          try:
-              focused = ipc.get_tree().find_focused()
-              ws = focused.workspace()
-          except AttributeError:
-              return
-          nodes = [n for n in ws.nodes if n.type == "con"]
-          if len(nodes) == 1:
-              ipc.command(f"[con_id={nodes[0].id}] layout splith")
-              return
-          if len(nodes) == 2:
-              stack_window = nodes[1]
-              if stack_window.layout == "tabbed":
-                  return
-              ipc.command(f"[con_id={stack_window.id}] splitv")
-              ipc.command(f"[con_id={stack_window.id}] layout tabbed")
-              ipc.command(f"[con_id={stack_window.id}] focus")
+          new_win_id = event.container.id
+          tree = ipc.get_tree()
+          new_win = tree.find_by_id(new_win_id)
+          if not new_win or new_win.floating == "on": return
+          ws = new_win.workspace()
+          if ws is None: return
+          if ws.layout in ["tabbed", "stacked"]: return
+          target_tab = next(
+              (n for n in ws.nodes if n.layout == "tabbed" and n.id != new_win.id), None
+          )
+          if target_tab:
+              mark = "_autotile_target"
+              commands = [
+                  f'[con_id={target_tab.id}] mark --replace "{mark}"',
+                  f'[con_id={new_win.id}] move window to mark "{mark}"',
+                  f'[con_id={target_tab.id}] unmark "{mark}"',
+                  f"[con_id={new_win.id}] focus",
+              ]
+              ipc.command("; ".join(commands))
           else:
-              return
+              count = len(ws.nodes)
+              if count == 1:
+                  ipc.command(f"[con_id={new_win.id}] layout splith")
+              elif count == 2:
+                  ipc.command(
+                      f"[con_id={new_win.id}] splitv; [con_id={new_win.id}] layout tabbed"
+                  )
       def main():
           ipc = Connection()
           ipc.on(Event.WINDOW_NEW, on_window_new)
+          ipc.on(Event.WINDOW_CLOSE, on_window_close)
           ipc.main()
       if __name__ == "__main__":
           main()
@@ -54,6 +77,11 @@
       ipc.command(f"[con_id={ws.nodes[0].id}] focus")
     '';
 in {
+  catppuccin = {
+    enable = true;
+    flavor = "mocha";
+    accent = "mauve";
+  };
   systemd.user.services.sway-master-layout = {
     Unit = {
       Description = "Sway Master Layout Daemon";
@@ -73,12 +101,64 @@ in {
 
   wayland.windowManager.sway = {
     enable = true;
-    checkConfig = false;
     wrapperFeatures.gtk = true;
     extraConfig = ''
       include ~/.config/sway/outputs
     '';
     config = {
+      window.commands = [
+        {
+          criteria = {app_id = "pavucontrol";};
+          command = "floating enable, resize set 800 600, move position center";
+        }
+        {
+          criteria = {app_id = "nm-connection-editor";};
+          command = "floating enable";
+        }
+        {
+          criteria = {title = "(?:Open|Save) (?:File|Folder|As)";};
+          command = "floating enable, resize set 800 600";
+        }
+      ];
+      colors = {
+        focused = {
+          border = "$mauve";
+          background = "$base";
+          text = "$text";
+          indicator = "$rosewater";
+          childBorder = "$mauve";
+        };
+        focusedInactive = {
+          border = "$overlay0";
+          background = "$base";
+          text = "$text";
+          indicator = "$rosewater";
+          childBorder = "$overlay0";
+        };
+        unfocused = {
+          border = "$overlay0";
+          background = "$base";
+          text = "$text";
+          indicator = "$rosewater";
+          childBorder = "$overlay0";
+        };
+        urgent = {
+          border = "$peach";
+          background = "$base";
+          text = "$peach";
+          indicator = "$overlay0";
+          childBorder = "$peach";
+        };
+        placeholder = {
+          border = "$overlay0";
+          background = "$base";
+          text = "$text";
+          indicator = "$overlay0";
+          childBorder = "$overlay0";
+        };
+        background = "$base";
+      };
+
       modifier = "Mod4";
       terminal = "${pkgs.foot}/bin/foot";
       menu = "${config.programs.rofi.package}/bin/rofi -show drun";
@@ -117,41 +197,73 @@ in {
       startup = [
         {command = "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway";}
         {command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP";}
-
         {command = "systemctl --user stop xdg-desktop-portal xdg-desktop-portal-wlr";}
         {command = "systemctl --user start xdg-desktop-portal xdg-desktop-portal-wlr";}
-        {
-          command = "${config.programs.swayr.package}/bin/swayrd";
-          always = true;
-        }
         {command = "${pkgs.wl-clipboard}/bin/wl-paste -t text --watch ${pkgs.clipman}/bin/clipman store";}
-        {command = "swayosd-server";}
         {command = "${pkgs.dunst}/bin/dunst";}
         {command = "/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1";}
         {command = "${pkgs.swaybg}/bin/swaybg -i /usr/share/backgrounds/ubuntu-default-greyscale-wallpaper.png";}
         {command = "${pkgs.networkmanagerapplet}/bin/nm-applet";}
       ];
+      modes = {
+        screenshot = {
+          "p" = "exec ${pkgs.grim}/bin/grim - | ${pkgs.wl-clipboard}/bin/wl-copy; mode default";
+          "s" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.wl-clipboard}/bin/wl-copy; mode default";
+          "w" = "exec ${pkgs.sway}/bin/swaymsg -t get_tree | ${pkgs.jq}/bin/jq -r '.. | select(.pid? and .visible?) | .rect | \"\\(.x),\\(.y) \\(.width)x\\(.height)\"' | ${pkgs.slurp}/bin/slurp | ${pkgs.grim}/bin/grim -g - - | ${pkgs.wl-clipboard}/bin/wl-copy; mode default";
+          "Escape" = "mode default";
+          "Return" = "mode default";
+        };
+        resize = {
+          "Down" = "resize grow height 10 px";
+          "Escape" = "mode default";
+          "Left" = "resize shrink width 10 px";
+          "Return" = "mode default";
+          "Right" = "resize grow width 10 px";
+          "Up" = "resize shrink height 10 px";
+          "h" = "resize shrink width 10 px";
+          "j" = "resize grow height 10 px";
+          "k" = "resize shrink height 10 px";
+          "l" = "resize grow width 10 px";
+        };
+      };
 
       keybindings = lib.mkOptionDefault {
+        # --- Plugins ---
         "Mod4+r" = "exec ${swap-master}/bin/sway-swap-master";
-        # --- Plugins (Now using absolute paths) ---
+        "Mod4+Shift+r" = "mode resize";
         "Mod4+Escape" = "exec ${config.programs.sway-easyfocus.package}/bin/sway-easyfocus";
         "Mod4+Tab" = "exec ${config.programs.swayr.package}/bin/swayr switch-window";
 
-        # --- SwayOSD (Volume/Brightness/Caps) ---
-        "--release XF86AudioRaiseVolume" = "exec ${config.services.swayosd.package}/bin/swayosd-client --output-volume raise";
-        "--release XF86AudioLowerVolume" = "exec ${config.services.swayosd.package}/bin/swayosd-client --output-volume lower";
+        # --- SwayOSD: Volume (Max 120%) ---
+        "--release XF86AudioRaiseVolume" = "exec ${config.services.swayosd.package}/bin/swayosd-client --output-volume raise --max-volume 120";
+        "--release XF86AudioLowerVolume" = "exec ${config.services.swayosd.package}/bin/swayosd-client --output-volume lower --max-volume 120";
         "--release XF86AudioMute" = "exec ${config.services.swayosd.package}/bin/swayosd-client --output-volume mute-toggle";
+        "--release XF86AudioMicMute" = "exec ${config.services.swayosd.package}/bin/swayosd-client --input-volume mute-toggle";
+
+        # --- SwayOSD: Brightness ---
         "--release XF86MonBrightnessUp" = "exec ${config.services.swayosd.package}/bin/swayosd-client --brightness raise";
         "--release XF86MonBrightnessDown" = "exec ${config.services.swayosd.package}/bin/swayosd-client --brightness lower";
+
+        # --- SwayOSD: Caps Lock ---
         "--release Caps_Lock" = "exec ${config.services.swayosd.package}/bin/swayosd-client --caps-lock";
+
+        # --- SwayOSD: Media Player Keys ---
+        "XF86AudioPlay" = "exec ${config.services.swayosd.package}/bin/swayosd-client --playerctl play-pause";
+        "XF86AudioNext" = "exec ${config.services.swayosd.package}/bin/swayosd-client --playerctl next";
+        "XF86AudioPrev" = "exec ${config.services.swayosd.package}/bin/swayosd-client --playerctl previous";
+
+        # --- Alternative Media Control  ---
+        "Control+KP_End" = "exec ${config.services.swayosd.package}/bin/swayosd-client --playerctl previous";
+        "Control+KP_Down" = "exec ${config.services.swayosd.package}/bin/swayosd-client --playerctl play-pause";
+        "Control+KP_Next" = "exec ${config.services.swayosd.package}/bin/swayosd-client --playerctl next";
 
         # --- Applications ---
         "Mod4+Control+Shift+f" = "exec ${pkgs.foot}/bin/foot -- ${pkgs.yazi}/bin/yazi";
         "Control+Shift+Escape" = "exec ${pkgs.foot}/bin/foot -- ${pkgs.htop}/bin/htop";
         "Mod4+Return" = "exec ${pkgs.foot}/bin/foot";
         "Mod4+b" = "exec $HOME/.nix-profile/bin/firefox";
-        # Note: rofi-pass-wayland package provides 'rofi-pass' binary
+
+        # Rofi
         "Mod4+Control+Shift+d" = "exec ${pkgs.rofi-pass-wayland}/bin/rofi-pass";
         "Mod4+d" = "exec ${config.programs.rofi.package}/bin/rofi -show drun";
 
@@ -159,17 +271,14 @@ in {
         "Mod4+space" = "exec ${pkgs.dunst}/bin/dunstctl close-all";
         "Mod4+Shift+q" = "kill";
         "Mod4+Shift+c" = "reload";
-        # Note: swaynag comes with sway, so we usually assume it's in path, but if sway is system-installed, this is fine.
         "Mod4+Shift+e" = "exec ${pkgs.wlogout}/bin/wlogout";
-
-        # --- Media Control ---
-        "Control+KP_End" = "exec ${pkgs.playerctl}/bin/playerctl previous";
-        "Control+KP_Down" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
-        "Control+KP_Next" = "exec ${pkgs.playerctl}/bin/playerctl next";
 
         # --- Clipboard & Screenshots ---
         "Mod4+Alt_L" = "exec ${pkgs.clipman}/bin/clipman pick --tool=CUSTOM --tool-args='${config.programs.rofi.package}/bin/rofi -dmenu -sorting-method fzf -sort -i'";
         "Print" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.wl-clipboard}/bin/wl-copy";
+        "Mod4+KP_Delete" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.wl-clipboard}/bin/wl-copy";
+        "Shift+Print" = "mode screenshot";
+        "Mod4+Shift+KP_Delete" = "mode screenshot";
 
         # --- Window Management ---
         "Mod4+f" = "fullscreen toggle";
@@ -182,11 +291,10 @@ in {
     systemd.enable = true;
   };
 
-  # programs.sway-easyfocus = {enable = true;};
   programs.sway-easyfocus = {
     enable = true;
     settings = {
-      chars = "tgbnvuir"; # Home row keys for easy reach
+      chars = "tgbnvuir";
       fill_color = "1e1e2e";
       label_color = "cdd6f4";
       border_color = "89b4fa";
@@ -209,13 +317,11 @@ in {
         ];
       };
 
-      # (Optional) Clean up the format to reduce "No icon" warnings in logs
       format = {
         icon_dirs = [
           "/run/current-system/sw/share/icons/hicolor"
           "${pkgs.adwaita-icon-theme}/share/icons/Adwaita"
         ];
-        # Fallback format if icons are missing
         window_format = "{app_name} - {title} ({workspace_name})";
       };
     };
