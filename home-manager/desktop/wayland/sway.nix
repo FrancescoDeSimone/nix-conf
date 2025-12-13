@@ -60,6 +60,19 @@
           main()
     '';
 
+  focus-master =
+    pkgs.writers.writePython3Bin "sway-focus-master" {
+      libraries = [pkgs.python3Packages.i3ipc];
+      flakeIgnore = ["E302" "E305" "E501" "W391" "E701"];
+    } ''
+      from i3ipc import Connection
+      ipc = Connection()
+      focused = ipc.get_tree().find_focused()
+      if not focused: exit()
+      ws = focused.workspace()
+      if len(ws.nodes) < 2: exit()
+      ipc.command(f"[con_id={ws.nodes[0].id}] focus")
+    '';
   swap-master =
     pkgs.writers.writePython3Bin "sway-swap-master" {
       libraries = [pkgs.python3Packages.i3ipc];
@@ -110,6 +123,10 @@ in {
         {
           criteria = {app_id = "pavucontrol";};
           command = "floating enable, resize set 800 600, move position center";
+        }
+        {
+          criteria = {class = "FreeTube";};
+          command = "fullscreen disable";
         }
         {
           criteria = {app_id = "nm-connection-editor";};
@@ -229,8 +246,9 @@ in {
 
       keybindings = lib.mkOptionDefault {
         # --- Plugins ---
-        "Mod4+r" = "exec ${swap-master}/bin/sway-swap-master";
-        "Mod4+Shift+r" = "mode resize";
+        "Mod4+r" = "exec ${focus-master}/bin/sway-focus-master";
+        "Mod4+Shift+r" = "exec ${swap-master}/bin/sway-swap-master";
+        "Mod4+Alt_L+r" = "mode resize";
         "Mod4+Escape" = "exec ${config.programs.sway-easyfocus.package}/bin/sway-easyfocus";
         "Mod4+Tab" = "exec ${config.programs.swayr.package}/bin/swayr switch-window";
 
