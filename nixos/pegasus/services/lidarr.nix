@@ -95,7 +95,7 @@
         extraOptions = ["--network=host"];
         environment = {
           TZ = "Europe/Rome";
-          SCRIPT_INTERVAL = "300";
+          SCRIPT_INTERVAL = "15";
         };
         volumes = [
           "/var/lib/soularr:/data"

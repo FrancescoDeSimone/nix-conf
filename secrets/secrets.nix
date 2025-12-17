@@ -7,4 +7,6 @@ in {
   "provider.age".publicKeys = keys;
   "hoarder.age".publicKeys = keys;
   "slskd.age".publicKeys = keys;
+  "spotizerr.age".publicKeys = keys;
+  "govd.age".publicKeys = keys;
 }
