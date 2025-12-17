@@ -53,7 +53,7 @@
       }
     ];
     initContent = ''
-      autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+      autoload -Uz up-line-or-beginning-search down-line-or-beginning-search edit-command-line
       bindkey '^[[A' history-substring-search-up
       bindkey '^[[B' history-substring-search-down
       zle -N up-line-or-beginning-search
@@ -61,10 +61,10 @@
       [[ -n "''${key[Up]}"   ]] && bindkey -- "''${key[Up]}"   up-line-or-beginning-search
       [[ -n "''${key[Down]}" ]] && bindkey -- "''${key[Down]}" down-line-or-beginning-search
 
-
-
       bindkey '^[[1;5C' forward-word # Ctrl+RightArrow
       bindkey '^[[1;5D' backward-word # Ctrl+LeftArrow
+      zle -N edit-command-line
+      bindkey "^X^X" edit-command-line
       ZSH_FZF_HISTORY_SEARCH_FZF_ARGS="+s +m -x -e --height 40%  --height 20%  --layout reverse --info inline"
       SAVEHIST=10000  # Save most-recent 1000 lines
       HISTSIZE=10000
