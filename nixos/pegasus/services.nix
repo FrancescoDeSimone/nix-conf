@@ -5,18 +5,23 @@
     ./services/filebrowser.nix
     ./services/git.nix
     ./services/glances.nix
-    #./services/homepage.nix
+    ./services/homepage.nix
     ./services/jellyfin.nix
     ./services/jellyseer.nix
     # ./services/monitor.nix
     ./services/nextcloud.nix
     ./services/nginx.nix
     ./services/prowlarr.nix
+    ./services/lidarr.nix
+    ./services/govd.nix
+    # ./services/spotifizerr.nix
     ./services/radarr.nix
     ./services/scrutiny.nix
     ./services/sonarr.nix
     ./services/stirling-pdf.nix
     ./services/transmission.nix
+    # ./services/rtorrent.nix
+    ./services/qbittorrent.nix
     ./services/opencloud.nix
 
     ./services/ollama.nix
