@@ -14,17 +14,12 @@ in {
   };
 
   containers.opencloud = {
-   nixpkgs = fetchTarball {
-  url = "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz";
-  sha256 = "sha256:117mzxz0a0r01nvmykdrvgfnxh1vwgg8rj2p0v3v1as1kp7ywxdd";
-};
-
-    bindMounts = {
-      "/var/lib/opencloud" = {
-        hostPath = "/nextcloud";
-        isReadOnly = false;
-      };
-    };
+    #bindMounts = {
+    #  "/var/lib/opencloud" = {
+    #    hostPath = "/nextcloud";
+    #    isReadOnly = false;
+    #  };
+    #};
     autoStart = true;
     privateNetwork = true;
     hostAddress = "192.168.103.10";
@@ -34,20 +29,26 @@ in {
       pkgs,
       ...
     }: {
-      system.stateVersion = "25.05";
+      system.stateVersion = "25.11";
       services.opencloud = {
+        settings.token_manager.jwt_secret = "9a3e8f13bc2109f3bee15a8373ed46e6";
         enable = true;
-        stateDir = "/var/lib/opencloud";
+        #stateDir = "/var/lib/opencloud";
         user = "opencloud";
         group = "opencloud";
         address = "0.0.0.0";
-        port = 80;
-        url = "https://opencloud.${domain}";
+        port = 8080;
+        url = "http://opencloud.pegasus.lan";
+        environment = {
+          "OC_INSECURE" = "true"; # Matches the doc you found
+          "OCIS_HTTP_TLS_ENABLED" = "false"; # Explicitly disables TLS on the http server
+          "PROXY_HTTP_ADDR" = "0.0.0.0:8080"; # Ensures the proxy service binds correctly
+        };
       };
-      # 6. Internal container firewall and networking
+
       networking.firewall = {
-        enable = true;
-        allowedTCPPorts = [80 443];
+        enable = false;
+        allowedTCPPorts = [80 443 8080];
       };
       environment.etc."resolv.conf".text = "nameserver 8.8.8.8";
     };
