@@ -26,6 +26,13 @@
     hoarder = {
       file = ../secrets/hoarder.age;
     };
+    spotizerr = {
+      file = ../secrets/spotizerr.age;
+    };
+
+    govd = {
+      file = ../secrets/govd.age;
+    };
   };
   nixpkgs = {
     overlays = [
