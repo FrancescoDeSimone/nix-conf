@@ -6,6 +6,10 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     # nixvim.url = "github:francescodesimone/nixvim";
+    kickstart-nvim = {
+      url = "github:FrancescoDeSimone/kickstart.nvim";
+      flake = false;
+    };
     home-manager.url = "github:nix-community/home-manager/release-25.11";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix/release-25.05";
