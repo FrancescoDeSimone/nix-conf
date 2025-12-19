@@ -9,6 +9,15 @@
   catppuccin.flavor = "mocha";
   wayland.windowManager.sway = {
     package = null;
+    config.bars = [];
+  };
+  programs.waybar = {
+    enable = true;
+    systemd = {
+      enable = true;
+      # This ensures it starts for both Sway and Hyprland
+      target = "graphical-session.target";
+    };
   };
   nixpkgs = {
     overlays = [
@@ -27,6 +36,9 @@
     };
   };
 
+  home.packages = with pkgs; [
+    neovim
+  ];
   home = {
     username = "fdesi";
     homeDirectory = "/home/fdesi";
