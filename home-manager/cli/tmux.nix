@@ -32,6 +32,7 @@
       set -g allow-passthrough on
       set -ga update-environment TERM
       set -ga update-environment TERM_PROGRAM
+      bind -n DoubleClick1Pane run-shell "${pkgs.dragon-drop}/bin/dragon-drop -x '#{pane_current_path}/#{mouse_word}'"
     '';
   };
 }
