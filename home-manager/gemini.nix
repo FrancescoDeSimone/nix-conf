@@ -4,7 +4,13 @@
   ...
 }: {
   imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
-  home.packages = with pkgs; [jellyfin-tui yq jq ayugram-desktop];
+  home.packages = with pkgs; [
+    neovim
+    jellyfin-tui
+    yq
+    jq
+    ayugram-desktop
+  ];
   catppuccin.enable = true;
   catppuccin.flavor = "mocha";
   wayland.windowManager.sway = {
@@ -36,9 +42,6 @@
     };
   };
 
-  home.packages = with pkgs; [
-    neovim
-  ];
   home = {
     username = "fdesi";
     homeDirectory = "/home/fdesi";
