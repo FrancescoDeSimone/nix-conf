@@ -10,6 +10,8 @@
       sshuttle
       supersonic
       pavucontrol
+      woomer
+      oculante
       # unstable.freetube
       obsidian
       unstable.finamp
