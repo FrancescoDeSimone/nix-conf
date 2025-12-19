@@ -1,5 +1,5 @@
 {pkgs, ...}: {
-  imports = [./hyperland/default.nix ./waybar/default.nix];
+  imports = [./hyperland/default.nix];
   # ./usr/lib/xdg-desktop-portal-hyprland
   systemd.user.services.xdg-desktop-portal-hyprland = {
     Unit = {Description = "xdg-desktop-portal-hyprland";};
