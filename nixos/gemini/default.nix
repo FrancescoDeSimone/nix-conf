@@ -23,6 +23,10 @@
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
   };
 
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  services.blueman.enable = true;
+
   age.secrets = {
     user-password = {
       file = "${inputs.private}/user-password.age";
