@@ -20,9 +20,11 @@
               commands = [
                   f"[con_id={focused.id}] move to workspace current",
                   f"[con_id={focused.id}] move left",
+                  f"[con_id={focused.id}] layout toggle split"
                   f"[con_id={focused.id}] layout splith"
               ]
               ipc.command("; ".join(commands))
+              ipc.command(f"[con_id={focused.id}] focus parent")
       def on_window_new(ipc, event):
           new_win_id = event.container.id
           tree = ipc.get_tree()
@@ -95,23 +97,72 @@ in {
     flavor = "mocha";
     accent = "mauve";
   };
-  systemd.user.services.sway-master-layout = {
-    Unit = {
-      Description = "Sway Master Layout Daemon";
-      PartOf = ["sway-session.target"];
-      After = ["sway-session.target"];
+  systemd.user.services = {
+    sworkstyle = {
+      Unit = {
+        Description = "Swayest Workstyle Daemon";
+        PartOf = ["sway-session.target"];
+        After = ["sway-session.target"];
+      };
+      Install = {WantedBy = ["sway-session.target"];};
+      Service = {
+        ExecStart = "${pkgs.swayest-workstyle}/bin/sworkstyle -d -l off";
+        Restart = "always";
+        RestartSec = "1s";
+      };
     };
-    Install = {
-      WantedBy = ["sway-session.target"];
-    };
-    Service = {
-      ExecStart = "${master-layout}/bin/sway-master-layout";
-      Restart = "always";
-      RestartSec = "1s";
-      Environment = "PYTHONUNBUFFERED=1";
+    sway-master-layout = {
+      Unit = {
+        Description = "Sway Master Layout Daemon";
+        PartOf = ["sway-session.target"];
+        After = ["sway-session.target"];
+      };
+      Install = {
+        WantedBy = ["sway-session.target"];
+      };
+      Service = {
+        ExecStart = "${master-layout}/bin/sway-master-layout";
+        Restart = "always";
+        RestartSec = "1s";
+        Environment = "PYTHONUNBUFFERED=1";
+      };
     };
   };
 
+  xdg.configFile."sworkstyle/config.toml".text = ''
+    fallback = ''
+    separator = ' '
+    [matching]
+    'firefox' = ''
+    'LibreWolf' = ''
+    'Google-chrome' = ''
+    'Chromium' = ''
+    'Brave-browser' = ''
+    'ayugram-desktop' = ''
+    'TelegramDesktop' = ''
+    'discord' = ''
+    'WebCord' = ''
+    'Vesktop' = ''
+    'Slack' = ''
+    'FreeTube' = '󰗃'
+    'Spotify' = ''
+    'supersonic' = ''
+    'finamp' = ''
+    'vlc' = ''
+    'mpv' = ''
+    'pavucontrol' = ''
+    'obsidian' = ''
+    'foot' = ''
+    'Alacritty' = ''
+    'kitty' = ''
+    'nm-connection-editor' = ''
+    'blueman-manager' = ''
+    'thunar' = ''
+    'org.gnome.Nautilus' = ''
+    'dragon' = ''
+    'transmission-gtk' = ''
+    'swayimg' = ''
+  '';
   wayland.windowManager.sway = {
     enable = true;
     wrapperFeatures.gtk = true;
@@ -212,10 +263,6 @@ in {
         titlebar = false;
       };
       startup = [
-        {command = "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway";}
-        {command = "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP";}
-        {command = "systemctl --user stop xdg-desktop-portal xdg-desktop-portal-wlr";}
-        {command = "systemctl --user start xdg-desktop-portal xdg-desktop-portal-wlr";}
         {command = "${pkgs.wl-clipboard}/bin/wl-paste -t text --watch ${pkgs.clipman}/bin/clipman store";}
         {command = "${pkgs.dunst}/bin/dunst";}
         {command = "/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1";}
@@ -227,6 +274,7 @@ in {
           "p" = "exec ${pkgs.grim}/bin/grim - | ${pkgs.wl-clipboard}/bin/wl-copy; mode default";
           "s" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.wl-clipboard}/bin/wl-copy; mode default";
           "w" = "exec ${pkgs.sway}/bin/swaymsg -t get_tree | ${pkgs.jq}/bin/jq -r '.. | select(.pid? and .visible?) | .rect | \"\\(.x),\\(.y) \\(.width)x\\(.height)\"' | ${pkgs.slurp}/bin/slurp | ${pkgs.grim}/bin/grim -g - - | ${pkgs.wl-clipboard}/bin/wl-copy; mode default";
+          "e" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.swappy}/bin/swappy -f -; mode default";
           "Escape" = "mode default";
           "Return" = "mode default";
         };
@@ -299,11 +347,13 @@ in {
         "Mod4+Shift+KP_Delete" = "mode screenshot";
 
         # --- Window Management ---
+        "Mod4+l" = "exec /usr/bin/swaylock -f";
         "Mod4+f" = "fullscreen toggle";
         "Mod4+Shift+space" = "floating toggle";
         "Mod4+w" = "layout toggle tabbed split";
         "Mod4+e" = "layout toggle split";
-        "Mod4+l" = "exec /usr/bin/swaylock -f";
+        "Mod4+h" = "exec splith";
+        "Mod4+v" = "exec splitv";
       };
     };
     systemd.enable = true;

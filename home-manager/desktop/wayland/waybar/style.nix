@@ -113,7 +113,19 @@
 
     #tray {
     }
-
+    #custom-pomodoro {
+      padding: 0 10px;
+      color: #cdd6f4; /* Catppuccin Text */
+    }
+    #custom-pomodoro.work {
+      color: #a6e3a1; /* Catppuccin Green */
+    }
+    #custom-pomodoro.break {
+      color: #89b4fa; /* Catppuccin Blue */
+    }
+    #custom-pomodoro.pause {
+      color: #fab387; /* Catppuccin Peach */
+    }
 
   '';
 }

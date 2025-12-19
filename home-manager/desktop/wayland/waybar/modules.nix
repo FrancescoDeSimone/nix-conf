@@ -1,4 +1,25 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}: let
+  pomodoro = pkgs.rustPlatform.buildRustPackage {
+    pname = "waybar-module-pomodoro";
+    version = "master";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "Andeskjerf";
+      repo = "waybar-module-pomodoro";
+      rev = "master";
+      hash = "sha256-vB5WROn/GmaJyLNHnyfhTZItjQlJ+LMXMw8gOT1GM0s=";
+    };
+    cargoHash = "sha256-FTzqNkGn1dk+pdee8U07NI/uqUR6/gs51ZWOpYro3j8=";
+    doCheck = false;
+  };
+in {
+  home.packages = [pomodoro];
+
   programs.waybar.settings.mainBar = {
     "layer" = "bottom";
     "position" = "bottom";
@@ -25,6 +46,7 @@
       "bluetooth"
       "battery"
       "custom/separator#line"
+      "custom/pomodoro"
       "clock"
       "custom/separator#line"
       "custom/dunst"
@@ -35,7 +57,7 @@
     "sway/workspaces" = {
       "disable-scroll" = true;
       "all-outputs" = false;
-      "format" = "{name}";
+      "format" = "{icon}";
     };
     "sway/mode" = {
       "format" = "<span style=\"italic\">{}</span>";
@@ -53,6 +75,14 @@
       "tooltip-format" = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
     };
 
+    "custom/pomodoro" = {
+      "format" = "{}";
+      "return-type" = "json";
+      "exec" = "${pomodoro}/bin/waybar-module-pomodoro";
+      "on-click" = "${pomodoro}/bin/waybar-module-pomodoro toggle";
+      "on-click-right" = "${pomodoro}/bin/waybar-module-pomodoro reset";
+      "tooltip" = true;
+    };
     "cpu" = {
       "interval" = 1;
       "format" = "  {icon0}{icon1}{icon2}{icon3} {usage:>2}% ";
