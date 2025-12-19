@@ -3,7 +3,6 @@
   pkgs,
   ...
 }: {
-  # You can import other home-manager modules here
   imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
 
   home.packages = with pkgs; [jellyfin-tui yq jq ayugram-desktop];

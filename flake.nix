@@ -1,113 +1,140 @@
 {
-  description = "Nix config";
-
   inputs = {
-    private.url = "git+ssh://git@github.com/FrancescoDeSimone/nix-conf-secrets";
+    # Core
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    # nixvim.url = "github:francescodesimone/nixvim";
+    home-manager.url = "github:nix-community/home-manager/release-25.11";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Secrets & Hardware
+    private.url = "git+ssh://git@github.com/FrancescoDeSimone/nix-conf-secrets";
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+    agenix.url = "github:ryantm/agenix";
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs-unstable";
+
+    # Aesthetics & Modules
+    catppuccin.url = "github:catppuccin/nix/release-25.05";
     kickstart-nvim = {
       url = "github:FrancescoDeSimone/kickstart.nvim";
       flake = false;
     };
-    home-manager.url = "github:nix-community/home-manager/release-25.11";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    catppuccin.url = "github:catppuccin/nix/release-25.05";
-    flake-utils.url = "github:numtide/flake-utils";
-    disko.url = "github:nix-community/disko";
-    disko.inputs.nixpkgs.follows = "nixpkgs-unstable";
-    agenix.url = "github:ryantm/agenix";
-    nixpkgs-android.url = "github:NixOS/nixpkgs/nixos-24.05";
+    tuxedo-rs.url = "github:AaronErhardt/tuxedo-rs";
+    tuxedo-rs.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Mobile & Utils
     nix-on-droid = {
       url = "github:nix-community/nix-on-droid/release-24.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # nixified-ai = "github:nixified-ai/flake";
-    # arkenfox = {
-    #   url = "github:dwarfmaster/arkenfox-nixos";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
+    nixpkgs-android.url = "github:NixOS/nixpkgs/nixos-24.05";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
   outputs = {
     self,
     nixpkgs,
-    nixpkgs-android,
-    nix-on-droid,
-    flake-utils,
-    private,
-    catppuccin,
     home-manager,
-    agenix,
+    catppuccin,
+    tuxedo-rs,
     ...
   } @ inputs: let
     inherit (self) outputs;
     lib = nixpkgs.lib // home-manager.lib;
     systems = ["x86_64-linux"];
-    forEachSystem = f: lib.genAttrs systems (system: f pkgsFor.${system});
-    pkgsFor = lib.genAttrs systems (system:
-      import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-      });
+
+    # Helper for system-specific attributes
+    forEachSystem = f: lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
+
+    # Shared specialArgs for NixOS and Home Manager
+    sharedArgs = {
+      inherit inputs outputs;
+      inherit (inputs) private;
+    };
+
+    # Helper for creating NixOS configurations
+    mkSystem = hostName: modules:
+      lib.nixosSystem {
+        specialArgs = sharedArgs;
+        modules =
+          [
+            {
+              networking.hostName = hostName;
+              nixpkgs.hostPlatform = "x86_64-linux";
+            }
+          ]
+          ++ modules;
+      };
+
+    # Helper for creating Home Manager configurations
+    mkHome = user: host: module:
+      lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        extraSpecialArgs = sharedArgs;
+        modules = [module catppuccin.homeModules.catppuccin];
+      };
   in {
     inherit lib;
+
+    # Standard outputs
     packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs;});
     formatter = forEachSystem (pkgs: pkgs.nixpkgs-fmt);
     overlays = import ./overlays {inherit inputs;};
     nixosModules = import ./modules/nixos;
     homeModules = import ./modules/home-manager;
+
+    # --- NixOS Configurations ---
+    nixosConfigurations = {
+      pegasus = mkSystem "pegasus" [
+        ./nixos/pegasus.nix
+        inputs.agenix.nixosModules.default
+        {environment.systemPackages = [inputs.agenix.packages.x86_64-linux.default];}
+      ];
+
+      gemini = mkSystem "gemini" [
+        ./nixos/gemini/default.nix
+        inputs.nixos-hardware.nixosModules.tuxedo-pulse-15-gen2
+        inputs.disko.nixosModules.disko
+        inputs.agenix.nixosModules.default
+      ];
+
+      gemini-iso = mkSystem "gemini-iso" [
+        "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+        ./nixos/gemini/default.nix
+        inputs.nixos-hardware.nixosModules.tuxedo-pulse-15-gen2
+        inputs.disko.nixosModules.disko
+        inputs.agenix.nixosModules.default
+        {
+          system.extraDependencies = [
+            self.nixosConfigurations.gemini.config.system.build.toplevel
+          ];
+          networking.hostName = lib.mkForce "gemini-iso";
+          boot.supportedFilesystems = lib.mkForce ["vfat" "ext4" "ntfs" "cifs"];
+          services.openssh.enable = true;
+          services.openssh.settings.PermitRootLogin = "yes";
+          users.users.root.openssh.authorizedKeys.keys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDM/Ia8zA09Ak7M7QCDrlBXVxuSnSDilhlp73vPjRGTq fds@fds"
+          ];
+        }
+      ];
+    };
+
+    # --- Home Manager Configurations ---
     homeConfigurations = {
-      "ubuntu@orangebox" = home-manager.lib.homeManagerConfiguration {
-        pkgs =
-          nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {inherit inputs outputs;};
-        modules = [
-          ./home-manager/orangebox.nix
-          catppuccin.homeModules.catppuccin
-        ];
-      };
-      pegasus = home-manager.lib.homeManagerConfiguration {
-        pkgs =
-          nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {inherit inputs outputs;};
-        modules = [
-          ./home-manager/pegasus.nix
-          catppuccin.homeModules.catppuccin
-        ];
-      };
-      "fdesi@phoenix" = home-manager.lib.homeManagerConfiguration {
-        pkgs =
-          nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {inherit inputs outputs;};
-        modules = [
-          ./home-manager/phoenix.nix
-          catppuccin.homeModules.catppuccin
-        ];
-      };
+      "ubuntu@orangebox" = mkHome "ubuntu" "orangebox" ./home-manager/orangebox.nix;
+      "thinkcentre@pegasus" = mkHome "thinkcentre" "pegasus" ./home-manager/pegasus.nix;
+      "fdesi@phoenix" = mkHome "fdesi" "phoenix" ./home-manager/phoenix.nix;
+      "fdesi@gemini" = mkHome "fdesi" "gemini" ./home-manager/gemini.nix;
     };
-    extraLib = {
-      system = flake-utils.lib.system;
-      allSystems = flake-utils.lib.allSystems;
-    };
-    nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
-      pkgs = import nixpkgs-android {system = "aarch64-linux";};
+
+    # --- Android ---
+    nixOnDroidConfigurations.default = inputs.nix-on-droid.lib.nixOnDroidConfiguration {
+      pkgs = import inputs.nixpkgs-android {system = "aarch64-linux";};
       modules = [./nixos/nix-on-droid.nix];
     };
-    nixosConfigurations = {
-      pegasus = nixpkgs.lib.nixosSystem {
-        specialArgs = {
-          inherit inputs outputs;
-          inherit private;
-        };
-        modules = [
-          ./nixos/pegasus.nix
-          agenix.nixosModules.default
-          {
-            environment.systemPackages = [agenix.packages.x86_64-linux.default];
-          }
-        ];
-      };
+
+    extraLib = {
+      inherit (inputs.flake-utils.lib) system allSystems;
     };
   };
 }

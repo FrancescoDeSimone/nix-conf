@@ -9,4 +9,6 @@ in {
   "slskd.age".publicKeys = keys;
   "spotizerr.age".publicKeys = keys;
   "govd.age".publicKeys = keys;
+  "user-password.age".publicKeys = keys;
+  "wifi.age".publicKeys = keys;
 }
