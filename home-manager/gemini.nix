@@ -21,7 +21,6 @@
     enable = true;
     systemd = {
       enable = true;
-      # This ensures it starts for both Sway and Hyprland
       target = "graphical-session.target";
     };
   };
