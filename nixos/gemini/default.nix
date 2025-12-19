@@ -14,6 +14,15 @@
     inputs.agenix.nixosModules.default
   ];
 
+  nix = {
+    settings = {
+      experimental-features = ["nix-command" "flakes"];
+      auto-optimise-store = true;
+    };
+    registry = lib.mapAttrs (_: value: {flake = value;}) inputs;
+    nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
+  };
+
   age.secrets = {
     user-password = {
       file = "${inputs.private}/user-password.age";
