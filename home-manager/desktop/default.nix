@@ -7,17 +7,16 @@
       dragon-drop
       networkmanagerapplet
       fira-code
-      sshuttle
-      supersonic
       pavucontrol
-      woomer
       oculante
-      # unstable.freetube
+      blueman
       obsidian
       unstable.finamp
     ]
     ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
   fonts.fontconfig.enable = true;
+  catppuccin.enable = true;
+  catppuccin.flavor = "mocha";
   systemd.user = {
     enable = true;
     services.nm-applet = {

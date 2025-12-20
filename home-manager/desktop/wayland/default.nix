@@ -6,6 +6,7 @@
     wf-recorder
     brightnessctl
     grimblast
+    woomer
     libva-utils
     wmctrl
     wl-clipboard

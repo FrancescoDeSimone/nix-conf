@@ -7,6 +7,7 @@
     cht-sh
     fd
     fzf
+    sshuttle
     unstable.rsync
     yazi
   ];

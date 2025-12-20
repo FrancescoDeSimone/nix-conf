@@ -66,10 +66,6 @@
     };
   };
   programs.swaylock.package = null;
-
-  catppuccin.enable = true;
-  catppuccin.flavor = "mocha";
-
   home = {
     username = "fdesi";
     homeDirectory = "/home/fdesi";

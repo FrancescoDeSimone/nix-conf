@@ -7,12 +7,11 @@
   home.packages = with pkgs; [
     neovim
     jellyfin-tui
+    unstable.freetube
     yq
     jq
     ayugram-desktop
   ];
-  catppuccin.enable = true;
-  catppuccin.flavor = "mocha";
   wayland.windowManager.sway = {
     package = null;
     config.bars = [];
