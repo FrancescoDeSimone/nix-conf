@@ -231,7 +231,6 @@ in {
       terminal = "${pkgs.foot}/bin/foot";
       menu = "${config.programs.rofi.package}/bin/rofi -show drun";
       bars = [
-        {command = "${pkgs.waybar}/bin/waybar";}
       ];
       input = {
         "type:touchpad" = {
