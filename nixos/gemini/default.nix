@@ -45,7 +45,7 @@
   system.stateVersion = "25.11";
 
   boot = {
-    boot.kernelPackages = pkgs.linuxPackages_6_12;
+    kernelPackages = pkgs.linuxPackages_6_12;
     extraModulePackages = with config.boot.kernelPackages; [tuxedo-drivers yt6801];
     kernelParams = ["acpi.ec_no_wakeup=1" "amdgpu.dcdebugmask=0x10"];
     loader = {
