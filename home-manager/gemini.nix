@@ -27,5 +27,6 @@
   home = {
     username = "fdesi";
     homeDirectory = "/home/fdesi";
+    stateVersion = "25.11";
   };
 }
