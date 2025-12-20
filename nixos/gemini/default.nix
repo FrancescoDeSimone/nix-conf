@@ -92,6 +92,8 @@
   networking.networkmanager.enable = true;
   home-manager = {
     extraSpecialArgs = {inherit inputs outputs;};
+    useGlobalPkgs = true;
+    useUserPackages = true;
     users.fdesi = {
       imports = [../../home-manager/gemini.nix inputs.catppuccin.homeModules.catppuccin];
     };
