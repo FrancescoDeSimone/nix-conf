@@ -23,21 +23,28 @@
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
   };
 
-  hardware.bluetooth.enable = true;
-  hardware.bluetooth.powerOnBoot = true;
+    hardware = 
+    {
+
+  bluetooth.enable = true;
+  bluetooth.powerOnBoot = true;
+      firmware = with pkgs; [
+    linux-firmware
+  ];
+    };
   services.blueman.enable = true;
 
-  age.secrets = {
-    user-password = {
-      file = "${inputs.private}/user-password.age";
-    };
-    wifi = {
-      file = "${inputs.private}/wifi.age";
-      path = "/etc/NetworkManager/system-connections/wifi.nmconnection";
-      mode = "600";
-    };
-  };
-  age.identityPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+  #age.secrets = {
+  #  user-password = {
+  #    file = "${inputs.private}/user-password.age";
+  #  };
+  #  wifi = {
+  #    file = "${inputs.private}/wifi.age";
+  #    path = "/etc/NetworkManager/system-connections/wifi.nmconnection";
+  #    mode = "600";
+  #  };
+  #};
+  #age.identityPaths = ["/home/fdesi/.ssh/id_rsa.pub"];
 
   nixpkgs.hostPlatform = "x86_64-linux";
   time.timeZone = "Europe/Rome";
@@ -86,7 +93,7 @@
       isNormalUser = true;
       extraGroups = ["networkmanager" "wheel" "video" "audio"];
       shell = pkgs.zsh;
-      hashedPasswordFile = config.age.secrets.user-password.path;
+      #hashedPasswordFile = config.age.secrets.user-password.path;
     };
   };
   networking.networkmanager.enable = true;
