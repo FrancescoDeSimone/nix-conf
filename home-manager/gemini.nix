@@ -17,13 +17,6 @@
     package = null;
     config.bars = [];
   };
-  programs.waybar = {
-    enable = true;
-    systemd = {
-      enable = true;
-      target = "graphical-session.target";
-    };
-  };
   home = {
     username = "fdesi";
     homeDirectory = "/home/fdesi";
