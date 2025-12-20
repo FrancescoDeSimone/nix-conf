@@ -61,17 +61,42 @@
             {
               networking.hostName = hostName;
               nixpkgs.hostPlatform = "x86_64-linux";
+              nixpkgs.overlays = [
+                outputs.overlays.additions
+                outputs.overlays.modifications
+                outputs.overlays.unstable-packages
+              ];
+              nixpkgs.config.allowUnfree = true;
             }
           ]
           ++ modules;
       };
 
+    # Define a helper to get configured pkgs
+    pkgsFor = system:
+      import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+        overlays = [
+          outputs.overlays.additions
+          outputs.overlays.modifications
+          outputs.overlays.unstable-packages
+        ];
+      };
+
     # Helper for creating Home Manager configurations
     mkHome = user: host: module:
       lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        pkgs = pkgsFor "x86_64-linux";
         extraSpecialArgs = sharedArgs;
-        modules = [module catppuccin.homeModules.catppuccin];
+        modules = [
+          module
+          catppuccin.homeModules.catppuccin
+          {
+            home.stateVersion = "25.11";
+            systemd.user.startServices = "sd-switch";
+          }
+        ];
       };
   in {
     inherit lib;

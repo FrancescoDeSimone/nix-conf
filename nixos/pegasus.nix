@@ -34,14 +34,6 @@
       file = ../secrets/govd.age;
     };
   };
-  nixpkgs = {
-    overlays = [
-      outputs.overlays.additions
-      outputs.overlays.modifications
-      outputs.overlays.unstable-packages
-    ];
-    config = {allowUnfree = true;};
-  };
   system.autoUpgrade = {enable = true;};
   nix = {
     registry = lib.mapAttrs (_: value: {flake = value;}) inputs;
@@ -84,7 +76,6 @@
   };
 
   networking = {
-    hostName = "pegasus";
     networkmanager.enable = true;
   };
   systemd = {

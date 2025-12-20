@@ -11,6 +11,9 @@
     # ...
     # });
     # neovim = inputs.nixvim.packages.${prev.system}.default;
+    rofi-calc = prev.rofi-calc.override {rofi-unwrapped = prev.rofi-unwrapped;};
+    rofi-top = prev.rofi-top.override {rofi-unwrapped = prev.rofi-unwrapped;};
+    rofi-vpn = prev.rofi-vpn.override {rofi-unwrapped = prev.rofi-unwrapped;};
   };
 
   # When applied, the unstable nixpkgs set (declared in the flake inputs) will

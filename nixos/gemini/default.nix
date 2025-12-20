@@ -39,7 +39,6 @@
   };
   age.identityPaths = ["/etc/ssh/ssh_host_ed25519_key"];
 
-  networking.hostName = "gemini";
   nixpkgs.hostPlatform = "x86_64-linux";
   time.timeZone = "Europe/Rome";
   i18n.defaultLocale = "en_US.UTF-8";
