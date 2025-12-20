@@ -121,6 +121,7 @@
         inputs.nixos-hardware.nixosModules.tuxedo-pulse-15-gen2
         inputs.disko.nixosModules.disko
         inputs.agenix.nixosModules.default
+        {environment.systemPackages = [inputs.agenix.packages.x86_64-linux.default];}
       ];
 
       gemini-iso = mkSystem "gemini-iso" [
