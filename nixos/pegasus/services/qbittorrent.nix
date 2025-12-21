@@ -1,9 +1,7 @@
-{ private, ... }:
-let
+{private, ...}: let
   qbuser = private.qb.user;
   qbpasswd = private.qb.passwd;
-in
-{
+in {
   services.qbittorrent = {
     enable = true;
     user = "thinkcentre";
@@ -25,5 +23,5 @@ in
     isNormalUser = true;
     group = "thinkcentre";
   };
-  users.groups.thinkcentre = { };
+  users.groups.thinkcentre = {};
 }

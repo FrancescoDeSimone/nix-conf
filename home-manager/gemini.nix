@@ -1,10 +1,10 @@
-{ outputs
-, pkgs
-, ...
+{
+  outputs,
+  pkgs,
+  ...
 }: {
-  imports = [ ./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix ];
+  imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
   home.packages = with pkgs; [
-    neovim
     jellyfin-tui
     unstable.freetube
     yq
@@ -13,7 +13,7 @@
   ];
   wayland.windowManager.sway = {
     package = null;
-    config.bars = [ ];
+    config.bars = [];
   };
   home = {
     username = "fdesi";

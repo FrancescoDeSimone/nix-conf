@@ -11,9 +11,10 @@
 #     };
 #   };
 # }
-{ config
-, pkgs
-, ...
+{
+  config,
+  pkgs,
+  ...
 }: {
   # 1. Disable the Catppuccin module for Foot (stops the deprecation warning)
   # TODO: add it back when catppuccin get fixes
@@ -27,7 +28,7 @@
         font = "Fira Code:size=13";
         dpi-aware = "yes";
       };
-      scrollback = { lines = 10000; };
+      scrollback = {lines = 10000;};
 
       colors = {
         alpha = "1.0";

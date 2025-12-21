@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  imports = [ ./dunst.nix ./firefox.nix ./rofi/rofi.nix ./pass.nix ./script.nix ];
+{pkgs, ...}: {
+  imports = [./dunst.nix ./firefox.nix ./rofi/rofi.nix ./pass.nix ./script.nix];
   home.packages = with pkgs;
     [
       playerctl
@@ -20,9 +20,9 @@
   systemd.user = {
     enable = true;
     services.nm-applet = {
-      Unit = { Description = "start nm-applet"; };
-      Install = { WantedBy = [ "display-manager.target" ]; };
-      Service = { ExecStart = "${pkgs.networkmanagerapplet}/bin/nm-applet"; };
+      Unit = {Description = "start nm-applet";};
+      Install = {WantedBy = ["display-manager.target"];};
+      Service = {ExecStart = "${pkgs.networkmanagerapplet}/bin/nm-applet";};
     };
   };
 }

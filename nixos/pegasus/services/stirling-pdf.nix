@@ -1,6 +1,7 @@
-{ pkgs
-, inputs
-, ...
+{
+  pkgs,
+  inputs,
+  ...
 }: {
   #disabledModules = ["services/web-apps/stirling-pdf.nix"];
   #imports = [

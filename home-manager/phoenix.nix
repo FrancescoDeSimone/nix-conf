@@ -1,10 +1,11 @@
-{ outputs
-, pkgs
-, ...
+{
+  outputs,
+  pkgs,
+  ...
 }: {
-  imports = [ ./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix ];
+  imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
 
-  home.packages = with pkgs; [ jellyfin-tui yq jq ayugram-desktop ];
+  home.packages = with pkgs; [jellyfin-tui yq jq ayugram-desktop];
 
   xdg.dataFile."wayland-sessions/sway-nvidia.desktop".text = ''
     [Desktop Entry]

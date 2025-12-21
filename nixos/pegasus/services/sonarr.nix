@@ -1,6 +1,7 @@
-{ pkgs
-, config
-, ...
+{
+  pkgs,
+  config,
+  ...
 }: {
   services.sonarr = {
     package = pkgs.unstable.sonarr;

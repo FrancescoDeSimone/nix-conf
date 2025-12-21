@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-let
+{pkgs, ...}: let
   rofi_menu = pkgs.writeShellScriptBin "rofi_menu" ''
     # Preserving your XDG setup for non-NixOS application discovery
     export XDG_DATA_DIRS="/var/lib/snapd/desktop:/usr/local/share:/usr/share:/home/fdesi/.nix-profile/share/applications:/nix/var/nix/profiles/default/share:/home/fdesi/.nix-profile/share:/nix/var/nix/profiles/default/share"
@@ -79,8 +78,7 @@ let
       $hypr dispatch changegroupactive f
     fi
   '';
-in
-{
+in {
   home.packages = with pkgs; [
     rofi_menu
     lockscreen

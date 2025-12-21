@@ -8,20 +8,20 @@
     containers = {
       flaresolverr = {
         image = "ghcr.io/flaresolverr/flaresolverr:latest";
-        ports = [ "8191:8191" ];
+        ports = ["8191:8191"];
       };
       speedtesttracker = {
         image = "henrywhitaker3/speedtest-tracker";
-        ports = [ "8765:80" ];
-        environment = { OOKLA_EULA_GDPR = "true"; };
+        ports = ["8765:80"];
+        environment = {OOKLA_EULA_GDPR = "true";};
       };
       bypass = {
         image = "wasimaster/13ft";
-        ports = [ "5000:5000" ];
+        ports = ["5000:5000"];
       };
       lidarr-on-steroids = {
         image = "youegraillot/lidarr-on-steroids";
-        ports = [ "8686:8686" "6595:6595" ];
+        ports = ["8686:8686" "6595:6595"];
         environment = {
           CLEAN_DOWNLOADS = "true";
           AUTOCONFIG = "true";

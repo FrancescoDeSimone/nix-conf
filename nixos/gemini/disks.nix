@@ -20,7 +20,7 @@
             content = {
               type = "luks";
               name = "crypted";
-              extraOpenArgs = [ "--allow-discards" ];
+              extraOpenArgs = ["--allow-discards"];
               content = {
                 type = "lvm_pv";
                 vg = "pool";
@@ -43,7 +43,7 @@
         };
         swap = {
           size = "16G";
-          content = { type = "swap"; };
+          content = {type = "swap";};
         };
       };
     };
