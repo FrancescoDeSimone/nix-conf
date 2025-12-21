@@ -29,6 +29,10 @@
     };
     nixpkgs-android.url = "github:NixOS/nixpkgs/nixos-24.05";
     flake-utils.url = "github:numtide/flake-utils";
+
+    # Rust Overlay
+    rust-overlay.url = "github:oxalica/rust-overlay";
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -37,6 +41,7 @@
     home-manager,
     catppuccin,
     tuxedo-rs,
+    rust-overlay,
     ...
   } @ inputs: let
     inherit (self) outputs;
@@ -52,6 +57,13 @@
       inherit (inputs) private;
     };
 
+    allOverlays = [
+      outputs.overlays.additions
+      outputs.overlays.modifications
+      outputs.overlays.unstable-packages
+      rust-overlay.overlays.default
+    ];
+
     # Helper for creating NixOS configurations
     mkSystem = hostName: modules:
       lib.nixosSystem {
@@ -61,11 +73,7 @@
             {
               networking.hostName = hostName;
               nixpkgs.hostPlatform = "x86_64-linux";
-              nixpkgs.overlays = [
-                outputs.overlays.additions
-                outputs.overlays.modifications
-                outputs.overlays.unstable-packages
-              ];
+              nixpkgs.overlays = allOverlays;
               nixpkgs.config.allowUnfree = true;
             }
           ]
@@ -77,11 +85,7 @@
       import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        overlays = [
-          outputs.overlays.additions
-          outputs.overlays.modifications
-          outputs.overlays.unstable-packages
-        ];
+        overlays = allOverlays;
       };
 
     # Helper for creating Home Manager configurations

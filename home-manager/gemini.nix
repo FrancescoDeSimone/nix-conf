@@ -3,7 +3,12 @@
   pkgs,
   ...
 }: {
-  imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
+  imports = [
+    ./desktop/default.nix
+    ./cli/default.nix
+    ./desktop/wayland/default.nix
+    ./cli/programming/default.nix
+  ];
   home.packages = with pkgs; [
     jellyfin-tui
     unstable.freetube
