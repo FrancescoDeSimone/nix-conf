@@ -1,6 +1,8 @@
-{private, ...}: let
+{ private, ... }:
+let
   provider = private.nginx.provider;
-in {
+in
+{
   services.cron = {
     enable = true;
     systemCronJobs = [

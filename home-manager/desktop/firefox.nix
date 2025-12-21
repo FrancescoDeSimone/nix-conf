@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   lock-false = {
     Value = false;
     Status = "locked";
@@ -7,7 +8,8 @@
     Value = true;
     Status = "locked";
   };
-in {
+in
+{
   programs.firefox = {
     # package = pkgs.librewolf;
     enable = true;
@@ -111,6 +113,12 @@ in {
         "browser.contentblocking.category" = {
           Value = "strict";
           Status = "locked";
+        };
+        "extensions.activeThemeID" = {
+          Value = "firefox-compact-dark@mozilla.org";
+        };
+        "ui.systemUsesDarkTheme" = {
+          Value = 1;
         };
         "extensions.pocket.enabled" = lock-false;
         "extensions.screenshots.disabled" = lock-true;

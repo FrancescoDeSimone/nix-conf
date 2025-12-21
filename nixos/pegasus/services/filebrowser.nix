@@ -1,7 +1,7 @@
 {
   systemd.services.filebrowser = {
     enable = true;
-    wantedBy = ["default.target"];
+    wantedBy = [ "default.target" ];
     serviceConfig = {
       User = "root";
       Group = "wheel";

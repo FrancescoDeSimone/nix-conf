@@ -1,10 +1,9 @@
-{
-  inputs,
-  outputs,
-  lib,
-  config,
-  pkgs,
-  ...
+{ inputs
+, outputs
+, lib
+, config
+, pkgs
+, ...
 }: {
   imports = [
     ./pegasus/hardware-configuration.nix
@@ -34,12 +33,12 @@
       file = ../secrets/govd.age;
     };
   };
-  system.autoUpgrade = {enable = true;};
+  system.autoUpgrade = { enable = true; };
   nix = {
-    registry = lib.mapAttrs (_: value: {flake = value;}) inputs;
+    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
     nixPath =
       lib.mapAttrsToList (key: value: "${key}=${value.to.path}")
-      config.nix.registry;
+        config.nix.registry;
     optimise.automatic = true;
     gc = {
       automatic = true;
@@ -52,7 +51,7 @@
     };
   };
 
-  services.xserver.videoDrivers = ["amdgpu"];
+  services.xserver.videoDrivers = [ "amdgpu" ];
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [
@@ -67,12 +66,12 @@
     ];
   };
   boot = {
-    kernelParams = ["amd_iommu=off"];
-    initrd.kernelModules = ["amdgpu"];
+    kernelParams = [ "amd_iommu=off" ];
+    initrd.kernelModules = [ "amdgpu" ];
     kernelPackages = pkgs.linuxPackages_latest;
     loader.systemd-boot.enable = true;
     loader.efi.canTouchEfiVariables = true;
-    blacklistedKernelModules = ["bluetooth" "snd_hda_intel"];
+    blacklistedKernelModules = [ "bluetooth" "snd_hda_intel" ];
   };
 
   networking = {
@@ -111,7 +110,7 @@
     users.thinkcentre = {
       isNormalUser = true;
       description = "thinkcentre";
-      extraGroups = ["networkmanager" "wheel" "incus" "docker"];
+      extraGroups = [ "networkmanager" "wheel" "incus" "docker" ];
     };
   };
   system.stateVersion = "25.11"; # Did you read the comment?

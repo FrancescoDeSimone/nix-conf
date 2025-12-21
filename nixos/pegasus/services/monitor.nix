@@ -1,4 +1,4 @@
-{config, ...}: {
+{ config, ... }: {
   services.grafana = {
     enable = true;
     settings.server = {
@@ -22,7 +22,7 @@
       };
       node.enable = true;
       node = {
-        enabledCollectors = ["logind" "systemd" "processes"];
+        enabledCollectors = [ "logind" "systemd" "processes" ];
         port = 9002;
       };
     };
@@ -36,7 +36,7 @@
         job_name = "node";
         static_configs = [
           {
-            targets = ["localhost:${toString config.services.prometheus.exporters.node.port}"];
+            targets = [ "localhost:${toString config.services.prometheus.exporters.node.port}" ];
           }
         ];
       }
@@ -44,7 +44,7 @@
         job_name = "process";
         static_configs = [
           {
-            targets = ["localhost:${toString config.services.prometheus.exporters.process.port}"];
+            targets = [ "localhost:${toString config.services.prometheus.exporters.process.port}" ];
           }
         ];
       }
@@ -52,7 +52,7 @@
         job_name = "systemd";
         static_configs = [
           {
-            targets = ["localhost:${toString config.services.prometheus.exporters.systemd.port}"];
+            targets = [ "localhost:${toString config.services.prometheus.exporters.systemd.port}" ];
           }
         ];
       }

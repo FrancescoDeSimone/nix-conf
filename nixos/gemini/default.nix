@@ -1,10 +1,9 @@
-{
-  pkgs,
-  inputs,
-  outputs,
-  config,
-  lib,
-  ...
+{ pkgs
+, inputs
+, outputs
+, config
+, lib
+, ...
 }: {
   imports = [
     ./disks.nix
@@ -16,22 +15,20 @@
 
   nix = {
     settings = {
-      experimental-features = ["nix-command" "flakes"];
+      experimental-features = [ "nix-command" "flakes" ];
       auto-optimise-store = true;
     };
-    registry = lib.mapAttrs (_: value: {flake = value;}) inputs;
+    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
   };
 
-    hardware = 
-    {
-
-  bluetooth.enable = true;
-  bluetooth.powerOnBoot = true;
-      firmware = with pkgs; [
-    linux-firmware
-  ];
-    };
+  hardware = {
+    bluetooth.enable = true;
+    bluetooth.powerOnBoot = true;
+    firmware = with pkgs; [
+      linux-firmware
+    ];
+  };
   services.blueman.enable = true;
 
   #age.secrets = {
@@ -53,8 +50,8 @@
 
   boot = {
     kernelPackages = pkgs.linuxPackages_6_12;
-    extraModulePackages = with config.boot.kernelPackages; [tuxedo-drivers yt6801];
-    kernelParams = ["acpi.ec_no_wakeup=1" "amdgpu.dcdebugmask=0x10"];
+    extraModulePackages = with config.boot.kernelPackages; [ tuxedo-drivers yt6801 ];
+    kernelParams = [ "acpi.ec_no_wakeup=1" "amdgpu.dcdebugmask=0x10" ];
     loader = {
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
@@ -62,7 +59,7 @@
 
     initrd = {
       systemd.enable = true; # Required for TPM2 LUKS unlocking
-      availableKernelModules = ["nvme" "xhci_pci" "usb_storage" "sd_mod" "tpm_tis"];
+      availableKernelModules = [ "nvme" "xhci_pci" "usb_storage" "sd_mod" "tpm_tis" ];
     };
   };
 
@@ -91,18 +88,18 @@
   users.users = {
     fdesi = {
       isNormalUser = true;
-      extraGroups = ["networkmanager" "wheel" "video" "audio"];
+      extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
       shell = pkgs.zsh;
       #hashedPasswordFile = config.age.secrets.user-password.path;
     };
   };
   networking.networkmanager.enable = true;
   home-manager = {
-    extraSpecialArgs = {inherit inputs outputs;};
+    extraSpecialArgs = { inherit inputs outputs; };
     useGlobalPkgs = true;
     useUserPackages = true;
     users.fdesi = {
-      imports = [../../home-manager/gemini.nix inputs.catppuccin.homeModules.catppuccin];
+      imports = [ ../../home-manager/gemini.nix inputs.catppuccin.homeModules.catppuccin ];
     };
   };
 }

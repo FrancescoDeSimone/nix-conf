@@ -1,5 +1,5 @@
-{pkgs, ...}: {
-  imports = [./zsh.nix ./htop.nix ./tmux.nix ./starship.nix ./neovim.nix];
+{ pkgs, ... }: {
+  imports = [ ./zsh.nix ./htop.nix ./tmux.nix ./starship.nix ./neovim.nix ];
   home.packages = with pkgs; [
     home-manager
     git

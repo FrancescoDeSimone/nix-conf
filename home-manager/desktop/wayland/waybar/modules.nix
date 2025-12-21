@@ -1,9 +1,9 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}: let
+{ pkgs
+, lib
+, config
+, ...
+}:
+let
   pomodoro = pkgs.rustPlatform.buildRustPackage {
     pname = "waybar-module-pomodoro";
     version = "master";
@@ -17,8 +17,9 @@
     cargoHash = "sha256-FTzqNkGn1dk+pdee8U07NI/uqUR6/gs51ZWOpYro3j8=";
     doCheck = false;
   };
-in {
-  home.packages = [pomodoro];
+in
+{
+  home.packages = [ pomodoro ];
 
   programs.waybar.settings.mainBar = {
     "layer" = "bottom";
@@ -30,7 +31,7 @@ in {
       "sway/mode"
       "hyprland/workspaces"
     ];
-    "modules-center" = [];
+    "modules-center" = [ ];
     "modules-right" = [
       # "custom/playerctl"
       "custom/separator#line"
@@ -63,7 +64,7 @@ in {
       "format" = "<span style=\"italic\">{}</span>";
     };
 
-    "hyprland/workspaces" = {};
+    "hyprland/workspaces" = { };
     "tray" = {
       "icon-size" = 18;
       "spacing" = 15;
@@ -86,7 +87,7 @@ in {
     "cpu" = {
       "interval" = 1;
       "format" = "  {icon0}{icon1}{icon2}{icon3} {usage:>2}% ";
-      "format-icons" = ["▁" "▂" "▃" "▄" "▅" "▆" "▇" "█"];
+      "format-icons" = [ "▁" "▂" "▃" "▄" "▅" "▆" "▇" "█" ];
       "tooltip" = true;
     };
 
@@ -103,7 +104,7 @@ in {
       "format" = "{icon}   {capacity}%";
       "format-good" = "{icon}   {capacity}%";
       "format-full" = "   {capacity}%";
-      "format-icons" = ["" "" "" "" ""];
+      "format-icons" = [ "" "" "" "" "" ];
       "interval" = 30;
       "tooltip-format" = "{timeTo}\nPower: {power}W\nHealth: {health}%";
     };
@@ -158,7 +159,7 @@ in {
     "temperature" = {
       "thermal-zone" = 0;
       "format" = " {icon} {temperatureC}°C ";
-      "format-icons" = [""];
+      "format-icons" = [ "" ];
       "interval" = 30;
       "tooltip-format" = "Thermal Zone: {thermal_zone}\nCritical: {critical}°C";
     };
@@ -200,7 +201,7 @@ in {
       "format-bluetooth" = "   {volume}% ";
       "format-muted" = "Mute";
       "interval" = 60;
-      "format-icons" = {"default" = [""];};
+      "format-icons" = { "default" = [ "" ]; };
       "on-click" = "~/.nix-profile/bin/pavucontrol";
       "tooltip-format" = "{desc} ({volume}%)";
     };

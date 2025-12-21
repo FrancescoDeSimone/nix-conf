@@ -1,7 +1,7 @@
 {
   systemd.services.glances = {
     enable = true;
-    wantedBy = ["default.target"];
+    wantedBy = [ "default.target" ];
     serviceConfig = {
       User = "thinkcentre";
       Group = "users";

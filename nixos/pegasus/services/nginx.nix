@@ -1,13 +1,14 @@
-{
-  config,
-  private,
-  pkgs,
-  ...
-}: let
+{ config
+, private
+, pkgs
+, ...
+}:
+let
   email = private.nginx.email;
   domain = private.nginx.domain;
   provider = private.nginx.provider;
-in {
+in
+{
   security.acme = {
     acceptTerms = true;
     preliminarySelfsigned = true;
@@ -46,35 +47,37 @@ in {
         useACMEHost = domain;
         locations."/".proxyPass = "http://127.0.0.1:8080";
       };
-      ${"it-tools." + domain} = let
-        figletFonts = pkgs.runCommand "figlet-fonts" {} ''
-                  mkdir -p $out
-                  cp ${pkgs.fetchurl {
-            url = "https://unpkg.com/figlet@1.6.0/fonts/3D%20Diagonal.flf";
-            sha256 = "sha256-CsZh0A4xMuCy6bny4jwolxprdbA+mmmOpsUkPjh+Lpc=";
-          }} "$out/3D Diagonal.flf"
+      ${"it-tools." + domain} =
+        let
+          figletFonts = pkgs.runCommand "figlet-fonts" { } ''
+                    mkdir -p $out
                     cp ${pkgs.fetchurl {
-            url = "https://unpkg.com/figlet@1.6.0/fonts/3D-ASCII.flf";
-            sha256 = "sha256-ywpy1pJ7fKZbFxNCVfqkvfgXVApoPfNff70yt8lTBS4=";
-          }} "$out/3D-ASCII.flf"
+              url = "https://unpkg.com/figlet@1.6.0/fonts/3D%20Diagonal.flf";
+              sha256 = "sha256-CsZh0A4xMuCy6bny4jwolxprdbA+mmmOpsUkPjh+Lpc=";
+            }} "$out/3D Diagonal.flf"
+                      cp ${pkgs.fetchurl {
+              url = "https://unpkg.com/figlet@1.6.0/fonts/3D-ASCII.flf";
+              sha256 = "sha256-ywpy1pJ7fKZbFxNCVfqkvfgXVApoPfNff70yt8lTBS4=";
+            }} "$out/3D-ASCII.flf"
 
-          cp ${pkgs.fetchurl {
-            url = "https://unpkg.com/figlet@1.6.0/fonts/3x5.flf";
-            sha256 = "sha256-Rtgtcb3b0AAYfsdSRdN8YO24gqmyE/gZqGRAsRYn5nY=";
-          }} "$out/3x5.flf"
-        '';
-      in {
-        forceSSL = true;
-        useACMEHost = domain;
-        root = "${pkgs.it-tools}/lib";
-        extraConfig = ''
-          index index.html;
+            cp ${pkgs.fetchurl {
+              url = "https://unpkg.com/figlet@1.6.0/fonts/3x5.flf";
+              sha256 = "sha256-Rtgtcb3b0AAYfsdSRdN8YO24gqmyE/gZqGRAsRYn5nY=";
+            }} "$out/3x5.flf"
+          '';
+        in
+        {
+          forceSSL = true;
+          useACMEHost = domain;
+          root = "${pkgs.it-tools}/lib";
+          extraConfig = ''
+            index index.html;
 
-          location /fonts/ {
-            alias ${figletFonts}/;
-          }
-        '';
-      };
+            location /fonts/ {
+              alias ${figletFonts}/;
+            }
+          '';
+        };
       ${"bypass." + domain} = {
         forceSSL = true;
         useACMEHost = domain;
