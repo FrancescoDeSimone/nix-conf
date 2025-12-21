@@ -15,6 +15,7 @@
     Exec=env WLR_DRM_DEVICES=/dev/dri/card1:/dev/dri/card2 WLR_NO_HARDWARE_CURSORS=1 /usr/bin/sway --unsupported-gpu
     Type=Application
   '';
+  modules.desktop.sway.wallpaper = "/usr/share/backgrounds/ubuntu-default-greyscale-wallpaper.png";
   wayland.windowManager = {
     sway = {
       package = null;
