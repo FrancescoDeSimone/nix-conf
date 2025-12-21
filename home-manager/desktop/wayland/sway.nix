@@ -196,6 +196,10 @@ in {
 
         window.commands = [
           {
+            criteria = {app_id = "blueman-manager";};
+            command = "floating enable, resize set 800 600, move position center";
+          }
+          {
             criteria = {app_id = "pavucontrol";};
             command = "floating enable, resize set 800 600, move position center";
           }

@@ -189,7 +189,7 @@ in {
       format-connected = " ";
       format-on = " On ";
       format-off = " Off ";
-      on-click = "blueman-manager";
+      on-click = "${pkgs.blueman}/bin/blueman-manager";
       "tooltip-format-connected" = "Connected:\n{device_enumerate}";
       "tooltip-format-enumerate-connected" = "{device_alias}";
       "tooltip-format-enumerate-connected-battery" = "{device_alias} ({device_battery_percentage}%)";
@@ -201,7 +201,7 @@ in {
       "format-muted" = "Mute";
       "interval" = 60;
       "format-icons" = {"default" = [""];};
-      "on-click" = "~/.nix-profile/bin/pavucontrol";
+      "on-click" = "${pkgs.pavucontrol}/bin/pavucontrol";
       "tooltip-format" = "{desc} ({volume}%)";
     };
   };
