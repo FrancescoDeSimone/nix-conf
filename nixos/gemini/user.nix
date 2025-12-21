@@ -16,9 +16,9 @@
 
   age.identityPaths = ["/home/fdesi/.ssh/id_rsa"];
   age.secrets = {
-    user-password.file = ../../../secrets/user-password.age;
+    user-password.file = ../../secrets/user-password.age;
     wifi = {
-      file = ../../../secrets/wifi.age;
+      file = ../../secrets/wifi.age;
       path = "/etc/NetworkManager/system-connections/wifi.nmconnection";
       mode = "600";
     };
@@ -30,7 +30,7 @@
     useUserPackages = true;
     users.fdesi = {
       imports = [
-        ../../../home-manager/gemini.nix
+        ../../home-manager/gemini.nix
         inputs.catppuccin.homeModules.catppuccin
       ];
     };
