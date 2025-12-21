@@ -14,6 +14,7 @@
     unstable.freetube
     yq
     jq
+    file
     ayugram-desktop
   ];
   wayland.windowManager.sway = {

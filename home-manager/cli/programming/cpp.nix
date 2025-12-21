@@ -1,7 +1,7 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   home.packages = with pkgs; [
     gcc
-    clang
+    #clang
     cmake
     gnumake
     ninja

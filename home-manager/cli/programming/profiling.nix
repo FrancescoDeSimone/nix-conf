@@ -1,9 +1,8 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   home.packages = with pkgs; [
     valgrind
     gdb
     massif-visualizer
-    kcachegrind
     heaptrack
     hotspot
     samply
@@ -12,4 +11,4 @@
     rr
     linuxPackages.perf
   ];
-
+}
