@@ -31,17 +31,17 @@
   };
   services.blueman.enable = true;
 
-  #age.secrets = {
-  #  user-password = {
-  #    file = "${inputs.private}/user-password.age";
-  #  };
-  #  wifi = {
-  #    file = "${inputs.private}/wifi.age";
-  #    path = "/etc/NetworkManager/system-connections/wifi.nmconnection";
-  #    mode = "600";
-  #  };
-  #};
-  #age.identityPaths = ["/home/fdesi/.ssh/id_rsa.pub"];
+  age.secrets = {
+    user-password = {
+      file = ../../secrets/user-password.age;
+    };
+    wifi = {
+      file = ../../secrets/wifi.age;
+      path = "/etc/NetworkManager/system-connections/wifi.nmconnection";
+      mode = "600";
+    };
+  };
+  age.identityPaths = [ "/home/fdesi/.ssh/id_rsa.pub" ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
   time.timeZone = "Europe/Rome";
