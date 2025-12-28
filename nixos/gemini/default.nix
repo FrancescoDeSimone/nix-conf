@@ -10,6 +10,7 @@
     ./hardware.nix
     ./user.nix
     ./desktop.nix
+    ./gaming.nix
 
     inputs.nixos-hardware.nixosModules.tuxedo-pulse-15-gen2
     inputs.disko.nixosModules.disko

@@ -6,6 +6,8 @@
   imports = [
     ./desktop/default.nix
     ./cli/default.nix
+    ./desktop/gaming/gamescope.nix
+    ./desktop/gaming/retroarch.nix
     ./desktop/wayland/default.nix
     ./cli/programming/default.nix
   ];
