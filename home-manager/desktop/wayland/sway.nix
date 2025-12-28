@@ -112,6 +112,7 @@ in {
       enable = true;
       flavor = "mocha";
       accent = "mauve";
+      swaylock.enable = true;
     };
 
     systemd.user.services = {
