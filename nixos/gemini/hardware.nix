@@ -6,7 +6,14 @@
   boot = {
     kernelPackages = pkgs.linuxPackages_6_12;
     extraModulePackages = with config.boot.kernelPackages; [tuxedo-drivers yt6801];
-    kernelParams = ["acpi.ec_no_wakeup=1" "amdgpu.dcdebugmask=0x10"];
+    kernelParams = [
+      "acpi.ec_no_wakeup=1"
+      "amdgpu.dcdebugmask=0x10"
+      "zswap.enabled=1"
+      "zswap.compressor=zstd"
+      "zswap.zpool=zsmalloc"
+      "zswap.max_pool_percent=20"
+    ];
     loader = {
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
@@ -19,6 +26,8 @@
 
     kernel.sysctl = {
       "kernel.perf_event_paranoid" = 1;
+      "vm.vfs_cache_pressure" = 50;
+      "vm.swappiness" = 10;
       "kernel.kptr_restrict" = 0;
     };
   };
