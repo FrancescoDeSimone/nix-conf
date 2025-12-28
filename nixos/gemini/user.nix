@@ -27,7 +27,7 @@
   home-manager = {
     extraSpecialArgs = {inherit inputs outputs;};
     useGlobalPkgs = true;
-    useUserPackages = true;
+    useUserPackages = false;
     users.fdesi = {
       imports = [
         ../../home-manager/gemini.nix
