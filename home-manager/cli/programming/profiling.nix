@@ -9,6 +9,6 @@
     cargo-flamegraph
     cargo-expand
     rr
-    linuxPackages.perf
+    perf
   ];
 }
