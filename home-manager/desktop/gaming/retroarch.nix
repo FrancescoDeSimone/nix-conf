@@ -1,14 +1,13 @@
 {pkgs, ...}: {
-  home.packages = [
-    (pkgs.retroarch.withCores (cores:
+  home.packages = with pkgs; [
+    rpcs3
+    pcsx2
+    (retroarch.withCores (cores:
       with cores; [
         beetle-psx-hw
-        pcsx2
-        rpcs3
         snes9x
         genesis-plus-gx
         mgba
-        mame
       ]))
   ];
   xdg.configFile."retroarch/retroarch.cfg".text = ''
