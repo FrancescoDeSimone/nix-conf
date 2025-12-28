@@ -498,6 +498,22 @@
         "type": "gitlab"
       }
     },
+    "password-store-repo": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1765217803,
+        "narHash": "sha256-6Pb0Ds1uxjA8nOqhZTFzLY078rw7PW+msc1Lr5qytzE=",
+        "ref": "refs/heads/master",
+        "rev": "864c010373c1d805a81b73073253645a612fc2c4",
+        "revCount": 521,
+        "type": "git",
+        "url": "ssh://git@github.com/francescodesimone/password-store"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/francescodesimone/password-store"
+      }
+    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -524,14 +540,15 @@
     },
     "private": {
       "inputs": {
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": "nixpkgs_4",
+        "password-store-repo": "password-store-repo"
       },
       "locked": {
-        "lastModified": 1764724997,
-        "narHash": "sha256-970bA9/Q8Vr21NaLhmcv4YnPnDvm+isDTnqqfPtCl24=",
+        "lastModified": 1766953769,
+        "narHash": "sha256-vlX6ppMt1yVVz8VYDkfQ4tbUCssyr4hgHccbRio7TJc=",
         "ref": "refs/heads/master",
-        "rev": "f4c7adcb8fa72fbc30947c1f2fa0ac0ee77102b6",
-        "revCount": 13,
+        "rev": "6223a3de671ad0dbda7ddaebb6baa0343417083a",
+        "revCount": 14,
         "type": "git",
         "url": "ssh://git@github.com/FrancescoDeSimone/nix-conf-secrets"
       },
