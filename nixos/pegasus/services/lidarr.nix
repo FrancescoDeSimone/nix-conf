@@ -13,12 +13,9 @@
       "CAP_SYS_ADMIN"
       "CAP_NET_ADMIN"
       "CAP_MKNOD"
-      "CAP_BPF"
-      "CAP_PERFMON"
     ];
     extraFlags = [
       "--system-call-filter=@keyring"
-      "--system-call-filter=@bpf"
       "--system-call-filter=@mount"
       "--system-call-filter=@system-service"
     ];
