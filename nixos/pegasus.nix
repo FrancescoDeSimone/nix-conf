@@ -26,10 +26,6 @@
     hoarder = {
       file = ../secrets/hoarder.age;
     };
-    # spotizerr = {
-    #   file = ../secrets/spotizerr.age;
-    # };
-
     govd = {
       file = ../secrets/govd.age;
     };
@@ -56,8 +52,6 @@
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [
-      # rocm-opencl-icd
-      # rocm-opencl-runtime
       rocmPackages.clr.icd
       rocmPackages.clr
       rocmPackages.rocminfo
