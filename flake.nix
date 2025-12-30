@@ -147,6 +147,45 @@
           ];
         }
       ];
+
+      andromeda = mkSystem "andromeda" [
+        ./nixos/andromeda/default.nix
+        inputs.disko.nixosModules.disko
+        inputs.agenix.nixosModules.default
+        {environment.systemPackages = [inputs.agenix.packages.x86_64-linux.default];}
+      ];
+
+      andromeda-iso = mkSystem "andromeda-iso" [
+        "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+        ./nixos/andromeda/default.nix
+        inputs.disko.nixosModules.disko
+        inputs.agenix.nixosModules.default
+        ({pkgs, ...}: {
+          system.extraDependencies = [
+            self.nixosConfigurations.andromeda.config.system.build.toplevel
+          ];
+          environment.etc."nixos".source = ./.;
+          networking.hostName = lib.mkForce "andromeda-iso";
+          boot.supportedFilesystems = lib.mkForce ["vfat" "ext4" "ntfs" "cifs"];
+          environment.systemPackages = [
+            (pkgs.writeShellScriptBin "install-andromeda" ''
+              set -e
+              echo "⚠ WARNING: This will WIPE /dev/sda on Andromeda! ⚠"
+              sleep 5
+              echo ">>> Partitioning..."
+              sudo nix --experimental-features "nix-command flakes" run github:nix-community/disko -- --mode disko --flake /etc/nixos#andromeda
+              echo ">>> Installing..."
+              sudo nixos-install --flake /etc/nixos#andromeda --no-root-passwd
+              echo ">>> Done. Reboot now."
+            '')
+          ];
+          services.openssh.enable = true;
+          services.openssh.settings.PermitRootLogin = "yes";
+          users.users.root.openssh.authorizedKeys.keys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDM/Ia8zA09Ak7M7QCDrlBXVxuSnSDilhlp73vPjRGTq fds@fds"
+          ];
+        })
+      ];
     };
 
     # --- Home Manager Configurations ---
@@ -155,6 +194,7 @@
       "thinkcentre@pegasus" = mkHome "thinkcentre" "pegasus" ./home-manager/pegasus.nix;
       "fdesi@phoenix" = mkHome "fdesi" "phoenix" ./home-manager/phoenix.nix;
       "fdesi@gemini" = mkHome "fdesi" "gemini" ./home-manager/gemini.nix;
+      "fdesi@andromeda" = mkHome "fdesi" "andromeda" ./home-manager/andromeda.nix;
     };
 
     # --- Android ---
