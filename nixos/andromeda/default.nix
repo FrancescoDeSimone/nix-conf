@@ -6,6 +6,7 @@
   ...
 }: {
   imports = [
+    ../common
     ./disks.nix
     ./hardware.nix
     ./user.nix
