@@ -8,7 +8,7 @@
   imports = [
     ../common
     ./hardware.nix
-    ./disks.nix
+    # ./disks.nix
     ./filesystem.nix
     ./user.nix
 
@@ -17,6 +17,7 @@
     ./cron.nix
 
     inputs.agenix.nixosModules.default
+    inputs.home-manager.nixosModules.home-manager
   ];
 
   networking.hostName = "pegasus";
@@ -42,6 +43,5 @@
   };
 
   system.stateVersion = "25.11";
-  system.autoUpgrade.enable = true;
   networking.networkmanager.enable = true;
 }

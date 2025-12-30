@@ -1,15 +1,16 @@
-{ pkgs
-, lib
-, config
-, inputs
-, ...
+{
+  pkgs,
+  lib,
+  config,
+  inputs,
+  ...
 }: {
   nix = {
     settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = ["nix-command" "flakes"];
       auto-optimise-store = true;
     };
-    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
+    registry = lib.mapAttrs (_: value: {flake = value;}) inputs;
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
     gc = {
       automatic = lib.mkDefault true;
@@ -24,8 +25,8 @@
     extraLocaleSettings = {
       LC_ADDRESS = "it_IT.UTF-8";
       LC_IDENTIFICATION = "it_IT.UTF-8";
-      LC_MEASUREMENT = "it_IT.UTF-8"
-        LC_MONETARY = "it_IT.UTF-8";
+      LC_MEASUREMENT = "it_IT.UTF-8";
+      LC_MONETARY = "it_IT.UTF-8";
       LC_NAME = "it_IT.UTF-8";
       LC_NUMERIC = "it_IT.UTF-8";
       LC_PAPER = "it_IT.UTF-8";
@@ -33,16 +34,6 @@
       LC_TIME = "it_IT.UTF-8";
     };
   };
-
-  optimise.automatic = true;
-  gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 7d";
-  };
-};
-
-networking.networkmanager.enable = lib.mkDefault true;
-
-system.stateVersion = lib.mkDefault "25.11";
+  networking.networkmanager.enable = lib.mkDefault true;
+  system.stateVersion = lib.mkDefault "25.11";
 }

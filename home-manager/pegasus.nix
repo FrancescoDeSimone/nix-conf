@@ -5,5 +5,6 @@
   home = {
     username = "thinkcentre";
     homeDirectory = "/home/thinkcentre";
+    stateVersion = "25.11";
   };
 }

@@ -1,7 +1,7 @@
 {...}: {
   imports = [
     ./system.nix
-    ./packages.nix
+    ./applications.nix
     ./incus.nix
   ];
 }
