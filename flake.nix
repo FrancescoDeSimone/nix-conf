@@ -115,7 +115,7 @@
     # --- NixOS Configurations ---
     nixosConfigurations = {
       pegasus = mkSystem "pegasus" [
-        ./nixos/pegasus.nix
+        ./nixos/pegasus/default.nix
         inputs.agenix.nixosModules.default
         {environment.systemPackages = [inputs.agenix.packages.x86_64-linux.default];}
       ];
