@@ -5,6 +5,7 @@
 }: {
   programs.zsh = {
     enable = true;
+    dotDir = "${config.xdg.configHome}/zsh";
     sessionVariables = {
       EDITOR = "nvim";
       TERM = "xterm-256color";
