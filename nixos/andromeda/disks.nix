@@ -15,11 +15,16 @@
               mountpoint = "/boot";
             };
           };
-          primary = {
+          luks = {
             size = "100%";
             content = {
-              type = "lvm_pv";
-              vg = "pool";
+              type = "luks";
+              name = "crypted";
+              extraOpenArgs = ["--allow-discards"];
+              content = {
+                type = "lvm_pv";
+                vg = "pool";
+              };
             };
           };
         };

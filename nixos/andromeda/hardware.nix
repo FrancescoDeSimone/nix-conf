@@ -5,13 +5,9 @@
   ...
 }: {
   boot = {
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_zen;
+
     kernelParams = [
-      "zswap.enabled=1"
-      "zswap.compressor=zstd"
-      "zswap.zpool=zsmalloc"
-      "zswap.max_pool_percent=20"
-      # Intel specific power saving
       "i915.enable_guc=2"
     ];
 
@@ -33,12 +29,14 @@
     };
   };
 
+  zramSwap.enable = true;
+
   hardware = {
     graphics = {
       enable = true;
       extraPackages = with pkgs; [
-        intel-media-driver # LIBVA_DRIVER_NAME=iHD
-        intel-vaapi-driver # LIBVA_DRIVER_NAME=i965 (older fallback)
+        intel-media-driver
+        intel-vaapi-driver
         libvdpau-va-gl
       ];
     };
@@ -61,5 +59,11 @@
       CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
       CPU_ENERGY_PERF_POLICY_ON_BAT = "power";
     };
+  };
+
+  security.tpm2 = {
+    enable = true;
+    pkcs11.enable = true;
+    tctiEnvironment.enable = true;
   };
 }
