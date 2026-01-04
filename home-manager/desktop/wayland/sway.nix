@@ -290,7 +290,6 @@ in {
           titlebar = false;
         };
         startup = [
-          {command = "${pkgs.wl-clipboard}/bin/wl-paste -t text --watch ${pkgs.clipman}/bin/clipman store";}
           {command = "${pkgs.dunst}/bin/dunst";}
           {command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";}
           {command = "${pkgs.networkmanagerapplet}/bin/nm-applet";}
@@ -347,12 +346,13 @@ in {
           "Mod4+Return" = "exec ${pkgs.foot}/bin/foot";
           "Mod4+b" = "exec $HOME/.nix-profile/bin/firefox";
           "Mod4+Control+Shift+d" = "exec ${pkgs.rofi-pass-wayland}/bin/rofi-pass";
-          "Mod4+d" = "exec ${config.programs.rofi.package}/bin/rofi -show drun";
+          "Mod4+d" = "exec $HOME/.nix-profile/bin/rofi_menu";
+          "Mod4+c" = "exec ${config.programs.rofi.package}/bin/rofi -show calc";
           "Mod4+space" = "exec ${pkgs.dunst}/bin/dunstctl close-all";
           "Mod4+Shift+q" = "kill";
           "Mod4+Shift+c" = "reload";
           "Mod4+Shift+e" = "exec ${pkgs.wlogout}/bin/wlogout";
-          "Mod4+Alt_L" = "exec ${pkgs.clipman}/bin/clipman pick --tool=CUSTOM --tool-args='${config.programs.rofi.package}/bin/rofi -dmenu -sorting-method fzf -sort -i'";
+          "Mod4+Alt_L" = "exec ${config.programs.rofi.package}/bin/rofi -modi clipboard:$HOME/.nix-profile/bin/clipvault_rofi -show clipboard -theme clipboard";
           "Print" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.wl-clipboard}/bin/wl-copy";
           "Mod4+KP_Delete" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.wl-clipboard}/bin/wl-copy";
           "Shift+Print" = "mode screenshot";

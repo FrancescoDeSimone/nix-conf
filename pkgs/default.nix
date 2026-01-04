@@ -1,5 +1,10 @@
 # Custom packages, that can be defined similarly to ones from nixpkgs
 # You can build them using 'nix build .#example'
-pkgs: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   # example = pkgs.callPackage ./example { };
+  clipvault = pkgs.callPackage ./clipvault.nix {inherit inputs;};
 }

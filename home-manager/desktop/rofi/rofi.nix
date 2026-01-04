@@ -16,4 +16,5 @@
     terminal = "${pkgs.foot}/bin/foot";
   };
   catppuccin.rofi.enable = false;
+  xdg.configFile."rofi/clipboard.rasi".source = ./theme/clipboard.rasi;
 }

@@ -33,6 +33,12 @@
     # Rust Overlay
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
+
+    # additional packages
+    clipvault = {
+      url = "github:rolv-apneseth/clipvault";
+      flake = false;
+    };
   };
 
   outputs = {
@@ -106,7 +112,8 @@
     inherit lib;
 
     # Standard outputs
-    packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs;});
+    # packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs;});
+    packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs inputs;});
     formatter = forEachSystem (pkgs: pkgs.nixpkgs-fmt);
     overlays = import ./overlays {inherit inputs;};
     nixosModules = import ./modules/nixos;
