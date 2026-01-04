@@ -93,19 +93,6 @@
       find * ! -name $filename -type f -exec sh -c 'file --mime "$1" | grep -q "text/" && { echo "File:
     $1"; cat "$1"; }' _ {} \; >  $filename
   '';
-  rofi_menu = pkgs.writeShellScriptBin "rofi_menu" ''
-    # Preserving your XDG setup for non-NixOS application discovery
-    export XDG_DATA_DIRS="/var/lib/snapd/desktop:/usr/local/share:/usr/share:/home/fdesi/.nix-profile/share/applications:/nix/var/nix/profiles/default/share:/home/fdesi/.nix-profile/share:/nix/var/nix/profiles/default/share"
-    export XDG_DATA_HOME="/home/fdesi/.local/share"
-
-    if command -v rofi &> /dev/null; then
-      ROFI_CMD="rofi"
-    else
-      ROFI_CMD="${pkgs.rofi}/bin/rofi"
-    fi
-
-    $ROFI_CMD -show drun -sorting-method fzf -sort -i
-  '';
 
   prev_player = pkgs.writeShellScriptBin "prev_player" ''
     ${pkgs.playerctl}/bin/playerctl previous
@@ -174,7 +161,6 @@
   '';
 in {
   home.packages = with pkgs; [
-    rofi_menu
     lockscreen
     playpause_player
     next_player
