@@ -25,35 +25,36 @@
     config.bars = [];
   };
 
-  programs.waybar.settings.mainBar = lib.mkForce {
-    battery = {
+  systemd.user.services.sworkstyle = lib.mkForce {};
+  programs.waybar.settings.mainBar = {
+    battery = lib.mkForce {
       bat = "BAT1";
       format = "{capacity}%";
       format-charging = "CHR {capacity}%";
       format-plugged = "AC {capacity}%";
     };
-    pulseaudio = {
+    pulseaudio = lib.mkForce {
       format = "VOL {volume}%";
       format-muted = "MUTED";
     };
-    network = {
+    network = lib.mkForce {
       format-wifi = "{essid}";
       format-ethernet = "ETH";
       format-disconnected = "OFF";
     };
-    backlight = {
+    backlight = lib.mkForce {
       format = "BRT {percent}%";
     };
-    cpu = {
+    cpu = lib.mkForce {
       interval = 10;
       format = "C {usage}%";
     };
-    memory = {
+    memory = lib.mkForce {
       interval = 30;
       format = "M {percentage}%";
       tooltip-format = "{used:0.1f}G used";
     };
-    disk = {
+    disk = lib.mkForce {
       interval = 30;
       format = "D {percentage_used}%";
       path = "/";
