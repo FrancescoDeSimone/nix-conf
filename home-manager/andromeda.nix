@@ -25,7 +25,7 @@
     config.bars = [];
   };
 
-  programs.waybar.settings.mainBar = {
+  programs.waybar.settings.mainBar = lib.mkForce {
     battery = {
       bat = "BAT1";
       format = "{capacity}%";
