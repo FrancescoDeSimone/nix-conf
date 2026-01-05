@@ -23,7 +23,7 @@
     package = null;
     config.bars = [];
   };
-  programs.waybar.settings.mainBar.battery.bat = "BAT1";
+  programs.waybar.settings.mainBar.battery.bat = lib.mkForce "BAT1";
 
   home = {
     username = "fdesi";
