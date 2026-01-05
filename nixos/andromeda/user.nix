@@ -6,15 +6,18 @@
   ...
 }: {
   programs.zsh.enable = true;
-  users.users.fdesi = {
-    isNormalUser = true;
-    extraGroups = ["networkmanager" "wheel" "video" "audio"];
-    shell = pkgs.zsh;
+  users = {
+    mutableUsers = true;
+    users.fdesi = {
+      isNormalUser = true;
+      extraGroups = ["networkmanager" "wheel" "video" "audio"];
+      shell = pkgs.zsh;
 
-    hashedPasswordFile = config.age.secrets.user-password.path;
+      hashedPasswordFile = config.age.secrets.user-password.path;
 
-    # Fallback/Initial password (replace string with output of `mkpasswd -m sha-512`)
-    initialHashedPassword = "$6$2GE8Ii0N1poS8pST$UEyeozxUzdiM3KykSGLUuFw9O02qnNXDwjdwb9JkZKB.lFO1XVF4fhP/CMHv23P5TdYlzjT345FL/A0RBoecc1";
+      # Fallback/Initial password (replace string with output of `mkpasswd -m sha-512`)
+      initialHashedPassword = "$6$2GE8Ii0N1poS8pST$UEyeozxUzdiM3KykSGLUuFw9O02qnNXDwjdwb9JkZKB.lFO1XVF4fhP/CMHv23P5TdYlzjT345FL/A0RBoecc1";
+    };
   };
 
   age.identityPaths = ["/home/fdesi/.ssh/id_rsa"];

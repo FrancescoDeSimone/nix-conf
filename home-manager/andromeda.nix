@@ -23,6 +23,7 @@
     package = null;
     config.bars = [];
   };
+  programs.waybar.settings.mainBar.battery.bat = "BAT1";
 
   home = {
     username = "fdesi";
