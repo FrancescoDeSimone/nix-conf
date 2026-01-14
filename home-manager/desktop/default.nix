@@ -1,5 +1,6 @@
 {pkgs, ...}: {
   imports = [./dunst.nix ./firefox.nix ./rofi/rofi.nix ./pass.nix ./script.nix];
+  modules.desktop.wayland.clipboard.manager = "cliphist";
   home.packages = with pkgs;
     [
       playerctl

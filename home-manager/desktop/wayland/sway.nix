@@ -352,7 +352,7 @@ in {
           "Mod4+Shift+q" = "kill";
           "Mod4+Shift+c" = "reload";
           "Mod4+Shift+e" = "exec ${pkgs.wlogout}/bin/wlogout";
-          "Mod4+Alt_L" = "exec ${config.programs.rofi.package}/bin/rofi -modi clipboard:$HOME/.nix-profile/bin/clipvault_rofi -show clipboard";
+          "Mod4+Alt_L" = "exec $HOME/.nix-profile/bin/clipboard-picker";
           "Print" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.wl-clipboard}/bin/wl-copy";
           "Mod4+KP_Delete" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.wl-clipboard}/bin/wl-copy";
           "Shift+Print" = "mode screenshot";
