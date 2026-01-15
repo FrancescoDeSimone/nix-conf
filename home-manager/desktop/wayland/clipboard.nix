@@ -13,17 +13,14 @@
     #!/usr/bin/env bash
     tmp_dir="/tmp/cliphist"
     rm -rf "$tmp_dir"
-
     if [[ -n "$ROFI_INFO" ]]; then
-        ${pkgs.cliphist}/bin/cliphist decode <<<"$ROFI_INFO" | ${pkgs.wl-clipboard}/bin/wl-copy
+        echo -en "$ROFI_INFO\t" | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy
         exit
     elif [[ -n "$1" ]]; then
-        ${pkgs.cliphist}/bin/cliphist decode <<<"$1" | ${pkgs.wl-clipboard}/bin/wl-copy
+        echo -en "$1\t" | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy
         exit
     fi
-
     mkdir -p "$tmp_dir"
-
     ${pkgs.cliphist}/bin/cliphist list | ${pkgs.gawk}/bin/gawk -v tmp_dir="$tmp_dir" -v cliphist_cmd="${pkgs.cliphist}/bin/cliphist" '
     BEGIN { FS="\t" }
     /^[0-9]+\s<meta http-equiv=/ { next }
@@ -45,7 +42,6 @@
 
   clipvault-rofi-script = pkgs.writeShellScriptBin "clipvault_rofi" ''
     #!/usr/bin/env bash
-    # Dependencies path setup
     PATH=$PATH:${lib.makeBinPath [
       pkgs.coreutils
       pkgs.gawk
@@ -59,20 +55,15 @@
     rofi_list()
     {
         list=$(clipvault list)
-
-        # Ensure thumbnail directory exists
         thumbnails_dir="''${XDG_CACHE_HOME:-$HOME/.cache}/clipvault/thumbs"
         [ -d "$thumbnails_dir" ] || mkdir -p "$thumbnails_dir"
 
-        # Delete thumbnails that are no longer in the DB
         find "$thumbnails_dir" -type f | while IFS= read -r thumbnail; do
             item_id=$(basename "''${thumbnail%.*}")
             if ! grep -q "^''${item_id}\s\[\[ binary data" <<< "$list"; then
                 rm "$thumbnail"
             fi
         done
-
-        # Generates thumbnails and Formats output to hide IDs
         read -r -d "" prog << EOF
     /^[0-9]+\s<meta http-equiv=/ { next }
     match(\$0, /^([0-9]+)\s(\[\[\sbinary.*(jpg|jpeg|png|bmp|webp|tif|gif).*)/, grp) {
