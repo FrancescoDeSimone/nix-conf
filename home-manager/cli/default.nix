@@ -11,6 +11,7 @@
     unstable.rsync
     unzip
     yazi
+    unstable.yt-dlp
   ];
   xdg.enable = true;
 }
