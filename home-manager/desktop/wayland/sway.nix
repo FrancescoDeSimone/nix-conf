@@ -22,14 +22,12 @@
           ws = focused.workspace()
           if ws is None or ws.layout in ["tabbed", "stacked"]: return
           if len(ws.nodes) == 1 and ws.nodes[0].layout == "tabbed":
+              head = ws.nodes[0].nodes[0]
               commands = [
-                  f"[con_id={focused.id}] move to workspace current",
-                  f"[con_id={focused.id}] move left",
-                  f"[con_id={focused.id}] layout toggle split"
-                  f"[con_id={focused.id}] layout splith"
+                  f"[con_id={head.id}] move left",
+                  f"[con_id={head.id}] layout splith"
               ]
               ipc.command("; ".join(commands))
-              ipc.command(f"[con_id={focused.id}] focus parent")
       def on_window_new(ipc, event):
           new_win_id = event.container.id
           tree = ipc.get_tree()
@@ -52,12 +50,12 @@
               ipc.command("; ".join(commands))
           else:
               count = len(ws.nodes)
-              if count == 1:
-                  ipc.command(f"[con_id={new_win.id}] layout splith")
-              elif count == 2:
-                  ipc.command(
-                      f"[con_id={new_win.id}] splitv; [con_id={new_win.id}] layout tabbed"
-                  )
+              if count >= 2:
+                  commands = [
+                      f'[con_id={new_win.id}] splitv',
+                      f'[con_id={new_win.id}] layout tabbed',
+                  ]
+                  ipc.command("; ".join(commands))
       def main():
           ipc = Connection()
           ipc.on(Event.WINDOW_NEW, on_window_new)
