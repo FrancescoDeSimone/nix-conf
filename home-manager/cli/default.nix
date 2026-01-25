@@ -1,5 +1,12 @@
 {pkgs, ...}: {
-  imports = [./zsh.nix ./htop.nix ./tmux.nix ./starship.nix ./neovim.nix];
+  imports = [
+    ./zsh.nix
+    ./htop.nix
+    ./tmux.nix
+    ./starship.nix
+    ./neovim.nix
+    ./jaro.nix
+  ];
   home.packages = with pkgs; [
     home-manager
     git

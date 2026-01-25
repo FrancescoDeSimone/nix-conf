@@ -39,6 +39,10 @@
       url = "github:rolv-apneseth/clipvault";
       flake = false;
     };
+    jaro = {
+      url = "github:isamert/jaro";
+      flake = false;
+    };
   };
 
   outputs = {
