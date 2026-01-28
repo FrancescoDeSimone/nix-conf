@@ -41,9 +41,11 @@
     	text-shadow: inherit;
     }
 
-    #workspaces button.active{
-    	background: #00afd7;
-    	color: #1b1d1e;
+    #workspaces button.focused,
+    #workspaces button.active {
+        background: transparent;
+        color: #cba6f7;
+        box-shadow: inset 0 -1px #cba6f7;
     }
 
     #workspaces button.urgent {
