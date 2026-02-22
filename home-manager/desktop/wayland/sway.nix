@@ -417,7 +417,6 @@ in {
       timeouts = [
         {
           timeout = 900;
-          # USES THE SMART COMMAND
           command = "${swaylockCmd} -f";
         }
         {

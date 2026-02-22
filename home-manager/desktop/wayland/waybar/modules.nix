@@ -51,6 +51,8 @@ in {
       "custom/separator#line"
       "custom/dunst"
       "custom/separator#line"
+      "custom/wotw"
+      "custom/separator#line"
       "tray"
     ];
 
@@ -128,6 +130,35 @@ in {
       "on-click" = "${pkgs.dunst}/bin/dunstctl set-paused toggle; ${pkgs.procps}/bin/pkill -RTMIN+8 waybar";
       "signal" = 8;
       "restart-interval" = 2;
+    };
+
+    "custom/wotw" = {
+      "return-type" = "json";
+      "exec" = pkgs.writeShellScript "wotw" ''
+        #!/usr/bin/env bash
+        # 1. Fetch the line
+        ARTICLE_LINE=$(${pkgs.curl}/bin/curl -s https://greensdictofslang.com/ | ${pkgs.gnugrep}/bin/grep -oP '<article class="srentry">.*</span>')
+        WORD=$(echo "$ARTICLE_LINE" | ${pkgs.gnugrep}/bin/grep -oP '<span class="hw">\K[^<]+' | ${pkgs.gnused}/bin/sed 's/,$//' | ${pkgs.gnused}/bin/sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        DEFS_RAW=$(echo "$ARTICLE_LINE" | ${pkgs.gnugrep}/bin/grep -oP '<span class="srhead">.*?</span>\K.*')
+        DEFS_LINES=$(echo "$DEFS_RAW" | \
+          ${pkgs.gnused}/bin/sed 's|<span class="srdefinition">|\n&|g' | \
+          ${pkgs.coreutils-full}/bin/tail -n +2 | \
+          ${pkgs.gnused}/bin/sed -E '
+            s|<span class="senseno">[^<]+</span>||g;
+            s|<[^>]+>||g;
+            s/&nbsp;/ /g;
+            s/\[[^]]+\]//g;
+            s/\s+/ /g;
+            s/^\s+|\s+$//g;
+            s/\s\././g;
+          ' | \
+          ${pkgs.gnugrep}/bin/grep .
+        )
+        FINAL_DEFS=$(echo "$DEFS_LINES" | ${pkgs.coreutils-full}/bin/paste -sd '; ' -)
+        printf '{"text": "%s", "tooltip": "%s"}\n' "$WORD" "$FINAL_DEFS"
+      '';
+      "interval" = "once";
+      "tooltip" = true;
     };
     "custom/playerctl" = {
       "format" = "<span>{}</span>";
