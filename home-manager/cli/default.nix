@@ -6,6 +6,7 @@
     ./starship.nix
     ./neovim.nix
     ./jaro.nix
+    ./yazi.nix
   ];
   home.packages = with pkgs; [
     home-manager
@@ -17,7 +18,6 @@
     sshuttle
     unstable.rsync
     unzip
-    yazi
     unstable.yt-dlp
   ];
   xdg.enable = true;
