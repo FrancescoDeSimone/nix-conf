@@ -85,19 +85,11 @@
         ]
       },
       "locked": {
-<<<<<<< HEAD
-        "lastModified": 1771469470,
-        "narHash": "sha256-GnqdqhrguKNN3HtVfl6z+zbV9R9jhHFm3Z8nu7R6ml0=",
-        "owner": "nix-community",
-        "repo": "disko",
-        "rev": "4707eec8d1d2db5182ea06ed48c820a86a42dc13",
-=======
         "lastModified": 1771881364,
         "narHash": "sha256-A5uE/hMium5of/QGC6JwF5TGoDAfpNtW00T0s9u/PN8=",
         "owner": "nix-community",
         "repo": "disko",
         "rev": "a4cb7bf73f264d40560ba527f9280469f1f081c6",
->>>>>>> b50cb71 (add observability; add ports; switch qbittorrent)
         "type": "github"
       },
       "original": {
@@ -208,19 +200,11 @@
         ]
       },
       "locked": {
-<<<<<<< HEAD
-        "lastModified": 1770260404,
-        "narHash": "sha256-3iVX1+7YUIt23hBx1WZsUllhbmP2EnXrV8tCRbLxHc8=",
-        "owner": "nix-community",
-        "repo": "home-manager",
-        "rev": "0d782ee42c86b196acff08acfbf41bb7d13eed5b",
-=======
         "lastModified": 1772380125,
         "narHash": "sha256-8C+y46xA9bxcchj9GeDPJaRUDApaA3sy2fhJr1bTbUw=",
         "owner": "nix-community",
         "repo": "home-manager",
         "rev": "a07a44a839eb036e950bf397d9b782916f8dcab3",
->>>>>>> b50cb71 (add observability; add ports; switch qbittorrent)
         "type": "github"
       },
       "original": {
@@ -334,19 +318,11 @@
     },
     "nixos-hardware": {
       "locked": {
-<<<<<<< HEAD
-        "lastModified": 1771423359,
-        "narHash": "sha256-yRKJ7gpVmXbX2ZcA8nFi6CMPkJXZGjie2unsiMzj3Ig=",
-        "owner": "NixOS",
-        "repo": "nixos-hardware",
-        "rev": "740a22363033e9f1bb6270fbfb5a9574067af15b",
-=======
         "lastModified": 1771969195,
         "narHash": "sha256-qwcDBtrRvJbrrnv1lf/pREQi8t2hWZxVAyeMo7/E9sw=",
         "owner": "NixOS",
         "repo": "nixos-hardware",
         "rev": "41c6b421bdc301b2624486e11905c9af7b8ec68e",
->>>>>>> b50cb71 (add observability; add ports; switch qbittorrent)
         "type": "github"
       },
       "original": {
@@ -438,19 +414,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-<<<<<<< HEAD
-        "lastModified": 1771369470,
-        "narHash": "sha256-0NBlEBKkN3lufyvFegY4TYv5mCNHbi5OmBDrzihbBMQ=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "0182a361324364ae3f436a63005877674cf45efb",
-=======
         "lastModified": 1772198003,
         "narHash": "sha256-I45esRSssFtJ8p/gLHUZ1OUaaTaVLluNkABkk6arQwE=",
         "owner": "nixos",
         "repo": "nixpkgs",
         "rev": "dd9b079222d43e1943b6ebd802f04fd959dc8e61",
->>>>>>> b50cb71 (add observability; add ports; switch qbittorrent)
         "type": "github"
       },
       "original": {
@@ -478,19 +446,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-<<<<<<< HEAD
-        "lastModified": 1771419570,
-        "narHash": "sha256-bxAlQgre3pcQcaRUm/8A0v/X8d2nhfraWSFqVmMcBcU=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "6d41bc27aaf7b6a3ba6b169db3bd5d6159cfaa47",
-=======
         "lastModified": 1772047000,
         "narHash": "sha256-7DaQVv4R97cii/Qdfy4tmDZMB2xxtyIvNGSwXBBhSmo=",
         "owner": "nixos",
         "repo": "nixpkgs",
         "rev": "1267bb4920d0fc06ea916734c11b0bf004bbe17e",
->>>>>>> b50cb71 (add observability; add ports; switch qbittorrent)
         "type": "github"
       },
       "original": {
@@ -656,19 +616,11 @@
         ]
       },
       "locked": {
-<<<<<<< HEAD
-        "lastModified": 1771470520,
-        "narHash": "sha256-PvytHcaYN5cPUll7FB70mXv1rRsIBRmu47fFfq3haxA=",
-        "owner": "oxalica",
-        "repo": "rust-overlay",
-        "rev": "a1d4cc1f264c45d3745af0d2ca5e59d460e58777",
-=======
         "lastModified": 1772334676,
         "narHash": "sha256-Jrc0J3AH+iNJDlUze3+FJZv2R0BZnhANFnD52V4kyvI=",
         "owner": "oxalica",
         "repo": "rust-overlay",
         "rev": "9879be11f30fd3bbf848e653a7f991549e8973b5",
->>>>>>> b50cb71 (add observability; add ports; switch qbittorrent)
         "type": "github"
       },
       "original": {
