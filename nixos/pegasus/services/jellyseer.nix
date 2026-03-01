@@ -1,6 +1,7 @@
-{
+{ config, ... }: {
   services.jellyseerr = {
     enable = true;
-    openFirewall = true;
+    port = config.my.services.jellyseerr.port;
+    openFirewall = false;
   };
 }

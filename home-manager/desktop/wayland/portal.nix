@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   xdg.portal = {
     enable = true;
     extraPortals = [
@@ -7,10 +7,10 @@
     ];
     config = {
       sway = {
-        default = ["wlr" "gtk"];
+        default = [ "wlr" "gtk" ];
       };
       common = {
-        default = ["wlr" "gtk"];
+        default = [ "wlr" "gtk" ];
       };
     };
   };

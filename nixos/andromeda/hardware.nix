@@ -1,8 +1,7 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
+{ pkgs
+, config
+, lib
+, ...
 }: {
   boot = {
     kernelPackages = pkgs.linuxPackages_zen;
@@ -18,7 +17,7 @@
 
     initrd = {
       systemd.enable = true;
-      availableKernelModules = ["xhci_pci" "ahci" "usb_storage" "sd_mod"];
+      availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "sd_mod" ];
     };
 
     kernel.sysctl = {
@@ -45,7 +44,7 @@
       powerOnBoot = false;
     };
     cpu.intel.updateMicrocode = true;
-    firmware = with pkgs; [linux-firmware];
+    firmware = with pkgs; [ linux-firmware ];
   };
 
   services.fstrim.enable = true;

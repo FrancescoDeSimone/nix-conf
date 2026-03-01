@@ -1,12 +1,12 @@
-{
-  lib,
-  rustPlatform,
-  inputs,
-  pkg-config,
-  openssl,
-  sqlite,
-  stdenv,
-  darwin,
+{ lib
+, rustPlatform
+, inputs
+, pkg-config
+, openssl
+, sqlite
+, stdenv
+, darwin
+,
 }:
 rustPlatform.buildRustPackage {
   pname = "clipvault";
@@ -18,11 +18,11 @@ rustPlatform.buildRustPackage {
     lockFile = "${inputs.clipvault}/Cargo.lock";
   };
 
-  nativeBuildInputs = [pkg-config];
+  nativeBuildInputs = [ pkg-config ];
 
   buildInputs =
-    [openssl sqlite]
-    ++ lib.optionals stdenv.isDarwin [darwin.apple_sdk.frameworks.Security];
+    [ openssl sqlite ]
+    ++ lib.optionals stdenv.isDarwin [ darwin.apple_sdk.frameworks.Security ];
 
   doCheck = false;
 
@@ -30,6 +30,6 @@ rustPlatform.buildRustPackage {
     description = "Clipboard history manager for Wayland, inspired by cliphist";
     homepage = "https://github.com/rolv-apneseth/clipvault";
     license = licenses.agpl3Only;
-    maintainers = [];
+    maintainers = [ ];
   };
 }

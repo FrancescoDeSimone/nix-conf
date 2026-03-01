@@ -1,16 +1,15 @@
-{
-  pkgs,
-  config,
-  inputs,
-  outputs,
-  ...
+{ pkgs
+, config
+, inputs
+, outputs
+, ...
 }: {
   programs.zsh.enable = true;
   users = {
     mutableUsers = true;
     users.fdesi = {
       isNormalUser = true;
-      extraGroups = ["networkmanager" "wheel" "video" "audio"];
+      extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
       shell = pkgs.zsh;
 
       hashedPasswordFile = config.age.secrets.user-password.path;
@@ -20,7 +19,7 @@
     };
   };
 
-  age.identityPaths = ["/home/fdesi/.ssh/id_rsa"];
+  age.identityPaths = [ "/home/fdesi/.ssh/id_rsa" ];
   age.secrets = {
     user-password.file = ../../secrets/user-password.age;
 
@@ -32,7 +31,7 @@
   };
 
   home-manager = {
-    extraSpecialArgs = {inherit inputs outputs;};
+    extraSpecialArgs = { inherit inputs outputs; };
     useGlobalPkgs = true;
     useUserPackages = false;
     users.fdesi = {

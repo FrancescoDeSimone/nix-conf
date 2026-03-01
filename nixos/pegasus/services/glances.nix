@@ -1,11 +1,8 @@
-{
-  systemd.services.glances = {
+{ config, ... }: {
+  services.glances = {
     enable = true;
-    wantedBy = ["default.target"];
-    serviceConfig = {
-      User = "thinkcentre";
-      Group = "users";
-      ExecStart = "/run/current-system/sw/bin/glances -w";
-    };
+    openFirewall = false;
+    port = config.my.services.glances.port;
+    extraArgs = [ "--export" "prometheus" ];
   };
 }

@@ -1,8 +1,7 @@
-{
-  outputs,
-  pkgs,
-  lib,
-  ...
+{ outputs
+, pkgs
+, lib
+, ...
 }: {
   imports = [
     ./desktop/default.nix
@@ -22,10 +21,10 @@
 
   wayland.windowManager.sway = {
     package = null;
-    config.bars = [];
+    config.bars = [ ];
   };
 
-  systemd.user.services.sworkstyle = lib.mkForce {};
+  systemd.user.services.sworkstyle = lib.mkForce { };
   programs.waybar.settings.mainBar = {
     battery = lib.mkForce {
       bat = "BAT1";

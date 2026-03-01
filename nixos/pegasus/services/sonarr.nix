@@ -1,12 +1,11 @@
-{
-  pkgs,
-  config,
-  ...
+{ pkgs
+, config
+, ...
 }: {
   services.sonarr = {
-    package = pkgs.unstable.sonarr;
     enable = true;
-    openFirewall = true;
+    openFirewall = false;
+    settings.server.port = config.my.services.sonarr.port;
     user = "thinkcentre";
   };
 }

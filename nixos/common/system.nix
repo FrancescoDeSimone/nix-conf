@@ -1,16 +1,15 @@
-{
-  pkgs,
-  lib,
-  config,
-  inputs,
-  ...
+{ pkgs
+, lib
+, config
+, inputs
+, ...
 }: {
   nix = {
     settings = {
-      experimental-features = ["nix-command" "flakes"];
+      experimental-features = [ "nix-command" "flakes" ];
       auto-optimise-store = true;
     };
-    registry = lib.mapAttrs (_: value: {flake = value;}) inputs;
+    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
     gc = {
       automatic = lib.mkDefault true;

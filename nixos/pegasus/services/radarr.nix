@@ -1,7 +1,8 @@
-{
+{ config, ... }: {
   services.radarr = {
     enable = true;
-    openFirewall = true;
+    settings.server.port = config.my.services.radarr.port;
+    openFirewall = false;
     user = "thinkcentre";
   };
 }

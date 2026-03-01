@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   imports = [
     ./zsh.nix
     ./htop.nix

@@ -1,8 +1,8 @@
-{
-  pkgs,
-  lib,
-  ...
-}: let
+{ pkgs
+, lib
+, ...
+}:
+let
   catall = pkgs.writeShellScriptBin "catall" ''
      filename=$1
       find * ! -name $filename -type f -exec sh -c 'file --mime "$1" | grep -q "text/" && { echo "File:
@@ -74,7 +74,8 @@
       $hypr dispatch changegroupactive f
     fi
   '';
-in {
+in
+{
   home.packages = with pkgs; [
     lockscreen
     playpause_player

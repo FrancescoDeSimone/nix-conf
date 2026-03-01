@@ -1,9 +1,9 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}: let
+{ pkgs
+, lib
+, config
+, ...
+}:
+let
   cfg = config.modules.desktop.wayland.clipboard;
 
   clipman-watcher = "${pkgs.wl-clipboard}/bin/wl-paste -t text --watch ${pkgs.clipman}/bin/clipman store --no-persist";
@@ -119,10 +119,11 @@
     else if cfg.manager == "cliphist"
     then cliphist-picker
     else clipvault-picker;
-in {
+in
+{
   options.modules.desktop.wayland.clipboard = {
     manager = lib.mkOption {
-      type = lib.types.enum ["clipman" "cliphist" "clipvault"];
+      type = lib.types.enum [ "clipman" "cliphist" "clipvault" ];
       default = "clipvault";
       description = "Which clipboard manager to use.";
     };
@@ -142,11 +143,11 @@ in {
     systemd.user.services.clipboard = {
       Unit = {
         Description = "Clipboard management daemon (${cfg.manager})";
-        After = ["graphical-session.target"];
-        PartOf = ["graphical-session.target"];
+        After = [ "graphical-session.target" ];
+        PartOf = [ "graphical-session.target" ];
       };
       Install = {
-        WantedBy = ["graphical-session.target"];
+        WantedBy = [ "graphical-session.target" ];
       };
       Service = {
         ExecStart = selected-watcher;

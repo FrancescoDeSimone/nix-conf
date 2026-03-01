@@ -1,11 +1,10 @@
-{
-  pkgs,
-  config,
-  ...
+{ pkgs
+, config
+, ...
 }: {
   boot = {
     kernelPackages = pkgs.linuxPackages_6_12;
-    extraModulePackages = with config.boot.kernelPackages; [tuxedo-drivers yt6801];
+    extraModulePackages = with config.boot.kernelPackages; [ tuxedo-drivers yt6801 ];
     kernelParams = [
       "acpi.ec_no_wakeup=1"
       "amdgpu.dcdebugmask=0x10"
@@ -21,7 +20,7 @@
 
     initrd = {
       systemd.enable = true;
-      availableKernelModules = ["nvme" "xhci_pci" "usb_storage" "sd_mod" "tpm_tis"];
+      availableKernelModules = [ "nvme" "xhci_pci" "usb_storage" "sd_mod" "tpm_tis" ];
     };
 
     kernel.sysctl = {
@@ -41,7 +40,7 @@
       enable = true;
       powerOnBoot = true;
     };
-    firmware = with pkgs; [linux-firmware];
+    firmware = with pkgs; [ linux-firmware ];
   };
 
   services.blueman.enable = true;

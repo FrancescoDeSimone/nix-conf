@@ -1,9 +1,8 @@
-{
-  pkgs,
-  modulesPath,
-  config,
-  lib,
-  ...
+{ pkgs
+, modulesPath
+, config
+, lib
+, ...
 }: {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
@@ -12,13 +11,13 @@
   # --- Bootloader & Kernel ---
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
-    kernelParams = ["amd_iommu=off"];
+    kernelParams = [ "amd_iommu=off" ];
     initrd = {
-      availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod"];
-      kernelModules = ["amdgpu"];
+      availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
+      kernelModules = [ "amdgpu" ];
     };
-    kernelModules = ["kvm-amd"];
-    blacklistedKernelModules = ["bluetooth" "snd_hda_intel"];
+    kernelModules = [ "kvm-amd" ];
+    blacklistedKernelModules = [ "bluetooth" "snd_hda_intel" ];
 
     loader = {
       systemd-boot.enable = true;
@@ -27,7 +26,7 @@
   };
 
   # --- Graphics ---
-  services.xserver.videoDrivers = ["amdgpu"];
+  services.xserver.videoDrivers = [ "amdgpu" ];
   hardware.graphics = {
     enable = true;
     extraPackages = with pkgs; [
@@ -54,7 +53,7 @@
     fsType = "vfat";
   };
   swapDevices = [
-    {device = "/dev/disk/by-uuid/7c640529-e1e4-440d-804a-a0768c54af71";}
+    { device = "/dev/disk/by-uuid/7c640529-e1e4-440d-804a-a0768c54af71"; }
   ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";

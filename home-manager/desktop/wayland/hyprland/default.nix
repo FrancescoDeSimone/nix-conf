@@ -1,9 +1,11 @@
-{config, ...}: let
+{ config, ... }:
+let
   keybinds = builtins.readFile ./config/keybinds.conf;
   exec = builtins.readFile ./config/exec.conf;
   vars = builtins.readFile ./config/vars.conf;
   hyprlock = builtins.readFile ./config/hyprlock.conf;
-in {
+in
+{
   services = {
     hypridle = {
       enable = true;
@@ -36,7 +38,7 @@ in {
   wayland.windowManager.hyprland = {
     enable = true;
     settings = {
-      misc = {force_default_wallpaper = 1;};
+      misc = { force_default_wallpaper = 1; };
 
       master = {
         new_is_master = false;
@@ -52,10 +54,10 @@ in {
         repeat_rate = 50;
         repeat_delay = 200;
         scroll_factor = 2;
-        touchpad = {natural_scroll = true;};
+        touchpad = { natural_scroll = true; };
         sensitivity = 0;
       };
-      animations = {enabled = false;};
+      animations = { enabled = false; };
       general = {
         gaps_in = 1;
         gaps_out = 1;

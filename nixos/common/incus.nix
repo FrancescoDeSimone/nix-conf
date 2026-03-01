@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   networking.nftables.enable = true;
   virtualisation.incus = {
     enable = true;

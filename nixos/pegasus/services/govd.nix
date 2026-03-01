@@ -1,12 +1,11 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
+{ pkgs
+, lib
+, config
+, ...
 }: {
   networking.nat = {
     enable = true;
-    internalInterfaces = ["ve-govd"];
+    internalInterfaces = [ "ve-govd" ];
     externalInterface = "eno1";
     enableIPv6 = true;
   };
@@ -38,7 +37,7 @@
       };
     };
 
-    config = {pkgs, ...}: {
+    config = { pkgs, ... }: {
       system.stateVersion = "25.11";
 
       virtualisation.docker = {
@@ -48,7 +47,7 @@
       virtualisation.oci-containers.backend = "docker";
 
       systemd.services."docker-network-govd" = {
-        path = [pkgs.docker];
+        path = [ pkgs.docker ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -57,8 +56,8 @@
         script = ''
           docker network inspect govd-network || docker network create govd-network --driver=bridge
         '';
-        partOf = ["docker-compose-govd-root.target"];
-        wantedBy = ["docker-compose-govd-root.target"];
+        partOf = [ "docker-compose-govd-root.target" ];
+        wantedBy = [ "docker-compose-govd-root.target" ];
       };
 
       virtualisation.oci-containers.containers."db" = {
@@ -68,7 +67,7 @@
           "POSTGRES_USER" = "govd";
           "PGDATA" = "/var/lib/postgresql/data/pgdata";
         };
-        environmentFiles = ["/run/agenix/govd"];
+        environmentFiles = [ "/run/agenix/govd" ];
         volumes = [
           "govd_db:/var/lib/postgresql/data:rw"
         ];
@@ -90,25 +89,25 @@
           RestartSec = lib.mkOverride 90 "100ms";
           RestartSteps = lib.mkOverride 90 9;
         };
-        after = ["docker-network-govd.service" "docker-volume-govd_db.service"];
-        requires = ["docker-network-govd.service" "docker-volume-govd_db.service"];
-        partOf = ["docker-compose-govd-root.target"];
-        wantedBy = ["docker-compose-govd-root.target"];
+        after = [ "docker-network-govd.service" "docker-volume-govd_db.service" ];
+        requires = [ "docker-network-govd.service" "docker-volume-govd_db.service" ];
+        partOf = [ "docker-compose-govd-root.target" ];
+        wantedBy = [ "docker-compose-govd-root.target" ];
       };
 
       virtualisation.oci-containers.containers."bot" = {
         image = "govdbot/govd:main";
-        environmentFiles = ["/run/agenix/govd"];
+        environmentFiles = [ "/run/agenix/govd" ];
         volumes = [
           "/var/lib/govd/downloads:/app/downloads:rw"
           "/var/lib/govd/logs:/app/logs:rw"
           "/var/lib/govd/private:/app/private:rw"
         ];
         ports = [
-          "127.0.0.1:8080:8080"
+          "127.0.0.1:${toString config.my.services.govd.port}:8080"
           "127.0.0.1:6060:6060"
         ];
-        dependsOn = ["db"];
+        dependsOn = [ "db" ];
         log-driver = "journald";
         extraOptions = [
           "--network-alias=bot"
@@ -123,14 +122,14 @@
           RestartSec = lib.mkOverride 90 "100ms";
           RestartSteps = lib.mkOverride 90 9;
         };
-        after = ["docker-network-govd.service" "docker-db.service"];
-        requires = ["docker-network-govd.service" "docker-db.service"];
-        partOf = ["docker-compose-govd-root.target"];
-        wantedBy = ["docker-compose-govd-root.target"];
+        after = [ "docker-network-govd.service" "docker-db.service" ];
+        requires = [ "docker-network-govd.service" "docker-db.service" ];
+        partOf = [ "docker-compose-govd-root.target" ];
+        wantedBy = [ "docker-compose-govd-root.target" ];
       };
 
       systemd.services."docker-volume-govd_db" = {
-        path = [pkgs.docker];
+        path = [ pkgs.docker ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
@@ -138,13 +137,13 @@
         script = ''
           docker volume inspect govd_db || docker volume create govd_db
         '';
-        partOf = ["docker-compose-govd-root.target"];
-        wantedBy = ["docker-compose-govd-root.target"];
+        partOf = [ "docker-compose-govd-root.target" ];
+        wantedBy = [ "docker-compose-govd-root.target" ];
       };
 
       systemd.targets."docker-compose-govd-root" = {
-        unitConfig = {Description = "Root target for govd stack";};
-        wantedBy = ["multi-user.target"];
+        unitConfig = { Description = "Root target for govd stack"; };
+        wantedBy = [ "multi-user.target" ];
       };
 
       systemd.services.govd-cleanup = {
@@ -156,7 +155,7 @@
       };
       systemd.timers.govd-cleanup = {
         description = "Run govd cleanup daily";
-        wantedBy = ["timers.target"];
+        wantedBy = [ "timers.target" ];
         timerConfig = {
           OnCalendar = "daily";
           Persistent = true;

@@ -1,9 +1,8 @@
-{
-  pkgs,
-  inputs,
-  lib,
-  config,
-  ...
+{ pkgs
+, inputs
+, lib
+, config
+, ...
 }: {
   imports = [
     ../common
@@ -30,9 +29,9 @@
     slskd.file = ../../secrets/slskd.age;
     hoarder.file = ../../secrets/hoarder.age;
     govd.file = ../../secrets/govd.age;
+    qui.file = ../../secrets/qui.age;
   };
 
-  # --- Systemd Optimizations ---
   systemd = {
     coredump.enable = false;
     services.systemd-journal-flush.enable = false;

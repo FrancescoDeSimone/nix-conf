@@ -1,5 +1,5 @@
-{pkgs, ...}: {
-  imports = [./foot.nix ./sway.nix ./portal.nix ./waybar/default.nix ./clipboard.nix];
+{ pkgs, ... }: {
+  imports = [ ./foot.nix ./sway.nix ./portal.nix ./waybar/default.nix ./clipboard.nix ];
   home.packages = with pkgs; [
     swaycons
     fira-code-symbols

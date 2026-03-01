@@ -1,5 +1,5 @@
-{outputs, ...}: {
-  imports = [./cli/default.nix];
+{ outputs, ... }: {
+  imports = [ ./cli/default.nix ];
 
   home = {
     username = "ubuntu";

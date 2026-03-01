@@ -1,19 +1,19 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}: let
+{ pkgs
+, lib
+, config
+, ...
+}:
+let
   swaylockCmd =
     if config.programs.swaylock.package != null
     then "${config.programs.swaylock.package}/bin/swaylock"
     else "/usr/bin/swaylock";
   master-layout =
     pkgs.writers.writePython3Bin "sway-master-layout"
-    {
-      libraries = [pkgs.python3Packages.i3ipc];
-      flakeIgnore = ["E302" "E305" "E501" "W391" "E261" "F841" "E701"];
-    } ''
+      {
+        libraries = [ pkgs.python3Packages.i3ipc ];
+        flakeIgnore = [ "E302" "E305" "E501" "W391" "E261" "F841" "E701" ];
+      } ''
       from i3ipc import Connection, Event
       def on_window_close(ipc, event):
           tree = ipc.get_tree()
@@ -67,10 +67,10 @@
 
   focus-master =
     pkgs.writers.writePython3Bin "sway-focus-master"
-    {
-      libraries = [pkgs.python3Packages.i3ipc];
-      flakeIgnore = ["E302" "E305" "E501" "W391" "E701"];
-    } ''
+      {
+        libraries = [ pkgs.python3Packages.i3ipc ];
+        flakeIgnore = [ "E302" "E305" "E501" "W391" "E701" ];
+      } ''
       from i3ipc import Connection
       ipc = Connection()
       focused = ipc.get_tree().find_focused()
@@ -82,10 +82,10 @@
 
   swap-master =
     pkgs.writers.writePython3Bin "sway-swap-master"
-    {
-      libraries = [pkgs.python3Packages.i3ipc];
-      flakeIgnore = ["E302" "E305" "E501" "W391" "E701"];
-    } ''
+      {
+        libraries = [ pkgs.python3Packages.i3ipc ];
+        flakeIgnore = [ "E302" "E305" "E501" "W391" "E701" ];
+      } ''
       from i3ipc import Connection
       ipc = Connection()
       focused = ipc.get_tree().find_focused()
@@ -97,7 +97,8 @@
       ipc.command(f"[con_id={focused.id}] swap container with con_id {target.id}")
       ipc.command(f"[con_id={ws.nodes[0].id}] focus")
     '';
-in {
+in
+{
   options.modules.desktop.sway = {
     wallpaper = lib.mkOption {
       type = lib.types.either lib.types.path lib.types.str;
@@ -117,10 +118,10 @@ in {
       sworkstyle = {
         Unit = {
           Description = "Swayest Workstyle Daemon";
-          PartOf = ["sway-session.target"];
-          After = ["sway-session.target"];
+          PartOf = [ "sway-session.target" ];
+          After = [ "sway-session.target" ];
         };
-        Install = {WantedBy = ["sway-session.target"];};
+        Install = { WantedBy = [ "sway-session.target" ]; };
         Service = {
           ExecStart = "${pkgs.swayest-workstyle}/bin/sworkstyle -d -l off";
           Restart = "always";
@@ -130,11 +131,11 @@ in {
       sway-master-layout = {
         Unit = {
           Description = "Sway Master Layout Daemon";
-          PartOf = ["sway-session.target"];
-          After = ["sway-session.target"];
+          PartOf = [ "sway-session.target" ];
+          After = [ "sway-session.target" ];
         };
         Install = {
-          WantedBy = ["sway-session.target"];
+          WantedBy = [ "sway-session.target" ];
         };
         Service = {
           ExecStart = "${master-layout}/bin/sway-master-layout";
@@ -195,23 +196,23 @@ in {
 
         window.commands = [
           {
-            criteria = {app_id = "blueman-manager";};
+            criteria = { app_id = "blueman-manager"; };
             command = "floating enable, resize set 800 600, move position center";
           }
           {
-            criteria = {app_id = "pavucontrol";};
+            criteria = { app_id = "pavucontrol"; };
             command = "floating enable, resize set 800 600, move position center";
           }
           {
-            criteria = {class = "FreeTube";};
+            criteria = { class = "FreeTube"; };
             command = "fullscreen disable";
           }
           {
-            criteria = {app_id = "nm-connection-editor";};
+            criteria = { app_id = "nm-connection-editor"; };
             command = "floating enable";
           }
           {
-            criteria = {title = "(?:Open|Save) (?:File|Folder|As)";};
+            criteria = { title = "(?:Open|Save) (?:File|Folder|As)"; };
             command = "floating enable, resize set 800 600";
           }
         ];
@@ -257,7 +258,7 @@ in {
         modifier = "Mod4";
         terminal = "${pkgs.foot}/bin/foot";
         menu = "${config.programs.rofi.package}/bin/rofi -show drun";
-        bars = [];
+        bars = [ ];
         input = {
           "type:touchpad" = {
             dwt = "enabled";
@@ -288,9 +289,9 @@ in {
           titlebar = false;
         };
         startup = [
-          {command = "${pkgs.dunst}/bin/dunst";}
-          {command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";}
-          {command = "${pkgs.networkmanagerapplet}/bin/nm-applet";}
+          { command = "${pkgs.dunst}/bin/dunst"; }
+          { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
+          { command = "${pkgs.networkmanagerapplet}/bin/nm-applet"; }
         ];
         modes = {
           screenshot = {
@@ -388,7 +389,7 @@ in {
       settings = {
         menu = {
           executable = "${config.programs.rofi.package}/bin/rofi";
-          args = ["-dmenu" "-i" "-markup-rows" "-p" "{prompt}"];
+          args = [ "-dmenu" "-i" "-markup-rows" "-p" "{prompt}" ];
         };
         format = {
           icon_dirs = [

@@ -1,5 +1,5 @@
 # This file defines overlays
-{inputs, ...}: {
+{ inputs, ... }: {
   # This one brings our custom packages from the 'pkgs' directory
   # additions = final: _prev: import ../pkgs {pkgs = final;};
   additions = final: _prev:
@@ -16,9 +16,9 @@
     # ...
     # });
     # neovim = inputs.nixvim.packages.${prev.system}.default;
-    rofi-calc = prev.rofi-calc.override {rofi-unwrapped = prev.rofi-unwrapped;};
-    rofi-top = prev.rofi-top.override {rofi-unwrapped = prev.rofi-unwrapped;};
-    rofi-vpn = prev.rofi-vpn.override {rofi-unwrapped = prev.rofi-unwrapped;};
+    rofi-calc = prev.rofi-calc.override { rofi-unwrapped = prev.rofi-unwrapped; };
+    rofi-top = prev.rofi-top.override { rofi-unwrapped = prev.rofi-unwrapped; };
+    rofi-vpn = prev.rofi-vpn.override { rofi-unwrapped = prev.rofi-unwrapped; };
   };
 
   # When applied, the unstable nixpkgs set (declared in the flake inputs) will

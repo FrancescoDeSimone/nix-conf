@@ -1,7 +1,6 @@
-{
-  outputs,
-  pkgs,
-  ...
+{ outputs
+, pkgs
+, ...
 }: {
   imports = [
     ./desktop/default.nix
@@ -21,7 +20,7 @@
   ];
   wayland.windowManager.sway = {
     package = null;
-    config.bars = [];
+    config.bars = [ ];
   };
   home = {
     username = "fdesi";

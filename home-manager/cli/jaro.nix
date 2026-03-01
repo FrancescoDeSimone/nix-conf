@@ -1,8 +1,7 @@
-{
-  pkgs,
-  config,
-  lib,
-  ...
+{ pkgs
+, config
+, lib
+, ...
 }: {
   home.packages = with pkgs; [
     jaro
@@ -57,9 +56,9 @@
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      "x-scheme-handler/http" = ["jaro.desktop"];
-      "x-scheme-handler/https" = ["jaro.desktop"];
-      "text/html" = ["jaro.desktop"];
+      "x-scheme-handler/http" = [ "jaro.desktop" ];
+      "x-scheme-handler/https" = [ "jaro.desktop" ];
+      "text/html" = [ "jaro.desktop" ];
     };
   };
 
@@ -68,7 +67,7 @@
     genericName = "Resource Opener";
     exec = "jaro %U";
     terminal = false;
-    categories = ["Utility"];
-    mimeType = ["x-scheme-handler/http" "x-scheme-handler/https"];
+    categories = [ "Utility" ];
+    mimeType = [ "x-scheme-handler/http" "x-scheme-handler/https" ];
   };
 }

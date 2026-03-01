@@ -2,64 +2,51 @@
   pkgs,
   config,
   private,
+  lib,
   ...
 }: let
   domain = private.nginx.domain;
   provider = private.nginx.provider;
   provider-statistic = private.nginx.provider-statistic;
 
-  servicesList =
-    builtins.map
+  capitalize = s:
+    if (builtins.stringLength s) > 0
+    then (lib.toUpper (builtins.substring 0 1 s)) + (builtins.substring 1 (builtins.stringLength s) s)
+    else s;
+
+  lanHosts = lib.filterAttrs (name: _: lib.hasSuffix ".pegasus.lan" name) config.services.nginx.virtualHosts;
+
+  autoServiceList =
+    lib.mapAttrsToList
     (
-      name: let
-        service = config.services.${name};
-      in
-        if builtins.hasAttr "enable" service
-        then {
-          name = name;
-          value = service;
-        }
-        else null
-    )
-    (builtins.attrNames config.services);
-
-  validServices = builtins.filter (service: service != null) servicesList;
-
-  enabledServices = builtins.filter (service: service.value.enable == true) validServices;
-
-  services =
-    builtins.map
-    (service: {
-      name = service.name;
-      enable = service.value.enable;
-      port = service.value.port or null;
-    })
-    enabledServices;
-
-  homepageDashboardServices = builtins.concatLists (
-    builtins.map
-    (service: [
-      {
-        "My First Group" = [
-          {
-            "My First Service" = {
-              description = "Homepage is awesome";
-              href = "http://localhost/";
-            };
-          }
-        ];
+      host: _: let
+        name = lib.removeSuffix ".pegasus.lan" host;
+        displayName = capitalize name;
+      in {
+        "${displayName}" = {
+          href = "http://${host}";
+          description = "${displayName} Service";
+        };
       }
-    ])
-    services
-  );
+    )
+    lanHosts;
 in {
+  systemd.services.homepage-dashboard.environment = {
+    HOMEPAGE_ALLOWED_HOSTS = lib.mkForce "homepage.pegasus.lan";
+  };
+
   services.homepage-dashboard = {
     enable = true;
-    openFirewall = true;
-    listenPort = 8888;
+    openFirewall = false;
+    listenPort = config.my.services.homepage.port;
     package = pkgs.unstable.homepage-dashboard;
-    settings = {};
-    customCSS = "<link href=\"https://gist.githubusercontent.com/outaTiME/fa59d54f03c01a2c89c39dc6b97bf821/raw/8e4be948cd826fc1a641451c695a2422bc377f34/Fira%2520Code%2520Nerd%2520Font.css\" rel=\"stylesheet\" type=\"text/css\">";
+
+    services = [
+      {
+        "My Services" = autoServiceList;
+      }
+    ];
+
     bookmarks = [
       {
         ${provider} = [
@@ -74,7 +61,7 @@ in {
         ];
       }
     ];
-    services = homepageDashboardServices;
+
     widgets = [
       {
         resources = {
@@ -84,6 +71,7 @@ in {
         };
       }
     ];
-    docker = {};
+
+    customCSS = "<link href=\"https://gist.githubusercontent.com/outaTiME/fa59d54f03c01a2c89c39dc6b97bf821/raw/8e4be948cd826fc1a641451c695a2422bc377f34/Fira%2520Code%2520Nerd%2520Font.css\" rel=\"stylesheet\" type=\"text/css\">";
   };
 }

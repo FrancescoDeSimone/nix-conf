@@ -2,57 +2,55 @@
   private,
   pkgs,
   inputs,
-  lib,
+  config,
   ...
 }: let
   qbuser = private.qb.user;
   qbpasswd = private.qb.passwd;
-  qbpasswd_clear = private.qb.passwd_clear;
 in {
-  imports = [
-    "${inputs.nixpkgs-unstable}/nixos/modules/services/torrent/qui.nix"
-  ];
+  services.qui = {
+    enable = true;
+    openFirewall = false;
+    settings = {
+      port = config.my.services.qui.port;
+      host = "127.0.0.1";
+    };
+    secretFile = config.age.secrets.qui.path;
+  };
 
   services.qbittorrent = {
     enable = true;
     user = "thinkcentre";
     group = "thinkcentre";
     profileDir = "/data/qbittorrent";
-    openFirewall = true;
+    openFirewall = false;
 
     serverConfig = {
-      LegalNotice = {
-        Accepted = true;
-      };
-
+      LegalNotice.Accepted = true;
       Preferences = {
         WebUI = {
+          Enabled = true;
+          Address = "127.0.0.1";
+          Port = config.my.services.qbittorrent.port;
           Username = qbuser;
           Password_PBKDF2 = qbpasswd;
-          CSRFProtection = false;
-          LocalHostAuth = false;
+          CSRFProtection = true;
+          LocalHostAuth = true;
         };
-        General = {
-          Locale = "en";
-        };
+        General.Locale = "en";
       };
 
-      Queueing = {
-        QueueingEnabled = false;
-      };
-
+      Queueing.QueueingEnabled = false;
       Bittorrent = {
         SeedingLimitsRatio = -1;
         MaxSeedingTime = -1;
       };
-
       Scheduler = {
         Enabled = true;
         days = 0;
         start_time = "08:00";
         end_time = "22:00";
       };
-
       Transfer = {
         AltDownloadLimit = 102400;
         AltUploadLimit = 102400;
@@ -61,6 +59,7 @@ in {
       };
     };
   };
+
   users.users.thinkcentre = {
     isNormalUser = true;
     group = "thinkcentre";

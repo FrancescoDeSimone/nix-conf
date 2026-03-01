@@ -1,12 +1,13 @@
-{
-  pkgs,
-  lib,
-  config,
-  inputs,
-  ...
-}: let
+{ pkgs
+, lib
+, config
+, inputs
+, ...
+}:
+let
   cfg = config.modules.editors.neovim;
-in {
+in
+{
   options.modules.editors.neovim = {
     extras = lib.mkOption {
       type = lib.types.bool;

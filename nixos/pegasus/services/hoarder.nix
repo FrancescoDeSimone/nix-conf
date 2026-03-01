@@ -2,6 +2,7 @@
 {
   pkgs,
   lib,
+  config,
   ...
 }: {
   # Runtime
@@ -47,7 +48,7 @@
       "/run/agenix/hoarder"
     ];
     ports = [
-      "3000:3000/tcp"
+      "${toString config.my.services.hoarder.port}:3000/tcp"
     ];
     volumes = [
       "hoarder_data:/data:rw"

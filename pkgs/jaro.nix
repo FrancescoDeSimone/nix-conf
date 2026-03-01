@@ -1,10 +1,10 @@
-{
-  lib,
-  stdenv,
-  inputs,
-  guile,
-  xdg-utils,
-  makeWrapper,
+{ lib
+, stdenv
+, inputs
+, guile
+, xdg-utils
+, makeWrapper
+,
 }:
 stdenv.mkDerivation {
   pname = "jaro";
@@ -12,8 +12,8 @@ stdenv.mkDerivation {
 
   src = inputs.jaro;
 
-  nativeBuildInputs = [makeWrapper];
-  buildInputs = [guile];
+  nativeBuildInputs = [ makeWrapper ];
+  buildInputs = [ guile ];
 
   installPhase = ''
     mkdir -p $out/bin
@@ -29,7 +29,7 @@ stdenv.mkDerivation {
     description = "Just another resource opener";
     homepage = "https://github.com/isamert/jaro";
     license = licenses.gpl3;
-    maintainers = [];
+    maintainers = [ ];
     mainProgram = "jaro";
   };
 }

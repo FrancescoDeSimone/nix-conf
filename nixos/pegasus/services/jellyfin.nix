@@ -1,7 +1,10 @@
-{pkgs, ...}: {
+{ pkgs
+, config
+, ...
+}: {
   services.jellyfin = {
     enable = true;
-    openFirewall = true;
+    openFirewall = false;
     user = "thinkcentre";
     package = pkgs.jellyfin.override {
       jellyfin-web = pkgs.jellyfin-web.overrideAttrs (finalAttrs: previousAttrs: {

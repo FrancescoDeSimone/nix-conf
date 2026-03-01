@@ -20,7 +20,7 @@
             content = {
               type = "luks";
               name = "crypted";
-              extraOpenArgs = ["--allow-discards"];
+              extraOpenArgs = [ "--allow-discards" ];
               content = {
                 type = "lvm_pv";
                 vg = "pool";
@@ -39,12 +39,12 @@
             type = "filesystem";
             format = "ext4";
             mountpoint = "/";
-            mountOptions = ["noatime"];
+            mountOptions = [ "noatime" ];
           };
         };
         swap = {
           size = "16G";
-          content = {type = "swap";};
+          content = { type = "swap"; };
         };
       };
     };

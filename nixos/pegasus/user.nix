@@ -1,23 +1,22 @@
-{
-  pkgs,
-  config,
-  inputs,
-  outputs,
-  ...
+{ pkgs
+, config
+, inputs
+, outputs
+, ...
 }: {
   programs.zsh.enable = true;
 
   users.users.thinkcentre = {
     isNormalUser = true;
     description = "thinkcentre";
-    extraGroups = ["networkmanager" "wheel" "incus" "docker"];
+    extraGroups = [ "networkmanager" "wheel" "incus" "docker" ];
     shell = pkgs.zsh;
   };
 
-  users.groups.thinkcentre = {};
+  users.groups.thinkcentre = { };
 
   home-manager = {
-    extraSpecialArgs = {inherit inputs outputs;};
+    extraSpecialArgs = { inherit inputs outputs; };
     useGlobalPkgs = true;
     useUserPackages = false;
     users.thinkcentre = {

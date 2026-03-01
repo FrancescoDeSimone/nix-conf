@@ -1,13 +1,14 @@
-{lib, ...}: {
+{ lib, ... }: {
   systemd.services.transmission.serviceConfig.Restart = lib.mkForce "always";
   services.transmission = {
     enable = true;
     openRPCPort = true;
-    openFirewall = true;
+    openFirewall = false;
     user = "thinkcentre";
     settings = {
-      rpc-bind-address = "0.0.0.0";
-      rpc-whitelist-enabled = false;
+      rpc-bind-address = "127.0.0.1";
+      rpc-whitelist-enabled = true;
+      rpc-whitelist = [ "127.0.0.1" ];
       home = "/data/transmission";
       download-dir = "/data/transmission/Downloads";
       incomplete-dir = "/data/transmission/.incomplete";

@@ -1,6 +1,7 @@
 {
   imports = [
-    # ./services/adguard.nix
+    ./services/ports.nix
+    ./services/observability.nix
     ./services/docker.nix
     ./services/filebrowser.nix
     ./services/git.nix
@@ -8,27 +9,21 @@
     ./services/homepage.nix
     ./services/jellyfin.nix
     ./services/jellyseer.nix
-    # ./services/monitor.nix
     ./services/nextcloud.nix
     ./services/nginx.nix
     ./services/prowlarr.nix
-    ./services/lidarr.nix
     ./services/govd.nix
-    # ./services/spotifizerr.nix
     ./services/radarr.nix
     ./services/scrutiny.nix
     ./services/sonarr.nix
     ./services/stirling-pdf.nix
-    ./services/transmission.nix
-    # ./services/rtorrent.nix
     ./services/qbittorrent.nix
-    ./services/opencloud.nix
-
     ./services/ollama.nix
-    # ./services/linkwarden.nix
     ./services/hoarder.nix
-    # ./services/ntopng.nix
-    # ./services/photoprism.nix
+    ./services/flaresolverr.nix
+    ./services/speedtesttracker.nix
+    # ./services/jelly-clipper.nix
+    ./services/bypass.nix
   ];
 
   services = {
