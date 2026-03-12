@@ -1,15 +1,15 @@
-{ config
-, private
-, pkgs
-, lib
-, ...
-}:
-let
+{
+  config,
+  private,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: let
   email = private.nginx.email;
   domain = private.nginx.domain;
   provider = private.nginx.provider;
 
-  # --- 1. Custom 404 Page Generation ---
   customErrorPage = pkgs.writeTextDir "share/nginx/html/404.html" ''
     <!DOCTYPE html>
     <html lang="en">
@@ -35,7 +35,6 @@ let
     </html>
   '';
 
-  # --- 2. Common Config (Error handling + Rate limiting) ---
   commonVhostConfig = ''
     error_page 404 /404.html;
     proxy_intercept_errors on;
@@ -43,12 +42,36 @@ let
       root ${customErrorPage}/share/nginx/html;
       internal;
     }
-
-    # Apply general rate limiting to all requests
+    # Block hidden files and sensitive directories
+    location ~ /\.(git|env|svn|hg|htaccess|vscode|ssh|docker) {
+      deny all;
+      access_log off;
+      log_not_found off;
+    }
+    location ~ /\. {
+      deny all;
+      access_log off;
+      log_not_found off;
+    }
+    # Block dangerous/probing file extensions
+    location ~* \.(git|log|sql|env|yml|yaml|bak|php|asp|aspx|jsp|cgi|sh|py|pl|conf)$ {
+      deny all;
+      access_log off;
+    }
+    # Robots (Polite crawl prevention)
+    location = /robots.txt {
+      return 200 "User-agent: *\nDisallow: /admin\nDisallow: /config\nDisallow: /\n";
+    }
+    # Block scanners and aggressive User-Agents
+    if ($http_user_agent ~* (nmap|nikto|sqlmap|dirbuster|masscan|zgrab)) {
+      return 403;
+    }
+    # Rate and Connection limits
     limit_req zone=general burst=50 nodelay;
+    limit_conn addr 20;
   '';
 
-  figletFonts = pkgs.runCommand "figlet-fonts" { } ''
+  figletFonts = pkgs.runCommand "figlet-fonts" {} ''
     mkdir -p $out
     cp ${pkgs.fetchurl {
       url = "https://unpkg.com/figlet@1.6.0/fonts/3D%20Diagonal.flf";
@@ -63,8 +86,7 @@ let
       sha256 = "sha256-Rtgtcb3b0AAYfsdSRdN8YO24gqmyE/gZqGRAsRYn5nY=";
     }} "$out/3x5.flf"
   '';
-in
-{
+in {
   security.acme = {
     acceptTerms = true;
     defaults.email = email;
@@ -82,8 +104,20 @@ in
     port = config.my.services.nginx.exporter;
   };
 
+  services.fail2ban = {
+    enable = true;
+    jails.nginx-noscan = ''
+      enabled = true
+      port = http,https
+      filter = nginx-botsearch
+      logpath = /var/log/nginx/error.log
+      maxretry = 2
+      bantime = 1d
+    '';
+  };
   services.nginx = {
     enable = true;
+    additionalModules = [pkgs.nginxModules.brotli];
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
@@ -96,6 +130,7 @@ in
       limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
       limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
       limit_req_zone $binary_remote_addr zone=general:10m rate=30r/s;
+      limit_conn_zone $binary_remote_addr zone=addr:10m;
 
       # Security headers
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
@@ -108,25 +143,40 @@ in
 
       # Limit request size
       client_body_buffer_size 128k;
+
+      client_body_timeout 10s;
+      client_header_timeout 10s;
+      send_timeout 10s;
+      brotli on;
+      brotli_static on;
+      brotli_comp_level 6;
+      brotli_types
+        text/plain
+        text/css
+        application/javascript
+        application/json
+        image/svg+xml
+        application/xml+rss;
     '';
 
     virtualHosts = {
-      # --- CATCH-ALL DEFAULT ---
       "_" = {
         default = true;
         rejectSSL = true;
+        extraConfig = "return 444;";
         locations."/" = {
-          # Serve the 404 page directly
           root = "${customErrorPage}/share/nginx/html";
           tryFiles = "/404.html =404";
         };
       };
-
-      # --- External Domains ---
       ${"nextcloud." + domain} = {
         forceSSL = true;
         useACMEHost = domain;
-        extraConfig = commonVhostConfig;
+        extraConfig =
+          commonVhostConfig
+          + ''
+            client_max_body_size 0;
+          '';
         locations."/".proxyPass = "http://192.168.100.10:${toString config.my.services.nextcloud.port}";
       };
       ${"jellyfin." + domain} = {
@@ -145,7 +195,6 @@ in
         forceSSL = true;
         useACMEHost = domain;
         root = "${pkgs.it-tools}/lib";
-        # FIX: Merged commonVhostConfig with specific config using string concatenation
         extraConfig =
           commonVhostConfig
           + ''
@@ -170,6 +219,16 @@ in
         useACMEHost = domain;
         extraConfig = commonVhostConfig;
         locations."/".proxyPass = "http://192.168.200.11:${toString config.my.services.git.port}";
+      };
+      ${"paint." + domain} = {
+        forceSSL = true;
+        useACMEHost = domain;
+        root = "${inputs.p5aint}";
+        extraConfig =
+          commonVhostConfig
+          + ''
+            index index.html;
+          '';
       };
 
       # --- Internal LAN Services ---
@@ -261,6 +320,10 @@ in
           '';
         };
       };
+      "byparr.pegasus.lan" = {
+        extraConfig = commonVhostConfig;
+        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.byparr.port}/";
+      };
       "prometheus.pegasus.lan" = {
         extraConfig = commonVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
@@ -270,6 +333,6 @@ in
 
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 22 ];
+    allowedTCPPorts = [80 443 22];
   };
 }
