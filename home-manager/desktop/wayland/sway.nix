@@ -23,35 +23,50 @@
           focused = tree.find_focused()
           if not focused: return
           ws = focused.workspace()
-          if not ws or ws.layout in ["tabbed", "stacked"]:
-              return
+          if not ws: return
+          if ws.layout in ("tabbed", "stacked"):
+              await ipc.command(
+                  f"[con_id={focused.id}] focus; focus parent; layout splith; focus child"
+              )
+              tree = await ipc.get_tree()
+              focused = tree.find_focused()
+              if not focused: return
+              ws = focused.workspace()
+              if not ws: return
           nodes = ws.nodes
           count = len(nodes)
-          if count < 1:
-              return
+          if count < 1: return
           commands = []
-          if count == 1 and nodes[0].layout in ["tabbed", "stacked"] and len(nodes[0].nodes) > 0:
-              head = nodes[0].nodes[0]
-              commands.extend([
-                  f"[con_id={head.id}] move left",
-                  f"[con_id={head.id}] layout splith"
-              ])
+          if count == 1 and nodes[0].nodes:
+              if len(nodes[0].nodes) == 1 and nodes[0].layout == "tabbed":
+                  head = ws.nodes[0].nodes[0]
+                  commands = [
+                      f"[con_id={head.id}] move left",
+                      f"[con_id={head.id}] move up",
+                      f"[con_id={head.id}] layout splith",
+                  ]
+              else:
+                  head = nodes[0].nodes[0]
+                  commands.extend(
+                      [
+                          f"[con_id={head.id}] move to workspace current",
+                          f"[con_id={head.id}] move left",
+                          f"[con_id={head.id}] focus",
+                      ]
+                  )
           elif count >= 2:
               stack = nodes[1]
-              if stack.layout not in ["tabbed", "stacked"]:
-                  commands.append(f"[con_id={stack.id}] focus; splitv; layout tabbed")
-              if count > 2:
-                  mark = "_stack_fix"
-                  commands.append(f'[con_id={stack.id}] mark --replace "{mark}"')
-                  for node in nodes[2:]:
-                      commands.append(f'[con_id={node.id}] move window to mark "{mark}"')
-                  commands.append(f'[con_id={stack.id}] unmark "{mark}"')
-                  commands.append(f"[con_id={focused.id}] focus")
+              if stack.layout not in ("tabbed", "stacked"):
+                  if nodes[-1].layout in ("tabbed", "stacked"):
+                      commands.append(f"[con_id={stack.id}] focus; move right")
+                  else:
+                      commands.append(f"[con_id={stack.id}] focus; splitv; layout tabbed")
           if commands:
               await ipc.command("; ".join(commands))
       async def trigger_maintain(ipc):
           global maintain_task
-          if maintain_task: maintain_task.cancel()
+          if maintain_task:
+              maintain_task.cancel()
 
           async def delayed_maintain():
               try:
@@ -59,6 +74,7 @@
                   await maintain_layout(ipc)
               except asyncio.CancelledError:
                   pass
+
           maintain_task = asyncio.create_task(delayed_maintain())
       async def on_window_change(ipc, event):
           await trigger_maintain(ipc)
@@ -66,9 +82,9 @@
           new_win_id = event.container.id
           tree = await ipc.get_tree()
           new_win = tree.find_by_id(new_win_id)
-          if not new_win or new_win.floating == "on": return
+          if not new_win or "on" in (new_win.floating or ""): return
           ws = new_win.workspace()
-          if not ws or ws.layout in ["tabbed", "stacked"]: return
+          if not ws or ws.layout in ("tabbed", "stacked"): return
           target_tab = next(
               (n for n in ws.nodes if n.layout == "tabbed" and n.id != new_win_id), None
           )
@@ -85,9 +101,7 @@
               count = len(ws.nodes)
               if count >= 2:
                   await ipc.command(f"[con_id={new_win_id}] focus; splitv; layout tabbed")
-
               await trigger_maintain(ipc)
-
       async def main():
           ipc = await Connection(auto_reconnect=True).connect()
           ipc.on(Event.WINDOW_NEW, on_window_new)
@@ -95,7 +109,6 @@
           ipc.on(Event.WINDOW_MOVE, on_window_change)
           ipc.on(Event.WORKSPACE_FOCUS, on_window_change)
           await ipc.main()
-
       if __name__ == "__main__":
           asyncio.run(main())
     '';
