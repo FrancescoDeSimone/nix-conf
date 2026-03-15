@@ -1,41 +1,68 @@
-{ pkgs
-, lib
-, config
-, ...
-}:
-let
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}: let
   swaylockCmd =
     if config.programs.swaylock.package != null
     then "${config.programs.swaylock.package}/bin/swaylock"
     else "/usr/bin/swaylock";
   master-layout =
     pkgs.writers.writePython3Bin "sway-master-layout"
-      {
-        libraries = [ pkgs.python3Packages.i3ipc ];
-        flakeIgnore = [ "E302" "E305" "E501" "W391" "E261" "F841" "E701" ];
-      } ''
+    {
+      libraries = [pkgs.python3Packages.i3ipc];
+      flakeIgnore = ["E302" "E305" "E501" "W391" "E261" "F841" "E701"];
+    } ''
       from i3ipc import Connection, Event
-      def on_window_close(ipc, event):
+      def maintain_layout(ipc, ws_id):
           tree = ipc.get_tree()
-          focused = tree.find_focused()
-          if not focused: return
-          ws = focused.workspace()
-          if ws is None or ws.layout in ["tabbed", "stacked"]: return
-          if len(ws.nodes) == 1 and ws.nodes[0].layout == "tabbed":
-              head = ws.nodes[0].nodes[0]
-              commands = [
+          ws = tree.find_by_id(ws_id)
+          if not ws or ws.layout in ["tabbed", "stacked"]:
+              return
+          nodes = ws.nodes
+          count = len(nodes)
+          if count < 1:
+              return
+          commands = []
+          if count == 1 and nodes[0].layout in ["tabbed", "stacked"] and len(nodes[0].nodes) > 0:
+              head = nodes[0].nodes[0]
+              commands.extend([
                   f"[con_id={head.id}] move left",
                   f"[con_id={head.id}] layout splith"
-              ]
+              ])
+          elif count >= 2:
+              stack = nodes[1]
+              if stack.layout not in ["tabbed", "stacked"]:
+                  commands.extend([
+                      f"[con_id={stack.id}] splitv",
+                      f"[con_id={stack.id}] layout tabbed"
+                  ])
+              if count > 2:
+                  mark = "_stack_fix"
+                  commands.append(f'[con_id={stack.id}] mark --replace "{mark}"')
+                  for node in nodes[2:]:
+                      commands.append(f'[con_id={node.id}] move window to mark "{mark}"')
+                  commands.append(f'[con_id={stack.id}] unmark "{mark}"')
+          if commands:
               ipc.command("; ".join(commands))
+      def on_window_change(ipc, event):
+          tree = ipc.get_tree()
+          if event.change == "close":
+              focused = tree.find_focused()
+              if focused and focused.workspace():
+                  maintain_layout(ipc, focused.workspace().id)
+          else:
+              con = tree.find_by_id(event.container.id)
+              if con and con.workspace() and con.floating != "on":
+                  maintain_layout(ipc, con.workspace().id)
       def on_window_new(ipc, event):
           new_win_id = event.container.id
           tree = ipc.get_tree()
           new_win = tree.find_by_id(new_win_id)
           if not new_win or new_win.floating == "on": return
           ws = new_win.workspace()
-          if ws is None: return
-          if ws.layout in ["tabbed", "stacked"]: return
+          if not ws or ws.layout in ["tabbed", "stacked"]: return
           target_tab = next(
               (n for n in ws.nodes if n.layout == "tabbed" and n.id != new_win.id), None
           )
@@ -49,28 +76,29 @@ let
               ]
               ipc.command("; ".join(commands))
           else:
-              count = len(ws.nodes)
-              if count >= 2:
-                  commands = [
-                      f'[con_id={new_win.id}] splitv',
-                      f'[con_id={new_win.id}] layout tabbed',
-                  ]
-                  ipc.command("; ".join(commands))
+              # If no stack exists yet, trigger maintenance to build it
+              maintain_layout(ipc, ws.id)
+      def on_workspace_focus(ipc, event):
+          if event.current:
+              maintain_layout(ipc, event.current.id)
+
       def main():
           ipc = Connection()
           ipc.on(Event.WINDOW_NEW, on_window_new)
-          ipc.on(Event.WINDOW_CLOSE, on_window_close)
+          ipc.on(Event.WINDOW_CLOSE, on_window_change)
+          ipc.on(Event.WINDOW_MOVE, on_window_change)
+          ipc.on(Event.WORKSPACE_FOCUS, on_workspace_focus)
           ipc.main()
+
       if __name__ == "__main__":
           main()
     '';
-
   focus-master =
     pkgs.writers.writePython3Bin "sway-focus-master"
-      {
-        libraries = [ pkgs.python3Packages.i3ipc ];
-        flakeIgnore = [ "E302" "E305" "E501" "W391" "E701" ];
-      } ''
+    {
+      libraries = [pkgs.python3Packages.i3ipc];
+      flakeIgnore = ["E302" "E305" "E501" "W391" "E701"];
+    } ''
       from i3ipc import Connection
       ipc = Connection()
       focused = ipc.get_tree().find_focused()
@@ -82,10 +110,10 @@ let
 
   swap-master =
     pkgs.writers.writePython3Bin "sway-swap-master"
-      {
-        libraries = [ pkgs.python3Packages.i3ipc ];
-        flakeIgnore = [ "E302" "E305" "E501" "W391" "E701" ];
-      } ''
+    {
+      libraries = [pkgs.python3Packages.i3ipc];
+      flakeIgnore = ["E302" "E305" "E501" "W391" "E701"];
+    } ''
       from i3ipc import Connection
       ipc = Connection()
       focused = ipc.get_tree().find_focused()
@@ -97,8 +125,7 @@ let
       ipc.command(f"[con_id={focused.id}] swap container with con_id {target.id}")
       ipc.command(f"[con_id={ws.nodes[0].id}] focus")
     '';
-in
-{
+in {
   options.modules.desktop.sway = {
     wallpaper = lib.mkOption {
       type = lib.types.either lib.types.path lib.types.str;
@@ -118,10 +145,10 @@ in
       sworkstyle = {
         Unit = {
           Description = "Swayest Workstyle Daemon";
-          PartOf = [ "sway-session.target" ];
-          After = [ "sway-session.target" ];
+          PartOf = ["sway-session.target"];
+          After = ["sway-session.target"];
         };
-        Install = { WantedBy = [ "sway-session.target" ]; };
+        Install = {WantedBy = ["sway-session.target"];};
         Service = {
           ExecStart = "${pkgs.swayest-workstyle}/bin/sworkstyle -d -l off";
           Restart = "always";
@@ -131,11 +158,11 @@ in
       sway-master-layout = {
         Unit = {
           Description = "Sway Master Layout Daemon";
-          PartOf = [ "sway-session.target" ];
-          After = [ "sway-session.target" ];
+          PartOf = ["sway-session.target"];
+          After = ["sway-session.target"];
         };
         Install = {
-          WantedBy = [ "sway-session.target" ];
+          WantedBy = ["sway-session.target"];
         };
         Service = {
           ExecStart = "${master-layout}/bin/sway-master-layout";
@@ -196,23 +223,23 @@ in
 
         window.commands = [
           {
-            criteria = { app_id = "blueman-manager"; };
+            criteria = {app_id = "blueman-manager";};
             command = "floating enable, resize set 800 600, move position center";
           }
           {
-            criteria = { app_id = "pavucontrol"; };
+            criteria = {app_id = "pavucontrol";};
             command = "floating enable, resize set 800 600, move position center";
           }
           {
-            criteria = { class = "FreeTube"; };
+            criteria = {class = "FreeTube";};
             command = "fullscreen disable";
           }
           {
-            criteria = { app_id = "nm-connection-editor"; };
+            criteria = {app_id = "nm-connection-editor";};
             command = "floating enable";
           }
           {
-            criteria = { title = "(?:Open|Save) (?:File|Folder|As)"; };
+            criteria = {title = "(?:Open|Save) (?:File|Folder|As)";};
             command = "floating enable, resize set 800 600";
           }
         ];
@@ -258,7 +285,7 @@ in
         modifier = "Mod4";
         terminal = "${pkgs.foot}/bin/foot";
         menu = "${config.programs.rofi.package}/bin/rofi -show drun";
-        bars = [ ];
+        bars = [];
         input = {
           "type:touchpad" = {
             dwt = "enabled";
@@ -289,9 +316,9 @@ in
           titlebar = false;
         };
         startup = [
-          { command = "${pkgs.dunst}/bin/dunst"; }
-          { command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"; }
-          { command = "${pkgs.networkmanagerapplet}/bin/nm-applet"; }
+          {command = "${pkgs.dunst}/bin/dunst";}
+          {command = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";}
+          {command = "${pkgs.networkmanagerapplet}/bin/nm-applet";}
         ];
         modes = {
           screenshot = {
@@ -389,7 +416,7 @@ in
       settings = {
         menu = {
           executable = "${config.programs.rofi.package}/bin/rofi";
-          args = [ "-dmenu" "-i" "-markup-rows" "-p" "{prompt}" ];
+          args = ["-dmenu" "-i" "-markup-rows" "-p" "{prompt}"];
         };
         format = {
           icon_dirs = [
