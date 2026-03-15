@@ -57,10 +57,13 @@
           elif count >= 2:
               stack = nodes[1]
               if stack.layout not in ("tabbed", "stacked"):
+                  master_leaf = ws.nodes[0].leaves()[0] if ws.nodes[0].leaves() else ws.nodes[0]
                   if nodes[-1].layout in ("tabbed", "stacked"):
-                      commands.append(f"[con_id={stack.id}] focus; move right")
+                      commands.append(f"[con_id={stack.id}] swap container with con_id {master_leaf.id}")
+                      commands.append(f"[con_id={master_leaf.id}] move right")
                   else:
-                      commands.append(f"[con_id={stack.id}] focus; splitv; layout tabbed")
+                      commands.append(f"[con_id={master_leaf.id}] move right")
+                      commands.append(f"[con_id={master_leaf.id}] focus; splitv; layout tabbed")
           if commands:
               await ipc.command("; ".join(commands))
       async def trigger_maintain(ipc):
