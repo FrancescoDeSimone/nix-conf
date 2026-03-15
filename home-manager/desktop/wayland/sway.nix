@@ -14,10 +14,15 @@
       libraries = [pkgs.python3Packages.i3ipc];
       flakeIgnore = ["E302" "E305" "E501" "W391" "E261" "F841" "E701"];
     } ''
-      from i3ipc import Connection, Event
-      def maintain_layout(ipc, ws_id):
-          tree = ipc.get_tree()
-          ws = tree.find_by_id(ws_id)
+      from i3ipc.aio import Connection
+      from i3ipc import Event
+      import asyncio
+      maintain_task = None
+      async def maintain_layout(ipc):
+          tree = await ipc.get_tree()
+          focused = tree.find_focused()
+          if not focused: return
+          ws = focused.workspace()
           if not ws or ws.layout in ["tabbed", "stacked"]:
               return
           nodes = ws.nodes
@@ -34,64 +39,65 @@
           elif count >= 2:
               stack = nodes[1]
               if stack.layout not in ["tabbed", "stacked"]:
-                  commands.extend([
-                      f"[con_id={stack.id}] splitv",
-                      f"[con_id={stack.id}] layout tabbed"
-                  ])
+                  commands.append(f"[con_id={stack.id}] focus; splitv; layout tabbed")
               if count > 2:
                   mark = "_stack_fix"
                   commands.append(f'[con_id={stack.id}] mark --replace "{mark}"')
                   for node in nodes[2:]:
                       commands.append(f'[con_id={node.id}] move window to mark "{mark}"')
                   commands.append(f'[con_id={stack.id}] unmark "{mark}"')
+                  commands.append(f"[con_id={focused.id}] focus")
           if commands:
-              ipc.command("; ".join(commands))
-      def on_window_change(ipc, event):
-          tree = ipc.get_tree()
-          if event.change == "close":
-              focused = tree.find_focused()
-              if focused and focused.workspace():
-                  maintain_layout(ipc, focused.workspace().id)
-          else:
-              con = tree.find_by_id(event.container.id)
-              if con and con.workspace() and con.floating != "on":
-                  maintain_layout(ipc, con.workspace().id)
-      def on_window_new(ipc, event):
+              await ipc.command("; ".join(commands))
+      async def trigger_maintain(ipc):
+          global maintain_task
+          if maintain_task: maintain_task.cancel()
+
+          async def delayed_maintain():
+              try:
+                  await asyncio.sleep(0.05)
+                  await maintain_layout(ipc)
+              except asyncio.CancelledError:
+                  pass
+          maintain_task = asyncio.create_task(delayed_maintain())
+      async def on_window_change(ipc, event):
+          await trigger_maintain(ipc)
+      async def on_window_new(ipc, event):
           new_win_id = event.container.id
-          tree = ipc.get_tree()
+          tree = await ipc.get_tree()
           new_win = tree.find_by_id(new_win_id)
           if not new_win or new_win.floating == "on": return
           ws = new_win.workspace()
           if not ws or ws.layout in ["tabbed", "stacked"]: return
           target_tab = next(
-              (n for n in ws.nodes if n.layout == "tabbed" and n.id != new_win.id), None
+              (n for n in ws.nodes if n.layout == "tabbed" and n.id != new_win_id), None
           )
           if target_tab:
               mark = "_autotile_target"
               commands = [
                   f'[con_id={target_tab.id}] mark --replace "{mark}"',
-                  f'[con_id={new_win.id}] move window to mark "{mark}"',
+                  f'[con_id={new_win_id}] move window to mark "{mark}"',
                   f'[con_id={target_tab.id}] unmark "{mark}"',
-                  f"[con_id={new_win.id}] focus",
+                  f"[con_id={new_win_id}] focus",
               ]
-              ipc.command("; ".join(commands))
+              await ipc.command("; ".join(commands))
           else:
-              # If no stack exists yet, trigger maintenance to build it
-              maintain_layout(ipc, ws.id)
-      def on_workspace_focus(ipc, event):
-          if event.current:
-              maintain_layout(ipc, event.current.id)
+              count = len(ws.nodes)
+              if count >= 2:
+                  await ipc.command(f"[con_id={new_win_id}] focus; splitv; layout tabbed")
 
-      def main():
-          ipc = Connection()
+              await trigger_maintain(ipc)
+
+      async def main():
+          ipc = await Connection(auto_reconnect=True).connect()
           ipc.on(Event.WINDOW_NEW, on_window_new)
           ipc.on(Event.WINDOW_CLOSE, on_window_change)
           ipc.on(Event.WINDOW_MOVE, on_window_change)
-          ipc.on(Event.WORKSPACE_FOCUS, on_workspace_focus)
-          ipc.main()
+          ipc.on(Event.WORKSPACE_FOCUS, on_window_change)
+          await ipc.main()
 
       if __name__ == "__main__":
-          main()
+          asyncio.run(main())
     '';
   focus-master =
     pkgs.writers.writePython3Bin "sway-focus-master"
@@ -99,13 +105,24 @@
       libraries = [pkgs.python3Packages.i3ipc];
       flakeIgnore = ["E302" "E305" "E501" "W391" "E701"];
     } ''
+      import sys
       from i3ipc import Connection
+      def get_active_leaf(node):
+          if not node.nodes:
+              return node
+          if node.focus:
+              child = next((n for n in node.nodes if n.id == node.focus[0]), None)
+              if child:
+                  return get_active_leaf(child)
+          return node
       ipc = Connection()
-      focused = ipc.get_tree().find_focused()
-      if not focused: exit()
+      tree = ipc.get_tree()
+      focused = tree.find_focused()
+      if not focused: sys.exit(0)
       ws = focused.workspace()
-      if len(ws.nodes) < 2: exit()
-      ipc.command(f"[con_id={ws.nodes[0].id}] focus")
+      if not ws or len(ws.nodes) < 1: sys.exit(0)
+      master_leaf = get_active_leaf(ws.nodes[0])
+      ipc.command(f"[con_id={master_leaf.id}] focus")
     '';
 
   swap-master =
@@ -114,16 +131,33 @@
       libraries = [pkgs.python3Packages.i3ipc];
       flakeIgnore = ["E302" "E305" "E501" "W391" "E701"];
     } ''
+      import sys
       from i3ipc import Connection
+      def get_active_leaf(node):
+          if not node.nodes:
+              return node
+          if node.focus:
+              child = next((n for n in node.nodes if n.id == node.focus[0]), None)
+              if child:
+                  return get_active_leaf(child)
+          return node
       ipc = Connection()
-      focused = ipc.get_tree().find_focused()
-      if not focused: exit()
+      tree = ipc.get_tree()
+      focused = tree.find_focused()
+      if not focused: sys.exit(0)
       ws = focused.workspace()
-      if len(ws.nodes) < 2: exit()
-      master = ws.nodes[0]
-      target = ws.nodes[1] if focused.id == master.id else master
-      ipc.command(f"[con_id={focused.id}] swap container with con_id {target.id}")
-      ipc.command(f"[con_id={ws.nodes[0].id}] focus")
+      if not ws or len(ws.nodes) < 2: sys.exit(0)
+      master_node = ws.nodes[0]
+      stack_node = ws.nodes[1]
+      master_leaf = get_active_leaf(master_node)
+      stack_leaf = get_active_leaf(stack_node)
+      is_master_focused = focused.id == master_leaf.id or any(n.id == focused.id for n in master_node.descendants())
+      if is_master_focused:
+          ipc.command(f"[con_id={master_leaf.id}] swap container with con_id {stack_leaf.id}")
+          ipc.command(f"[con_id={stack_leaf.id}] focus")
+      else:
+          ipc.command(f"[con_id={focused.id}] swap container with con_id {master_leaf.id}")
+          ipc.command(f"[con_id={focused.id}] focus")
     '';
 in {
   options.modules.desktop.sway = {
