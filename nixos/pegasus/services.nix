@@ -1,7 +1,7 @@
 {
   imports = [
     ./services/ports.nix
-    ./services/observability.nix
+    # ./services/observability.nix
     ./services/docker.nix
     ./services/filebrowser.nix
     ./services/git.nix
@@ -24,6 +24,7 @@
     ./services/speedtesttracker.nix
     # ./services/jelly-clipper.nix
     ./services/bypass.nix
+    ./services/byparr.nix
   ];
 
   services = {

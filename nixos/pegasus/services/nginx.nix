@@ -34,8 +34,16 @@
     </body>
     </html>
   '';
-
-  commonVhostConfig = ''
+  baseSecurityHeaders = ''
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+    server_tokens off;
+  '';
+  commonVhostRules = ''
     error_page 404 /404.html;
     proxy_intercept_errors on;
     location = /404.html {
@@ -70,6 +78,43 @@
     limit_req zone=general burst=50 nodelay;
     limit_conn addr 20;
   '';
+  commonVhostConfig =
+    baseSecurityHeaders
+    + ''
+      add_header Content-Security-Policy "default-src 'self' http: https: data: blob:" always;
+    ''
+    + commonVhostRules;
+
+  jellyfinVhostConfig =
+    baseSecurityHeaders
+    + ''
+      add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline';" always;
+      client_max_body_size 20M;
+    ''
+    + commonVhostRules;
+  nextcloudVhostConfig =
+    baseSecurityHeaders
+    + ''
+      client_max_body_size 0;
+      proxy_request_buffering off;
+
+      # Explicitly allow .well-known ONLY for Nextcloud
+      location ^~ /.well-known/ {
+        allow all;
+      }
+
+      location ^~ /.well-known/carddav { return 301 $scheme://$host/remote.php/dav; }
+      location ^~ /.well-known/caldav  { return 301 $scheme://$host/remote.php/dav; }
+      location ^~ /.well-known/webfinger { return 301 $scheme://$host/index.php/.well-known/webfinger; }
+      location ^~ /.well-known/nodeinfo  { return 301 $scheme://$host/index.php/.well-known/nodeinfo; }
+    ''
+    + commonVhostRules;
+  relaxedVhostConfig =
+    baseSecurityHeaders
+    + ''
+      add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline';" always;
+    ''
+    + commonVhostRules;
 
   figletFonts = pkgs.runCommand "figlet-fonts" {} ''
     mkdir -p $out
@@ -101,23 +146,79 @@ in {
   };
   services.prometheus.exporters.nginx = {
     enable = true;
+    openFirewall = false;
     port = config.my.services.nginx.exporter;
+    listenAddress = "127.0.0.1";
   };
 
   services.fail2ban = {
     enable = true;
-    jails.nginx-noscan = ''
-      enabled = true
-      port = http,https
-      filter = nginx-botsearch
-      logpath = /var/log/nginx/error.log
-      maxretry = 2
-      bantime = 1d
+    maxretry = 5;
+    ignoreIP = [
+      "10.0.0.0/8"
+      "172.16.0.0/12"
+      "192.168.0.0/16"
+      "127.0.0.0/8"
+      "::1"
+    ];
+    jails = {
+      nginx-noscan = {
+        settings = {
+          enabled = true;
+          filter = "nginx-botsearch";
+          logpath = "/var/log/nginx/error.log";
+          maxretry = 2;
+          bantime = "1d";
+        };
+      };
+
+      nginx-url-probe = {
+        settings = {
+          enabled = true;
+          filter = "nginx-url-probe";
+          logpath = "/var/log/nginx/access.log";
+          backend = "auto";
+          maxretry = 5;
+          findtime = "10m";
+          bantime = "1h";
+        };
+      };
+    };
+  };
+
+  environment.etc = {
+    "fail2ban/filter.d/nginx-url-probe.conf".text = ''
+      [Definition]
+      failregex = ^<HOST> \- \S+ \[.*?\] "(GET|POST|HEAD) \S*(/wp-admin|/phpmyadmin|/\.env|/\.git|/\.htaccess|/\.svn|/\.hg)
+      ignoreregex =
     '';
   };
+
+  # services.crowdsec = {
+  #   enable = true;
+  #   localConfig.acquisitions = [
+  #     {
+  #       filenames = ["/var/log/nginx/access.log" "/var/log/nginx/error.log"];
+  #       labels.type = "nginx";
+  #     }
+  #   ];
+  #   settings = {
+  #     config.api.server = {
+  #       enable = true;
+  #       listen_uri = "127.0.0.1:8080";
+  #     };
+  #     lapi.credentialsFile = "/var/lib/crowdsec/config/lapi-credentials.yaml";
+  #     capi.credentialsFile = "/var/lib/crowdsec/config/capi-credentials.yaml";
+  #   };
+  # };
+  # services.crowdsec-firewall-bouncer = {
+  #   enable = true;
+  #   registerBouncer.enable = true;
+  # };
+
   services.nginx = {
     enable = true;
-    additionalModules = [pkgs.nginxModules.brotli];
+    additionalModules = [pkgs.nginxModules.brotli pkgs.nginxModules.modsecurity];
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
@@ -126,20 +227,21 @@ in {
     statusPage = true;
 
     commonHttpConfig = ''
+      #Enable ModSecurity globally but set to DetectionOnly
+      modsecurity on;
+      modsecurity_rules '
+        SecRuleEngine DetectionOnly
+        SecAuditEngine RelevantOnly
+        SecAuditLog /var/log/nginx/modsec_audit.log
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLogType Serial
+      ';
+
       # Rate limiting
       limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
       limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
       limit_req_zone $binary_remote_addr zone=general:10m rate=30r/s;
       limit_conn_zone $binary_remote_addr zone=addr:10m;
-
-      # Security headers
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-      add_header X-Content-Type-Options "nosniff" always;
-      add_header X-Frame-Options "SAMEORIGIN" always;
-      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-      add_header X-XSS-Protection "1; mode=block" always;
-      add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
-      add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
 
       # Limit request size
       client_body_buffer_size 128k;
@@ -172,23 +274,28 @@ in {
       ${"nextcloud." + domain} = {
         forceSSL = true;
         useACMEHost = domain;
-        extraConfig =
-          commonVhostConfig
-          + ''
-            client_max_body_size 0;
-          '';
+        extraConfig = nextcloudVhostConfig;
         locations."/".proxyPass = "http://192.168.100.10:${toString config.my.services.nextcloud.port}";
       };
       ${"jellyfin." + domain} = {
         forceSSL = true;
         useACMEHost = domain;
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
+        extraConfig = jellyfinVhostConfig;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
+          proxyWebsockets = true;
+        };
       };
       ${"pdf." + domain} = {
         forceSSL = true;
         useACMEHost = domain;
-        extraConfig = commonVhostConfig;
+        extraConfig =
+          baseSecurityHeaders
+          + ''
+            add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline';" always;
+            client_max_body_size 100M;
+          ''
+          + commonVhostRules;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}";
       };
       ${"it-tools." + domain} = {
@@ -211,7 +318,7 @@ in {
       ${"jellyseer." + domain} = {
         forceSSL = true;
         useACMEHost = domain;
-        extraConfig = commonVhostConfig;
+        extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.jellyseerr.port}";
       };
       ${"git." + domain} = {
@@ -225,23 +332,22 @@ in {
         useACMEHost = domain;
         root = "${inputs.p5aint}";
         extraConfig =
-          commonVhostConfig
+          relaxedVhostConfig
           + ''
             index index.html;
           '';
       };
 
-      # --- Internal LAN Services ---
       "opencloud.pegasus.lan" = {
         extraConfig = commonVhostConfig;
         locations."/".proxyPass = "http://192.168.103.11:${toString config.my.services.opencloud.port}";
       };
       "sonarr.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
+        extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.sonarr.port}/";
       };
       "radarr.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
+        extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.radarr.port}/";
       };
       "bypass.pegasus.lan" = {
@@ -265,11 +371,11 @@ in {
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.glances.port}/";
       };
       "jellyfin.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
+        extraConfig = jellyfinVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.jellyfin.port}/";
       };
       "prowlarr.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
+        extraConfig = relaxedVhostConfig;
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.my.services.prowlarr.port}/";
           proxyWebsockets = true;
@@ -283,12 +389,12 @@ in {
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.scrutiny.port}/";
       };
       "pdf.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
+        extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}/";
       };
       "qbittorrent.pegasus.lan" = {
         extraConfig =
-          commonVhostConfig
+          relaxedVhostConfig
           + ''
             # Stricter rate limiting for qbittorrent web interface
             limit_req zone=api burst=5 nodelay;
@@ -306,10 +412,6 @@ in {
         extraConfig = commonVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.homepage.port}/";
       };
-      "lidarr.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://192.168.60.11:${toString config.my.services.lidarr.port}/";
-      };
       "grafana.pegasus.lan" = {
         extraConfig = commonVhostConfig;
         locations."/" = {
@@ -319,10 +421,6 @@ in {
             proxy_intercept_errors off;
           '';
         };
-      };
-      "byparr.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.byparr.port}/";
       };
       "prometheus.pegasus.lan" = {
         extraConfig = commonVhostConfig;

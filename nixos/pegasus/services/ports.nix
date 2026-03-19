@@ -1,5 +1,4 @@
-{ lib, ... }:
-let
+{lib, ...}: let
   inherit (lib) mkOption types;
 
   mkService = defaultPort: {
@@ -19,8 +18,7 @@ let
       default = exporterPort;
     };
   };
-in
-{
+in {
   options.my.services = {
     # Proxies & Web
     nginx = mkServiceWithExporter 80 9113;
@@ -55,6 +53,7 @@ in
     qbittorrent = mkServiceWithExporter 8090 9999;
     slskd = mkService 5030;
     flaresolverr = mkService 8191;
+    byparr = mkService 8192;
 
     # Tools & Productivity
     stirling-pdf = mkService 8085;

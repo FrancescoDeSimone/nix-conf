@@ -1,6 +1,12 @@
-{ config, ... }: {
-  virtualisation.oci-containers.containers.flaresolverr = {
-    image = "ghcr.io/flaresolverr/flaresolverr:latest";
-    ports = [ "${toString config.my.services.flaresolverr.port}:8191" ];
+{
+  config,
+  pkgs,
+  ...
+}: {
+  services.flaresolverr = {
+    enable = true;
+    port = config.my.services.flaresolverr.port;
+    openFirewall = false;
+    package = pkgs.unstable.flaresolverr;
   };
 }

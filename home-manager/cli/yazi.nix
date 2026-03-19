@@ -1,5 +1,5 @@
 {pkgs, ...}: {
-  home.packages = [pkgs.rich-cli];
+  home.packages = [pkgs.rich-cli pkgs.ouch];
 
   programs.yazi = {
     enable = true;
@@ -9,11 +9,9 @@
     settings = {
       mgr = {
         show_hidden = true;
-
         sort_by = "mtime";
-
         sort_dir_first = true;
-        linemode = "git";
+        linemode = "size";
         ratio = [1 4 3];
       };
 
@@ -23,13 +21,6 @@
       };
 
       opener = {
-        extract = [
-          {
-            run = "ya pub extract --list %*";
-            desc = "Extract here";
-            for = "unix";
-          }
-        ];
         edit = [
           {
             run = "nvim %*";
@@ -46,15 +37,11 @@
             run = "rich-preview";
           }
           {
-            name = "*.csv";
-            run = "rich-preview";
-          }
-          {
             name = "*.json";
             run = "rich-preview";
           }
           {
-            name = "*.ipynb";
+            name = "*.csv";
             run = "rich-preview";
           }
           {
@@ -65,13 +52,14 @@
             name = "*.zip";
             run = "ouch";
           }
-          {
-            name = "*.7z";
-            run = "ouch";
-          }
         ];
       };
     };
+
+    initLua = ''
+      require("full-border"):setup()
+      require("git"):setup()
+    '';
 
     keymap = {
       mgr.prepend_keymap = [
@@ -79,11 +67,6 @@
           on = ["C"];
           run = "plugin compress --args='zip'";
           desc = "Compress to .zip";
-        }
-        {
-          on = ["E"];
-          run = "plugin extract --args='list'";
-          desc = "Extract archive";
         }
         {
           on = ["<C-n>"];
@@ -108,13 +91,7 @@
       git = pkgs.yaziPlugins.git;
       compress = pkgs.yaziPlugins.compress;
       ouch = pkgs.yaziPlugins.ouch;
-      chmod = pkgs.yaziPlugins.chmod;
-      mediainfo = pkgs.yaziPlugins.mediainfo;
-      duckdb = pkgs.yaziPlugins.duckdb;
       rich-preview = pkgs.yaziPlugins.rich-preview;
-      wl-clipboard = pkgs.yaziPlugins.wl-clipboard;
-      vcs-files = pkgs.yaziPlugins.vcs-files;
     };
-
   };
 }
