@@ -187,14 +187,6 @@ in
       "tooltip-format" = "{path}: {used} used / {total} total ({percentage_used}%)";
     };
 
-    "temperature" = {
-      "thermal-zone" = 0;
-      "format" = " {icon} {temperatureC}°C ";
-      "format-icons" = [ "" ];
-      "interval" = 30;
-      "tooltip-format" = "Thermal Zone: {thermal_zone}\nCritical: {critical}°C";
-    };
-
     "network#speed" = {
       "interval" = 1;
       "format" = "{ifname}";
