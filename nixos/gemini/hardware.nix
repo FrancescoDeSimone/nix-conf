@@ -3,8 +3,9 @@
 , ...
 }: {
   boot = {
-    kernelPackages = pkgs.linuxPackages_6_12;
+    kernelPackages = pkgs.linuxPackages_latest;
     extraModulePackages = with config.boot.kernelPackages; [ tuxedo-drivers yt6801 ];
+    kernelModules = [ "amd-pstate" ];
     kernelParams = [
       "acpi.ec_no_wakeup=1"
       "amdgpu.dcdebugmask=0x10"
@@ -12,6 +13,8 @@
       "zswap.compressor=zstd"
       "zswap.zpool=zsmalloc"
       "zswap.max_pool_percent=20"
+      "amd_pstate=active"
+      "amdgpu.ppfeaturemask=0xffffffff"
     ];
     loader = {
       systemd-boot.enable = true;
@@ -44,11 +47,18 @@
   };
 
   services.blueman.enable = true;
-  services.power-profiles-daemon.enable = false;
+  services.power-profiles-daemon.enable = true;
 
   security.tpm2 = {
     enable = true;
     pkcs11.enable = true;
     tctiEnvironment.enable = true;
   };
+
+  environment.systemPackages = with pkgs; [
+    lact
+    lm_sensors
+  ];
+
+  services.thermald.enable = true;
 }
