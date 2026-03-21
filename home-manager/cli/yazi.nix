@@ -1,6 +1,8 @@
 {pkgs, ...}: {
   home.packages = [pkgs.rich-cli pkgs.ouch];
 
+  catppuccin.yazi.enable = true;
+
   programs.yazi = {
     enable = true;
     enableZshIntegration = true;
@@ -14,12 +16,10 @@
         linemode = "size";
         ratio = [1 4 3];
       };
-
       preview = {
         max_width = 1000;
         max_height = 1000;
       };
-
       opener = {
         edit = [
           {
@@ -29,7 +29,6 @@
           }
         ];
       };
-
       plugin = {
         prepend_previewers = [
           {
@@ -58,7 +57,9 @@
 
     initLua = ''
       require("full-border"):setup()
-      require("git"):setup()
+      require("git"):setup {
+        	order = 1500,
+       }
     '';
 
     keymap = {
