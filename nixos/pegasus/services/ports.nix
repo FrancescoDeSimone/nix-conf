@@ -53,7 +53,6 @@ in {
     qbittorrent = mkServiceWithExporter 8090 9999;
     slskd = mkService 5030;
     flaresolverr = mkService 8191;
-    byparr = mkService 8192;
 
     # Tools & Productivity
     stirling-pdf = mkService 8085;

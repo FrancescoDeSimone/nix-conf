@@ -24,7 +24,6 @@
     ./services/speedtesttracker.nix
     # ./services/jelly-clipper.nix
     ./services/bypass.nix
-    ./services/byparr.nix
   ];
 
   services = {

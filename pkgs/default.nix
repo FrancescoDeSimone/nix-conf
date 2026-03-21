@@ -8,5 +8,4 @@
   # example = pkgs.callPackage ./example { };
   clipvault = pkgs.callPackage ./clipvault.nix {inherit inputs;};
   jaro = pkgs.callPackage ./jaro.nix {inherit inputs;};
-  byparr = pkgs.callPackage ./byparr.nix {inherit inputs;};
 }

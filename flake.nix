@@ -47,10 +47,6 @@
       url = "git+ssh://git@github.com/FrancescoDeSimone/p5aint?ref=single-file-compressed";
       flake = false;
     };
-    byparr-src = {
-      url = "github:ThePhaseless/Byparr";
-      flake = false;
-    };
     pyproject-nix = {
       url = "github:pyproject-nix/pyproject.nix";
       inputs.nixpkgs.follows = "nixpkgs";
