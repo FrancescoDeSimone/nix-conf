@@ -1,10 +1,23 @@
-{ outputs
-, pkgs
-, ...
-}: {
-  imports = [ ./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix ];
+{
+  outputs,
+  pkgs,
+  lib,
+  ...
+}: let
+  mpv-scripts-env = pkgs.symlinkJoin {
+    name = "mpv-scripts-env";
+    paths = with pkgs.mpvScripts; [
+      reload
+      youtube-chat
+      sponsorblock
+      quality-menu
+      mpv-playlistmanager
+    ];
+  };
+in {
+  imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
 
-  home.packages = with pkgs; [ jellyfin-tui yq jq ayugram-desktop ];
+  home.packages = with pkgs; [jellyfin-tui yq jq ayugram-desktop];
   modules.editors.neovim.extras = false;
 
   xdg.dataFile."wayland-sessions/sway-nvidia.desktop".text = ''
@@ -66,7 +79,14 @@
       };
     };
   };
-  programs.swaylock.package = null;
+  programs = {
+    swaylock.package = null;
+    mpv = {
+      package = pkgs.emptyDirectory;
+      scripts = lib.mkForce [];
+    };
+  };
+  xdg.configFile."mpv/scripts".source = "${mpv-scripts-env}/share/mpv/scripts";
   home = {
     username = "fdesi";
     homeDirectory = "/home/fdesi";
