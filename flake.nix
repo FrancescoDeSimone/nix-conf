@@ -76,8 +76,10 @@
     lib = nixpkgs.lib // home-manager.lib;
     systems = ["x86_64-linux"];
 
+    # Helper for system-specific attributes
     forEachSystem = f: lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
 
+    # Shared specialArgs for NixOS and Home Manager
     sharedArgs = {
       inherit inputs outputs;
       inherit (inputs) private;
@@ -90,6 +92,7 @@
       rust-overlay.overlays.default
     ];
 
+    # Helper for creating NixOS configurations
     mkSystem = hostName: modules:
       lib.nixosSystem {
         specialArgs = sharedArgs;
@@ -105,6 +108,7 @@
           ++ modules;
       };
 
+    # Define a helper to get configured pkgs
     pkgsFor = system:
       import nixpkgs {
         inherit system;
@@ -112,6 +116,7 @@
         overlays = allOverlays;
       };
 
+    # Helper for creating Home Manager configurations
     mkHome = user: host: module:
       lib.homeManagerConfiguration {
         pkgs = pkgsFor "x86_64-linux";
@@ -128,12 +133,15 @@
   in {
     inherit lib;
 
+    # Standard outputs
+    # packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs;});
     packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs inputs;});
     formatter = forEachSystem (pkgs: pkgs.nixpkgs-fmt);
     overlays = import ./overlays {inherit inputs;};
     nixosModules = import ./modules/nixos;
     homeModules = import ./modules/home-manager;
 
+    # --- NixOS Configurations ---
     nixosConfigurations = {
       pegasus = mkSystem "pegasus" [
         ./nixos/pegasus/default.nix
@@ -209,6 +217,7 @@
       ];
     };
 
+    # --- Home Manager Configurations ---
     homeConfigurations = {
       "ubuntu@orangebox" = mkHome "ubuntu" "orangebox" ./home-manager/orangebox.nix;
       "thinkcentre@pegasus" = mkHome "thinkcentre" "pegasus" ./home-manager/pegasus.nix;
@@ -217,6 +226,7 @@
       "fdesi@andromeda" = mkHome "fdesi" "andromeda" ./home-manager/andromeda.nix;
     };
 
+    # --- Android ---
     nixOnDroidConfigurations.default = inputs.nix-on-droid.lib.nixOnDroidConfiguration {
       pkgs = import inputs.nixpkgs-android {system = "aarch64-linux";};
       modules = [./nixos/nix-on-droid.nix];
