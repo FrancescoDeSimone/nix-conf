@@ -254,11 +254,11 @@
     "kickstart-nvim": {
       "flake": false,
       "locked": {
-        "lastModified": 1770510000,
-        "narHash": "sha256-/ESKaMxsxG7pYZoRjeLk417NjNG+tzLHFDK4EseNcAo=",
+        "lastModified": 1774206836,
+        "narHash": "sha256-90QnZNpHDtL9uZXVN01CYRwgkvrcUnjQqPg+8pO9wh0=",
         "owner": "FrancescoDeSimone",
         "repo": "kickstart.nvim",
-        "rev": "fe8de8d1f639db39f06dbb632831228b575b3872",
+        "rev": "94b570a6eab43ecf13ee6daa76c3bd99240bba54",
         "type": "github"
       },
       "original": {
@@ -681,11 +681,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1774062094,
-        "narHash": "sha256-ba3c+hS7KzEiwtZRGHagIAYdcmdY3rCSWVCyn64rx7s=",
+        "lastModified": 1774149071,
+        "narHash": "sha256-SYp8NyzwfCO3Guqmu9hPRHR1hwESlQia5nNz3lYo2qA=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "c807e83cc2e32adc35f51138b3bdef722c0812ab",
+        "rev": "6a031966eab3bfaa19be9e261eed5b8a79c04b18",
         "type": "github"
       },
       "original": {

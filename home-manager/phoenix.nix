@@ -3,18 +3,7 @@
   pkgs,
   lib,
   ...
-}: let
-  mpv-scripts-env = pkgs.symlinkJoin {
-    name = "mpv-scripts-env";
-    paths = with pkgs.mpvScripts; [
-      reload
-      youtube-chat
-      sponsorblock
-      quality-menu
-      mpv-playlistmanager
-    ];
-  };
-in {
+}: {
   imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
 
   home.packages = with pkgs; [jellyfin-tui yq jq ayugram-desktop];
@@ -82,11 +71,17 @@ in {
   programs = {
     swaylock.package = null;
     mpv = {
-      package = pkgs.emptyDirectory;
-      scripts = lib.mkForce [];
+      enable = true;
+      package = pkgs.mpv;
+      config = {
+        vo = "wlshm";
+        hwdec = "auto";
+        msg-level = "ffmpeg=error";
+        scale = "spline36";
+        cscale = "spline36";
+      };
     };
   };
-  xdg.configFile."mpv/scripts".source = "${mpv-scripts-env}/share/mpv/scripts";
   home = {
     username = "fdesi";
     homeDirectory = "/home/fdesi";
