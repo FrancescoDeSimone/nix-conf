@@ -324,7 +324,7 @@ in {
       ${"git." + domain} = {
         forceSSL = true;
         useACMEHost = domain;
-        extraConfig = commonVhostConfig;
+        extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://192.168.200.11:${toString config.my.services.git.port}";
       };
       ${"paint." + domain} = {
@@ -363,7 +363,7 @@ in {
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.filebrowser.port}/";
       };
       "git.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
+        extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://192.168.200.11:${toString config.my.services.git.port}/";
       };
       "glances.pegasus.lan" = {
@@ -385,7 +385,7 @@ in {
         };
       };
       "scrutiny.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
+        extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.scrutiny.port}/";
       };
       "pdf.pegasus.lan" = {
