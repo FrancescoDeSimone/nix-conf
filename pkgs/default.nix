@@ -8,4 +8,5 @@
   # example = pkgs.callPackage ./example { };
   clipvault = pkgs.callPackage ./clipvault.nix {inherit inputs;};
   jaro = pkgs.callPackage ./jaro.nix {inherit inputs;};
+  lidarr-youtube-downloader = pkgs.callPackage ./lidarr-youtube-downloader.nix { };
 }

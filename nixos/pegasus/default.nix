@@ -30,6 +30,7 @@
     hoarder.file = ../../secrets/hoarder.age;
     govd.file = ../../secrets/govd.age;
     qui.file = ../../secrets/qui.age;
+    lidarr.file = ../../secrets/lidarr.age;
   };
 
   systemd = {

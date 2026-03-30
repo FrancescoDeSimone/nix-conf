@@ -350,6 +350,10 @@ in {
         extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.radarr.port}/";
       };
+      "lidarr.pegasus.lan" = {
+        extraConfig = relaxedVhostConfig;
+        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.lidarr.port}/";
+      };
       "bypass.pegasus.lan" = {
         extraConfig = commonVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.bypass.port}/";
