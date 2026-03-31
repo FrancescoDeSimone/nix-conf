@@ -1,14 +1,13 @@
-{ config
-, pkgs
-, ...
-}:
-let
+{
+  config,
+  pkgs,
+  ...
+}: let
   sshdTmpDirectory = "${config.user.home}/sshd-tmp";
   sshdDirectory = "${config.user.home}/sshd";
   pathToPubKey = "/data/data/com.termux.nix/files/home/.ssh/authorized_keys";
   port = 8022;
-in
-{
+in {
   build.activation.sshd = ''
     $DRY_RUN_CMD mkdir $VERBOSE_ARG --parents "${config.user.home}/.ssh"
     $DRY_RUN_CMD cat ${pathToPubKey} > "${config.user.home}/.ssh/authorized_keys"

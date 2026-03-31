@@ -1,10 +1,7 @@
-{
-  config,
-  ...
-}: {
+{config, ...}: {
   virtualisation.oci-containers.containers.flaresolverr = {
     image = "ghcr.io/flaresolverr/flaresolverr:latest";
-    ports = [ "${toString config.my.services.flaresolverr.port}:8191" ];
+    ports = ["${toString config.my.services.flaresolverr.port}:8191"];
     environment = {
       LOG_LEVEL = "info";
       LOG_HTML = "false";

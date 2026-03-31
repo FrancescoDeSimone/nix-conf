@@ -1,7 +1,7 @@
-{ config, ... }: {
+{config, ...}: {
   virtualisation.oci-containers.containers.jelly-clipper = {
     image = "ghcr.io/arnolicious/jelly-clipper:latest";
-    ports = [ "${toString config.my.services.jelly-clipper.port}:3000" ];
+    ports = ["${toString config.my.services.jelly-clipper.port}:3000"];
     volumes = [
       "/tmp/clips:/app/assets/videos"
     ];

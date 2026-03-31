@@ -200,11 +200,19 @@
         ]
       },
       "locked": {
+<<<<<<< HEAD
         "lastModified": 1774559029,
         "narHash": "sha256-deix7yg3j6AhjMPnFDCmWB3f83LsajaaULP5HH2j34k=",
         "owner": "nix-community",
         "repo": "home-manager",
         "rev": "a0bb0d11514f92b639514220114ac8063c72d0a3",
+=======
+        "lastModified": 1774875830,
+        "narHash": "sha256-WPYlTmZvVa9dWlAziFkVjBdv1Z6giNIq40O1DxsBmiI=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "7afd8cebb99e25a64a745765920e663478eb8830",
+>>>>>>> 6902887 (update flakes and run alejandra)
         "type": "github"
       },
       "original": {
@@ -254,11 +262,11 @@
     "kickstart-nvim": {
       "flake": false,
       "locked": {
-        "lastModified": 1774206836,
-        "narHash": "sha256-90QnZNpHDtL9uZXVN01CYRwgkvrcUnjQqPg+8pO9wh0=",
+        "lastModified": 1774982836,
+        "narHash": "sha256-t6fugeSxTdFd3PCdUTFj9ET+yxcixQh79JkdFSF9+wc=",
         "owner": "FrancescoDeSimone",
         "repo": "kickstart.nvim",
-        "rev": "94b570a6eab43ecf13ee6daa76c3bd99240bba54",
+        "rev": "81340978d778a3e7c7eb9bc891d1db0f157c3158",
         "type": "github"
       },
       "original": {
@@ -318,11 +326,19 @@
     },
     "nixos-hardware": {
       "locked": {
+<<<<<<< HEAD
         "lastModified": 1774567711,
         "narHash": "sha256-uVlOHBvt6Vc/iYNJXLPa4c3cLXwMllOCVfAaLAcphIo=",
         "owner": "NixOS",
         "repo": "nixos-hardware",
         "rev": "3f6f874dfc34d386d10e434c48ad966c4832243e",
+=======
+        "lastModified": 1774933469,
+        "narHash": "sha256-OrnCQeUO2bqaWUl0lkDWyGWjKsOhtCyd7JSfTedQNUE=",
+        "owner": "NixOS",
+        "repo": "nixos-hardware",
+        "rev": "f4c4c2c0c923d7811ac2a63ccc154767e4195337",
+>>>>>>> 6902887 (update flakes and run alejandra)
         "type": "github"
       },
       "original": {
@@ -414,11 +430,19 @@
     },
     "nixpkgs-unstable": {
       "locked": {
+<<<<<<< HEAD
         "lastModified": 1774386573,
         "narHash": "sha256-4hAV26quOxdC6iyG7kYaZcM3VOskcPUrdCQd/nx8obc=",
         "owner": "nixos",
         "repo": "nixpkgs",
         "rev": "46db2e09e1d3f113a13c0d7b81e2f221c63b8ce9",
+=======
+        "lastModified": 1774709303,
+        "narHash": "sha256-D3Q07BbIA2KnTcSXIqqu9P586uWxN74zNoCH3h2ESHg=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "8110df5ad7abf5d4c0f6fb0f8f978390e77f9685",
+>>>>>>> 6902887 (update flakes and run alejandra)
         "type": "github"
       },
       "original": {
@@ -446,11 +470,19 @@
     },
     "nixpkgs_3": {
       "locked": {
+<<<<<<< HEAD
         "lastModified": 1774388614,
         "narHash": "sha256-tFwzTI0DdDzovdE9+Ras6CUss0yn8P9XV4Ja6RjA+nU=",
         "owner": "nixos",
         "repo": "nixpkgs",
         "rev": "1073dad219cb244572b74da2b20c7fe39cb3fa9e",
+=======
+        "lastModified": 1774799055,
+        "narHash": "sha256-Tsq9BCz0q47ej1uFF39m4tuhcwru/ls6vCCJzutEpaw=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "107cba9eb4a8d8c9f8e9e61266d78d340867913a",
+>>>>>>> 6902887 (update flakes and run alejandra)
         "type": "github"
       },
       "original": {
@@ -681,11 +713,19 @@
         ]
       },
       "locked": {
+<<<<<<< HEAD
         "lastModified": 1774667365,
         "narHash": "sha256-+JamhonkPyti+oqfl1ySAyF2L02adhCEcdZOzpSukq8=",
         "owner": "oxalica",
         "repo": "rust-overlay",
         "rev": "98caaa8cd1fbcc45913d1bb2b7fbabcf3e8d967a",
+=======
+        "lastModified": 1774926780,
+        "narHash": "sha256-JMdDYn0F+swYBILlpCeHDbCSyzqkeSGNxZ/Q5J584jM=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "962a0934d0e32f42d1b5e49186f9595f9b178d2d",
+>>>>>>> 6902887 (update flakes and run alejandra)
         "type": "github"
       },
       "original": {
@@ -812,11 +852,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1774705889,
-        "narHash": "sha256-TRTIM18gP3ccBj3m8bV1zx82xeYweNYp8/lgcdR4Zz0=",
+        "lastModified": 1774929536,
+        "narHash": "sha256-dMTjy8hu4XFAdNHdcLtCryN3SHqSUFHHqDLep+3b2v4=",
         "owner": "pyproject-nix",
         "repo": "uv2nix",
-        "rev": "28355ed75b466a15ff324e1baa151b550619fe67",
+        "rev": "5d0e883867b1cf53263fcf1bfd34542d40abf5a9",
         "type": "github"
       },
       "original": {

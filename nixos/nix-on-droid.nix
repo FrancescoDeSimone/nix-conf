@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  imports = [ ./droid/sshd.nix ];
+{pkgs, ...}: {
+  imports = [./droid/sshd.nix];
   environment.packages = with pkgs; [
     vim
     nvim

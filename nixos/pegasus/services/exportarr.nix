@@ -1,6 +1,7 @@
-{ config
-, pkgs
-, ...
+{
+  config,
+  pkgs,
+  ...
 }: {
   services.prometheus.exporters.exportarr = {
     sonarr = {

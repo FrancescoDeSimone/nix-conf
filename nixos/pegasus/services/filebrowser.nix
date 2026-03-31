@@ -1,4 +1,4 @@
-{ config, ... }: {
+{config, ...}: {
   services.filebrowser = {
     enable = true;
     user = "root";

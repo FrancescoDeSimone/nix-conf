@@ -1,4 +1,4 @@
-{ config, ... }: {
+{config, ...}: {
   services.stirling-pdf = {
     enable = true;
     environment = {
@@ -6,5 +6,5 @@
       SERVER_PORT = toString config.my.services.stirling-pdf.port;
     };
   };
-  networking.firewall.allowedTCPPorts = [ ];
+  networking.firewall.allowedTCPPorts = [];
 }

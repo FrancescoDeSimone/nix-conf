@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-let
+{pkgs, ...}: let
   nativeArgs = "-W 1920 -H 1080 -f";
   gs-720p = pkgs.writeShellScriptBin "gs-720p" ''
     exec ${pkgs.gamescope}/bin/gamescope \
@@ -16,8 +15,7 @@ let
       -S integer \
       -- "$@"
   '';
-in
-{
+in {
   home.packages = with pkgs; [
     gamescope
     gs-720p

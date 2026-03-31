@@ -3,8 +3,7 @@
   pkgs,
   lib,
   ...
-}:
-let
+}: let
   freedoom = pkgs.fetchurl {
     url = "https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedoom-0.13.0.zip";
     sha256 = "0ncgd2wqv1yxfklg6kbgaixkrn8ryjqxqsvzzfs07r9w7r7jd6rz";
@@ -46,8 +45,7 @@ let
     esac
     ${pkgs.swayosd}/bin/swayosd-client --kbd-brightness raise
   '';
-in
-{
+in {
   imports = [
     ./desktop/default.nix
     ./cli/default.nix
@@ -79,7 +77,7 @@ in
   programs.waybar.settings.mainBar.temperature = lib.mkOptionDefault {
     "chip" = "zenpower";
     "format" = " {icon} {temperatureC}°C ";
-    "format-icons" = [ "" ];
+    "format-icons" = [""];
     "interval" = 30;
     "tooltip-format" = "{all}";
   };

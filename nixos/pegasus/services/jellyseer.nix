@@ -1,4 +1,4 @@
-{ config, ... }: {
+{config, ...}: {
   services.jellyseerr = {
     enable = true;
     port = config.my.services.jellyseerr.port;

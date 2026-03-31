@@ -1,4 +1,4 @@
-{ lib, ... }: {
+{lib, ...}: {
   systemd.services.transmission.serviceConfig.Restart = lib.mkForce "always";
   services.transmission = {
     enable = true;
@@ -8,7 +8,7 @@
     settings = {
       rpc-bind-address = "127.0.0.1";
       rpc-whitelist-enabled = true;
-      rpc-whitelist = [ "127.0.0.1" ];
+      rpc-whitelist = ["127.0.0.1"];
       home = "/data/transmission";
       download-dir = "/data/transmission/Downloads";
       incomplete-dir = "/data/transmission/.incomplete";

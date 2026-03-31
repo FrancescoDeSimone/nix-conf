@@ -1,4 +1,4 @@
-{ config, ... }: {
+{config, ...}: {
   services.radarr = {
     enable = true;
     settings.server.port = config.my.services.radarr.port;
