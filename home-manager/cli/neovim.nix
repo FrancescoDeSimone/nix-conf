@@ -35,6 +35,8 @@ in {
         black
         prettierd
         shellcheck
+        statix
+        deadnix
       ]
       ++ lib.optionals cfg.extras [
         neovim
