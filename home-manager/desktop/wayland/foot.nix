@@ -12,8 +12,6 @@
 #   };
 # }
 {
-  config,
-  pkgs,
   ...
 }: {
   # 1. Disable the Catppuccin module for Foot (stops the deprecation warning)

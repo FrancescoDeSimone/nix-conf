@@ -43,7 +43,6 @@ in {
       }
     ];
     config = {
-      config,
       pkgs,
       ...
     }: {

@@ -19,7 +19,6 @@
     ];
 
     config = {
-      config,
       pkgs,
       ...
     }: {

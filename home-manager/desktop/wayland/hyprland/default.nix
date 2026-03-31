@@ -1,4 +1,4 @@
-{config, ...}: let
+{...}: let
   keybinds = builtins.readFile ./config/keybinds.conf;
   exec = builtins.readFile ./config/exec.conf;
   vars = builtins.readFile ./config/vars.conf;

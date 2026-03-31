@@ -1,6 +1,5 @@
 {
   pkgs,
-  lib,
   ...
 }: let
   catall = pkgs.writeShellScriptBin "catall" ''

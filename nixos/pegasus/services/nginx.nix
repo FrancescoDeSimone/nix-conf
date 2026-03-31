@@ -3,7 +3,6 @@
   private,
   pkgs,
   inputs,
-  lib,
   ...
 }: let
   email = private.nginx.email;

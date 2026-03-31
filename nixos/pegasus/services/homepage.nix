@@ -5,7 +5,6 @@
   lib,
   ...
 }: let
-  domain = private.nginx.domain;
   provider = private.nginx.provider;
   provider-statistic = private.nginx.provider-statistic;
 

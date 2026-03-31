@@ -1,4 +1,4 @@
-{outputs, ...}: {
+{...}: {
   imports = [./cli/default.nix];
 
   home = {

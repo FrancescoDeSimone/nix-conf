@@ -1,7 +1,5 @@
 {
   private,
-  pkgs,
-  inputs,
   config,
   ...
 }: let

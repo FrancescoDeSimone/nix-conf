@@ -2,7 +2,6 @@
   pkgs,
   config,
   inputs,
-  private,
   ...
 }: {
   programs.password-store = {

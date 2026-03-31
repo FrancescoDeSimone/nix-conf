@@ -1,7 +1,5 @@
 {
   pkgs,
-  lib,
-  config,
   ...
 }: let
   pomodoro = pkgs.rustPlatform.buildRustPackage {

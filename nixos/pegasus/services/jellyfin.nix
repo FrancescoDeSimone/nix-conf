@@ -1,6 +1,5 @@
 {
   pkgs,
-  config,
   ...
 }: {
   services.jellyfin = {
@@ -8,7 +7,7 @@
     openFirewall = false;
     user = "thinkcentre";
     package = pkgs.jellyfin.override {
-      jellyfin-web = pkgs.jellyfin-web.overrideAttrs (finalAttrs: previousAttrs: {
+      jellyfin-web = pkgs.jellyfin-web.overrideAttrs (_: _: {
         installPhase = ''
           runHook preInstall
           # this is the important line

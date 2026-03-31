@@ -1,4 +1,4 @@
-{config, ...}: {
+{...}: {
   services.dunst = {
     enable = true;
     settings = {

@@ -1,7 +1,5 @@
 {
-  outputs,
   pkgs,
-  lib,
   ...
 }: {
   imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];

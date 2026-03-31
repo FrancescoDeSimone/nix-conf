@@ -1,6 +1,5 @@
 {
   config,
-  pkgs,
   ...
 }: {
   containers.adguard = {
@@ -22,8 +21,6 @@
       }
     ];
     config = {
-      config,
-      pkgs,
       ...
     }: {
       services.adguardhome = {

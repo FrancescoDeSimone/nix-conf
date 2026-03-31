@@ -68,7 +68,6 @@
     nixpkgs,
     home-manager,
     catppuccin,
-    tuxedo-rs,
     rust-overlay,
     ...
   } @ inputs: let
@@ -117,7 +116,7 @@
       };
 
     # Helper for creating Home Manager configurations
-    mkHome = user: host: module:
+    mkHome = _user: _host: module:
       lib.homeManagerConfiguration {
         pkgs = pkgsFor "x86_64-linux";
         extraSpecialArgs = sharedArgs;
