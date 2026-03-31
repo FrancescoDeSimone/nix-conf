@@ -11,9 +11,7 @@
 #     };
 #   };
 # }
-{
-  ...
-}: {
+{...}: {
   # 1. Disable the Catppuccin module for Foot (stops the deprecation warning)
   # TODO: add it back when catppuccin get fixes
   catppuccin.foot.enable = false;

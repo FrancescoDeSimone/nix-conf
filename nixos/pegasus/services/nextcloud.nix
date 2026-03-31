@@ -42,10 +42,7 @@ in {
         containerPort = 28981;
       }
     ];
-    config = {
-      pkgs,
-      ...
-    }: {
+    config = {pkgs, ...}: {
       services.postgresql = {
         package = pkgs.postgresql_14;
         enable = true;

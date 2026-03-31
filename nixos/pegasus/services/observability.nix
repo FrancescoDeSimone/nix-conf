@@ -1,7 +1,4 @@
-{
-  config,
-  ...
-}: {
+{config, ...}: {
   imports = [./grafana-dashboards.nix];
   services = {
     prometheus = {

@@ -1,7 +1,4 @@
-{
-  config,
-  ...
-}: {
+{config, ...}: {
   services.sonarr = {
     enable = true;
     openFirewall = false;

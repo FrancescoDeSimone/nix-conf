@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   pomodoro = pkgs.rustPlatform.buildRustPackage {
     pname = "waybar-module-pomodoro";
     version = "master";

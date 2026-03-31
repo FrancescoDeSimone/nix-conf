@@ -1,7 +1,4 @@
-{
-  lib,
-  ...
-}: {
+{lib, ...}: {
   networking.nat = {
     enable = true;
     internalInterfaces = ["ve-govd"];

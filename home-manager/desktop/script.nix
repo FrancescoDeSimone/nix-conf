@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   catall = pkgs.writeShellScriptBin "catall" ''
      filename=$1
       find * ! -name $filename -type f -exec sh -c 'file --mime "$1" | grep -q "text/" && { echo "File:

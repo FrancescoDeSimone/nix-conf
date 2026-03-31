@@ -1,7 +1,4 @@
-{
-  config,
-  ...
-}: {
+{config, ...}: {
   services.prometheus.exporters.exportarr = {
     sonarr = {
       enable = true;

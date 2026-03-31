@@ -1,7 +1,4 @@
-{
-  config,
-  ...
-}: {
+{config, ...}: {
   containers.adguard = {
     autoStart = true;
     privateNetwork = true;
@@ -20,9 +17,7 @@
         containerPort = 9617;
       }
     ];
-    config = {
-      ...
-    }: {
+    config = {...}: {
       services.adguardhome = {
         enable = true;
         openFirewall = false;
