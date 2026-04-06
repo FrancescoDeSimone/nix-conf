@@ -39,7 +39,7 @@ in {
         deadnix
       ]
       ++ lib.optionals cfg.extras [
-        neovim
+        unstable.neovim
         # added in a specific layer
         # rustfmt
         # gcc
