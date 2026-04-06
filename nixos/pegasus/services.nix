@@ -5,7 +5,7 @@
     ./services/docker.nix
     ./services/filebrowser.nix
     ./services/git.nix
-    ./services/glances.nix
+    # ./services/glances.nix
     ./services/homepage.nix
     ./services/jellyfin.nix
     ./services/jellyseer.nix

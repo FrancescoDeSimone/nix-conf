@@ -143,12 +143,12 @@ in {
       environmentFile = config.age.secrets.provider.path;
     };
   };
-  services.prometheus.exporters.nginx = {
-    enable = true;
-    openFirewall = false;
-    port = config.my.services.nginx.exporter;
-    listenAddress = "127.0.0.1";
-  };
+  # services.prometheus.exporters.nginx = {
+  #   enable = true;
+  #   openFirewall = false;
+  #   port = config.my.services.nginx.exporter;
+  #   listenAddress = "127.0.0.1";
+  # };
 
   services.fail2ban = {
     enable = true;
@@ -425,10 +425,10 @@ in {
           '';
         };
       };
-      "prometheus.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
-      };
+      # "prometheus.pegasus.lan" = {
+      #   extraConfig = commonVhostConfig;
+      #   locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
+      # };
     };
   };
 
