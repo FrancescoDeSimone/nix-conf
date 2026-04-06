@@ -134,6 +134,7 @@ in {
       ++ (lib.optional (cfg.manager == "cliphist") cliphist)
       ++ (lib.optional (cfg.manager == "clipvault") clipvault)
       ++ [
+        wl-clip-persist
         (writeShellScriptBin "clipboard-picker" ''
           ${selected-picker}
         '')
@@ -150,6 +151,22 @@ in {
       };
       Service = {
         ExecStart = selected-watcher;
+        Restart = "always";
+        RestartSec = "2";
+      };
+    };
+
+    systemd.user.services.clipboard-persist = {
+      Unit = {
+        Description = "Keep Wayland clipboard alive after source app closes";
+        After = ["graphical-session.target"];
+        PartOf = ["graphical-session.target"];
+      };
+      Install = {
+        WantedBy = ["graphical-session.target"];
+      };
+      Service = {
+        ExecStart = "${pkgs.wl-clip-persist}/bin/wl-clip-persist --clipboard both";
         Restart = "always";
         RestartSec = "2";
       };
