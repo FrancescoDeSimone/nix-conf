@@ -11,6 +11,7 @@
     ./services/jellyseer.nix
     ./services/nextcloud.nix
     ./services/nginx.nix
+    ./services/netdata.nix
     ./services/prowlarr.nix
     ./services/govd.nix
     ./services/radarr.nix

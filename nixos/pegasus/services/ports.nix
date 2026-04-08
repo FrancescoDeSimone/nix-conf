@@ -28,6 +28,7 @@ in {
     adguard = mkServiceWithExporter 3003 9617;
 
     # Monitoring & Observability
+    netdata = mkService 19999;
     glances = mkService 61208;
     grafana = mkService 3030;
     prometheus = mkService 9090;
