@@ -425,6 +425,13 @@ in {
           '';
         };
       };
+      "netdata.pegasus.lan" = {
+        extraConfig = commonVhostConfig;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString config.my.services.netdata.port}/";
+          proxyWebsockets = true;
+        };
+      };
       # "prometheus.pegasus.lan" = {
       #   extraConfig = commonVhostConfig;
       #   locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
