@@ -61,7 +61,7 @@ in {
     it-tools = mkService 80;
     scrutiny = mkService 8081;
     nextcloud = mkService 8010;
-    hoarder = mkService 3002;
+    karakeep = mkService 3002;
     govd = mkService 8083;
     opencloud = mkService 8080;
     git = mkService 3001;

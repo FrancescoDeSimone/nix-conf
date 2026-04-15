@@ -20,7 +20,7 @@
     ./services/stirling-pdf.nix
     ./services/qbittorrent.nix
     ./services/ollama.nix
-    ./services/hoarder.nix
+    ./services/karakeep.nix
     ./services/flaresolverr.nix
     ./services/speedtesttracker.nix
     # ./services/jelly-clipper.nix

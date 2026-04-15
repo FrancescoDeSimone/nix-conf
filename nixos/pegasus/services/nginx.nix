@@ -407,9 +407,9 @@ in {
           proxyWebsockets = true;
         };
       };
-      "hoarder.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.hoarder.port}/";
+      "karakeep.pegasus.lan" = {
+        extraConfig = relaxedVhostConfig;
+        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.karakeep.port}/";
       };
       "homepage.pegasus.lan" = {
         extraConfig = commonVhostConfig;
@@ -426,7 +426,7 @@ in {
         };
       };
       "netdata.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
+        extraConfig = relaxedVhostConfig;
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.my.services.netdata.port}/";
           proxyWebsockets = true;
