@@ -1,11 +1,12 @@
-{
-  private,
-  config,
-  ...
-}: let
+{ private
+, config
+, ...
+}:
+let
   qbuser = private.qb.user;
   qbpasswd = private.qb.passwd;
-in {
+in
+{
   services.qui = {
     enable = true;
     openFirewall = false;
@@ -38,22 +39,21 @@ in {
         General.Locale = "en";
       };
 
-      Queueing.QueueingEnabled = false;
-      Bittorrent = {
-        SeedingLimitsRatio = -1;
-        MaxSeedingTime = -1;
+      BitTorrent.Session = {
+        BandwidthSchedulerEnabled = true;
+        AlternativeGlobalDLSpeedLimit = 102400;
+        AlternativeGlobalUPSpeedLimit = 102400;
+        GlobalDLSpeedLimit = 0;
+        GlobalUPSpeedLimit = 0;
+        QueueingSystemEnabled = false;
+        GlobalMaxRatio = -1;
+        GlobalMaxSeedingMinutes = -1;
       };
-      Scheduler = {
-        Enabled = true;
+
+      Preferences.Scheduler = {
         days = 0;
         start_time = "08:00";
         end_time = "22:00";
-      };
-      Transfer = {
-        AltDownloadLimit = 102400;
-        AltUploadLimit = 102400;
-        GlobalDownloadLimit = 0;
-        GlobalUploadLimit = 0;
       };
     };
   };
@@ -62,5 +62,5 @@ in {
     isNormalUser = true;
     group = "thinkcentre";
   };
-  users.groups.thinkcentre = {};
+  users.groups.thinkcentre = { };
 }
