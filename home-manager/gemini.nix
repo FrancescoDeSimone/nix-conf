@@ -78,6 +78,13 @@ in {
     "format" = " {icon} {temperatureC}°C ";
     "format-icons" = [""];
     "interval" = 30;
-    "tooltip-format" = "{all}";
+    "format" = " {icon} {}";
+    "format-icons" = [""];
+    "exec" = ''
+      ${pkgs.lm_sensors}/bin/sensors zenpower amdgpu nvme 2>/dev/null | ${pkgs.gawk}/bin/awk '
+        /^[^ ]/ { chip=$0; sub(/:.*/, "", chip); gsub(/^[[:space:]]+|[[:space:]]+$/, "", chip) }
+        /°C/ { sub(/^[^:]+:[[:space:]]*/, ""); gsub(/[[:space:]]+/, " "); if ($0 ~ /[0-9]/) print chip ": " $0 }
+      ' | paste -sd'\n' - | ${pkgs.coreutils}/bin/tr '\n' '\\n'
+    '';
   };
 }
