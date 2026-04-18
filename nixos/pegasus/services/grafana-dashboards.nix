@@ -32,7 +32,7 @@
         datasource = common.datasource;
         targets = [
           {
-            expr = "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode='idle'}[5m])) * 100)";
+            expr = ''100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)'';
             legendFormat = "{{instance}}";
           }
         ];

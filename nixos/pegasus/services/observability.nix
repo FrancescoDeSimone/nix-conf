@@ -156,40 +156,37 @@ in {
           job_name = "adguard";
           static_configs = [{targets = ["localhost:${toString config.my.services.adguard.exporter}"];}];
         }
-        # Exportarr-based scrape configs (disabled: exportarr module not in nixpkgs)
-        # Uncomment when exportarr or native prometheus endpoints are available
-        # {
-        #   job_name = "sonarr";
-        #   static_configs = [{targets = ["localhost:${toString config.my.services.sonarr.exporter}"];}];
-        # }
-        # {
-        #   job_name = "radarr";
-        #   static_configs = [{targets = ["localhost:${toString config.my.services.radarr.exporter}"];}];
-        # }
-        # {
-        #   job_name = "prowlarr";
-        #   static_configs = [{targets = ["localhost:${toString config.my.services.prowlarr.exporter}"];}];
-        # }
-        # {
-        #   job_name = "qbittorrent";
-        #   static_configs = [{targets = ["localhost:${toString config.my.services.qbittorrent.exporter}"];}];
-        # }
+        {
+          job_name = "sonarr";
+          static_configs = [{targets = ["localhost:${toString config.my.services.sonarr.exporter}"];}];
+        }
+        {
+          job_name = "radarr";
+          static_configs = [{targets = ["localhost:${toString config.my.services.radarr.exporter}"];}];
+        }
+        {
+          job_name = "prowlarr";
+          static_configs = [{targets = ["localhost:${toString config.my.services.prowlarr.exporter}"];}];
+        }
+        {
+          job_name = "qbittorrent";
+          static_configs = [{targets = ["localhost:${toString config.my.services.qbittorrent.exporter}"];}];
+        }
         {
           job_name = "blackbox";
           metrics_path = "/probe";
           params.module = ["http_2xx"];
-          static_configs = [
-            {
-              targets = map (t: t.url) blackboxTargets;
-            }
-          ];
+          static_configs = map (t: {
+            targets = [t.url];
+            labels.service = t.name;
+          }) blackboxTargets;
           relabel_configs = [
             {
               source_labels = ["__address__"];
               target_label = "__param_target";
             }
             {
-              source_labels = ["__param_target"];
+              source_labels = ["service"];
               target_label = "instance";
             }
             {
