@@ -1,7 +1,8 @@
 {
   imports = [
     ./services/ports.nix
-    # ./services/observability.nix
+    ./services/observability.nix
+    # ./services/exportarr.nix # exportarr module not in nixpkgs
     ./services/docker.nix
     ./services/filebrowser.nix
     ./services/git.nix
@@ -11,7 +12,7 @@
     ./services/jellyseer.nix
     ./services/nextcloud.nix
     ./services/nginx.nix
-    ./services/netdata.nix
+    # ./services/netdata.nix
     ./services/prowlarr.nix
     ./services/govd.nix
     ./services/radarr.nix

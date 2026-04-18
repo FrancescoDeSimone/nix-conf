@@ -26,6 +26,11 @@
     govd.file = ../../secrets/govd.age;
     qui.file = ../../secrets/qui.age;
     lidarr.file = ../../secrets/lidarr.age;
+    telegram = {
+      file = ../../secrets/telegram.age;
+      owner = "grafana";
+      group = "grafana";
+    };
   };
 
   systemd = {

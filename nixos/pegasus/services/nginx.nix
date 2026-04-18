@@ -143,12 +143,12 @@ in {
       environmentFile = config.age.secrets.provider.path;
     };
   };
-  # services.prometheus.exporters.nginx = {
-  #   enable = true;
-  #   openFirewall = false;
-  #   port = config.my.services.nginx.exporter;
-  #   listenAddress = "127.0.0.1";
-  # };
+  services.prometheus.exporters.nginx = {
+    enable = true;
+    openFirewall = false;
+    port = config.my.services.nginx.exporter;
+    listenAddress = "127.0.0.1";
+  };
 
   services.fail2ban = {
     enable = true;
@@ -248,6 +248,13 @@ in {
       client_body_timeout 10s;
       client_header_timeout 10s;
       send_timeout 10s;
+
+      log_format vhost_combined '$remote_addr - $remote_user [$time_local] '
+                                '"$request" $status $body_bytes_sent '
+                                '"$http_referer" "$http_user_agent" '
+                                '"$host" $request_time';
+      access_log /var/log/nginx/access.log vhost_combined;
+
       brotli on;
       brotli_static on;
       brotli_comp_level 6;
@@ -407,9 +414,9 @@ in {
           proxyWebsockets = true;
         };
       };
-      "karakeep.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.karakeep.port}/";
+      "hoarder.pegasus.lan" = {
+        extraConfig = commonVhostConfig;
+        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.hoarder.port}/";
       };
       "homepage.pegasus.lan" = {
         extraConfig = commonVhostConfig;
@@ -425,17 +432,10 @@ in {
           '';
         };
       };
-      "netdata.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.my.services.netdata.port}/";
-          proxyWebsockets = true;
-        };
+      "prometheus.pegasus.lan" = {
+        extraConfig = commonVhostConfig;
+        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
       };
-      # "prometheus.pegasus.lan" = {
-      #   extraConfig = commonVhostConfig;
-      #   locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
-      # };
     };
   };
 

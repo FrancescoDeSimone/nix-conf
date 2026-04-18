@@ -35,6 +35,7 @@ in {
     loki = mkService 3100;
     promtail = mkService 9080;
     node-exporter = mkService 9002;
+    blackbox-exporter = mkService 9115;
     process-exporter = mkService 9005;
     systemd-exporter = mkService 9006;
     ntopng = mkService 7777;

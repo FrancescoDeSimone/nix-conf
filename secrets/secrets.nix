@@ -12,4 +12,5 @@ in {
   "wifi.age".publicKeys = keys;
   "qui.age".publicKeys = keys;
   "lidarr.age".publicKeys = keys;
+  "telegram.age".publicKeys = keys;
 }
