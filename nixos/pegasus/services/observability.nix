@@ -156,22 +156,23 @@ in {
           job_name = "adguard";
           static_configs = [{targets = ["localhost:${toString config.my.services.adguard.exporter}"];}];
         }
-        {
-          job_name = "sonarr";
-          static_configs = [{targets = ["localhost:${toString config.my.services.sonarr.exporter}"];}];
-        }
-        {
-          job_name = "radarr";
-          static_configs = [{targets = ["localhost:${toString config.my.services.radarr.exporter}"];}];
-        }
-        {
-          job_name = "prowlarr";
-          static_configs = [{targets = ["localhost:${toString config.my.services.prowlarr.exporter}"];}];
-        }
-        {
-          job_name = "qbittorrent";
-          static_configs = [{targets = ["localhost:${toString config.my.services.qbittorrent.exporter}"];}];
-        }
+        # Exportarr-based scrape configs (disabled: exportarr module not in nixpkgs)
+        # {
+        #   job_name = "sonarr";
+        #   static_configs = [{targets = ["localhost:${toString config.my.services.sonarr.exporter}"];}];
+        # }
+        # {
+        #   job_name = "radarr";
+        #   static_configs = [{targets = ["localhost:${toString config.my.services.radarr.exporter}"];}];
+        # }
+        # {
+        #   job_name = "prowlarr";
+        #   static_configs = [{targets = ["localhost:${toString config.my.services.prowlarr.exporter}"];}];
+        # }
+        # {
+        #   job_name = "qbittorrent";
+        #   static_configs = [{targets = ["localhost:${toString config.my.services.qbittorrent.exporter}"];}];
+        # }
         {
           job_name = "blackbox";
           metrics_path = "/probe";
@@ -412,7 +413,7 @@ in {
         };
 
         compactor = {
-          working_directory = "/tmp/loki/compactor";
+          working_directory = "/var/lib/loki/compactor";
           compaction_interval = "10m";
           retention_enabled = true;
           retention_delete_delay = "2h";
@@ -426,7 +427,7 @@ in {
             kvstore.store = "inmemory";
           };
           replication_factor = 1;
-          path_prefix = "/tmp/loki";
+          path_prefix = "/var/lib/loki";
         };
 
         schema_config = {
@@ -444,7 +445,7 @@ in {
           ];
         };
 
-        storage_config.filesystem.directory = "/tmp/loki/chunks";
+        storage_config.filesystem.directory = "/var/lib/loki/chunks";
       };
     };
 
@@ -552,4 +553,7 @@ in {
   systemd.services.grafana.preStart = lib.mkAfter ''
     ${telegramContactPointScript}
   '';
+
+  # Allow promtail to read nginx log files
+  users.users.promtail.extraGroups = ["nginx"];
 }

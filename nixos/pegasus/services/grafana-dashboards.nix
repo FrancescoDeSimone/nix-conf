@@ -66,7 +66,7 @@
         datasource = common.datasource;
         targets = [
           {
-            expr = "100 - ((node_filesystem_avail_bytes{mountpoint='/'} / node_filesystem_size_bytes{mountpoint='/'}) * 100)";
+            expr = ''100 - ((node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100)'';
           }
         ];
       }
@@ -145,56 +145,9 @@
     ];
   };
 
-  mediaDashboard = {
-    uid = "media-downloads";
-    title = "Media & Downloads";
-    tags = ["media" "torrent"];
-    schemaVersion = 36;
-    panels = [
-      {
-        title = "qBittorrent Speeds";
-        type = "timeseries";
-        gridPos = {
-          h = 8;
-          w = 12;
-          x = 0;
-          y = 0;
-        };
-        datasource = common.datasource;
-        targets = [
-          {
-            expr = "qbittorrent_download_speed_bytes";
-            legendFormat = "Down";
-          }
-          {
-            expr = "qbittorrent_upload_speed_bytes";
-            legendFormat = "Up";
-          }
-        ];
-      }
-      {
-        title = "Media Counts";
-        type = "stat";
-        gridPos = {
-          h = 8;
-          w = 12;
-          x = 12;
-          y = 0;
-        };
-        datasource = common.datasource;
-        targets = [
-          {
-            expr = "sonarr_series_total";
-            legendFormat = "Sonarr Series";
-          }
-          {
-            expr = "radarr_movies_total";
-            legendFormat = "Radarr Movies";
-          }
-        ];
-      }
-    ];
-  };
+  # Media dashboard disabled: exportarr module not available in nixpkgs
+  # Re-enable when exportarr or native prometheus endpoints are available
+  # mediaDashboard = { ... };
 
   # ---------------------------------------------------------------------------
   # New dashboards
@@ -793,7 +746,6 @@ in {
           mkdir -p $out
           cp ${pkgs.writeText "system.json" (builtins.toJSON systemDashboard)} $out/system.json
           cp ${pkgs.writeText "network.json" (builtins.toJSON networkDashboard)} $out/network.json
-          cp ${pkgs.writeText "media.json" (builtins.toJSON mediaDashboard)} $out/media.json
           cp ${pkgs.writeText "service-health.json" (builtins.toJSON serviceHealthDashboard)} $out/service-health.json
           cp ${pkgs.writeText "nginx-traffic.json" (builtins.toJSON nginxTrafficDashboard)} $out/nginx-traffic.json
           cp ${pkgs.writeText "bot-activity.json" (builtins.toJSON botActivityDashboard)} $out/bot-activity.json
