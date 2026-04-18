@@ -1,12 +1,22 @@
 {
   pkgs,
   config,
+  lib,
   ...
 }: {
   boot = {
     kernelPackages = pkgs.linuxPackages_latest;
     extraModulePackages = with config.boot.kernelPackages; [tuxedo-drivers yt6801];
     kernelModules = ["amd-pstate"];
+    initrd.luks.cryptoModules = lib.mkIf (lib.versionAtLeast config.boot.kernelPackages.kernel.version "7.0") [
+      "aes"
+      "cbc"
+      "xts"
+      "sha256"
+      "sha512"
+      "af_alg"
+      "algif_skcipher"
+    ];
     kernelParams = [
       "acpi.ec_no_wakeup=1"
       "amdgpu.dcdebugmask=0x10"
