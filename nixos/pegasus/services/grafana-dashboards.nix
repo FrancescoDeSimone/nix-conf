@@ -19,6 +19,20 @@
     tags = ["system"];
     timezone = "browser";
     schemaVersion = 36;
+    templating.list = [
+      {
+        name = "unit";
+        label = "Systemd Unit";
+        type = "query";
+        datasource = common.lokiDatasource;
+        query = ''label_values({job="systemd-journal"}, unit)'';
+        refresh = 2; # on time range change
+        includeAll = true;
+        allValue = ".*";
+        multi = true;
+        sort = 1; # alphabetical asc
+      }
+    ];
     panels = [
       {
         title = "CPU Usage (5m)";
@@ -86,6 +100,50 @@
             legendFormat = "Load 1m";
           }
         ];
+      }
+      # Row: Journal Logs
+      {
+        title = "Journal Log Volume";
+        type = "timeseries";
+        gridPos = {
+          h = 6;
+          w = 24;
+          x = 0;
+          y = 16;
+        };
+        datasource = common.lokiDatasource;
+        targets = [
+          {
+            expr = ''sum by (unit) (rate({job="systemd-journal", unit=~"$unit"} [5m]))'';
+            legendFormat = "{{ unit }}";
+          }
+        ];
+        fieldConfig.defaults.custom = {
+          fillOpacity = 30;
+          stacking.mode = "normal";
+        };
+      }
+      {
+        title = "Journal Logs";
+        type = "logs";
+        gridPos = {
+          h = 14;
+          w = 24;
+          x = 0;
+          y = 22;
+        };
+        datasource = common.lokiDatasource;
+        targets = [
+          {
+            expr = ''{job="systemd-journal", unit=~"$unit"}'';
+          }
+        ];
+        options = {
+          showTime = true;
+          sortOrder = "Descending";
+          enableLogDetails = true;
+          showLabels = true;
+        };
       }
     ];
   };
@@ -449,7 +507,7 @@
         datasource = common.lokiDatasource;
         targets = [
           {
-            expr = ''topk(15, sum by (remote_addr) (count_over_time({job="nginx"} [1h])))'';
+            expr = ''topk(15, sum by (remote_addr) (count_over_time({job="nginx"} [$__range])))'';
             instant = true;
             legendFormat = "{{ remote_addr }}";
           }
@@ -479,7 +537,7 @@
         datasource = common.lokiDatasource;
         targets = [
           {
-            expr = ''topk(15, sum by (path) (count_over_time({job="nginx"} | regexp `"(?P<method>\S+) (?P<path>\S+)` [1h])))'';
+            expr = ''topk(15, sum by (path) (count_over_time({job="nginx"} | regexp `"(?P<method>\S+) (?P<path>[^?\s]+)` [$__range])))'';
             instant = true;
           }
         ];
