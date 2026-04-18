@@ -22,4 +22,11 @@
     unstable.regex-tui
   ];
   xdg.enable = true;
+
+  # Automatic Home Manager garbage collection
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
 }
