@@ -2,8 +2,10 @@
   config,
   pkgs,
   lib,
+  private,
   ...
 }: let
+  domain = private.nginx.domain;
   # All services to probe via blackbox HTTP checks
   blackboxTargets = [
     {
@@ -68,7 +70,8 @@
     }
     {
       name = "nextcloud";
-      url = "http://192.168.100.10:${toString config.my.services.nextcloud.port}";
+      url = "https://nextcloud.${domain}";
+      module = "https_2xx";
     }
     {
       name = "git";
@@ -128,15 +131,29 @@ in {
           port = config.my.services.blackbox-exporter.port;
           listenAddress = "127.0.0.1";
           configFile = pkgs.writeText "blackbox.yml" (builtins.toJSON {
-            modules.http_2xx = {
-              prober = "http";
-              timeout = "10s";
-              http = {
-                valid_http_versions = ["HTTP/1.1" "HTTP/2.0"];
-                valid_status_codes = [200 301 302 303 307 308 401 403];
-                method = "GET";
-                follow_redirects = true;
-                preferred_ip_protocol = "ip4";
+            modules = {
+              http_2xx = {
+                prober = "http";
+                timeout = "10s";
+                http = {
+                  valid_http_versions = ["HTTP/1.1" "HTTP/2.0"];
+                  valid_status_codes = [200 301 302 303 307 308 401 403];
+                  method = "GET";
+                  follow_redirects = true;
+                  preferred_ip_protocol = "ip4";
+                };
+              };
+              https_2xx = {
+                prober = "http";
+                timeout = "10s";
+                http = {
+                  valid_http_versions = ["HTTP/1.1" "HTTP/2.0"];
+                  valid_status_codes = [200 301 302 303 307 308 401 403];
+                  method = "GET";
+                  follow_redirects = true;
+                  preferred_ip_protocol = "ip4";
+                  tls_config.insecure_skip_verify = true;
+                };
               };
             };
           });
@@ -179,9 +196,16 @@ in {
           params.module = ["http_2xx"];
           static_configs = map (t: {
             targets = [t.url];
-            labels.service = t.name;
+            labels = {
+              service = t.name;
+              __param_module = t.module or "http_2xx";
+            };
           }) blackboxTargets;
           relabel_configs = [
+            {
+              source_labels = ["__param_module"];
+              target_label = "__param_module";
+            }
             {
               source_labels = ["__address__"];
               target_label = "__param_target";
