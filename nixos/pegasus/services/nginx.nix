@@ -97,9 +97,6 @@
       add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline';" always;
       client_max_body_size 20M;
 
-      # Disable rate limiting for streaming
-      limit_req off;
-
       # Disable error interception so Jellyfin controls its own responses
       proxy_intercept_errors off;
     '';
