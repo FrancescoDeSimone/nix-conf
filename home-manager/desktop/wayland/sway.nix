@@ -192,6 +192,19 @@ in {
     };
 
     systemd.user.services = {
+      sway-audio-idle-inhibit = {
+        Unit = {
+          Description = "Sway Audio Idle Inhibit Daemon";
+          PartOf = ["sway-session.target"];
+          After = ["sway-session.target"];
+        };
+        Install = {WantedBy = ["sway-session.target"];};
+        Service = {
+          ExecStart = "${pkgs.unstable.sway-audio-idle-inhibit}/bin/sway-audio-idle-inhibit";
+          Restart = "always";
+          RestartSec = "1s";
+        };
+      };
       sworkstyle = {
         Unit = {
           Description = "Swayest Workstyle Daemon";

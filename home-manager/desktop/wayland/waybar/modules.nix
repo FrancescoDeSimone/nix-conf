@@ -48,6 +48,7 @@ in {
       "custom/separator#line"
       "custom/wotw"
       "custom/separator#line"
+      "custom/audio_idle_inhibitor"
       "tray"
     ];
 
@@ -221,6 +222,19 @@ in {
       "format-icons" = {"default" = [""];};
       "on-click" = "${pkgs.pavucontrol}/bin/pavucontrol";
       "tooltip-format" = "{desc} ({volume}%)";
+    };
+
+    "custom/audio_idle_inhibitor" = {
+      "format" = " {icon} ";
+      "exec" = "${pkgs.unstable.sway-audio-idle-inhibit}/bin/sway-audio-idle-inhibit --dry-print-both-waybar";
+      "exec-if" = "which sway-audio-idle-inhibit";
+      "return-type" = "json";
+      "format-icons" = {
+        "output" = "";
+        "input" = "";
+        "output-input" = "  ";
+        "none" = "";
+      };
     };
   };
 }
