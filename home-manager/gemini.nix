@@ -31,8 +31,8 @@
     DEV="rgb:kbd_backlight"
     STEP=10
     case "$1" in
-      up)   brightnessctl -d "$DEV" s ''${STEP}%+ ;;
-      down) brightnessctl -d "$DEV" s ''${STEP}%- ;;
+      up)   brightnessctl -d "$DEV" s "$STEP%+" ;;
+      down) brightnessctl -d "$DEV" s "$STEP%-" ;;
       toggle)
         CUR=$(brightnessctl -d "$DEV" g)
         if [ "$CUR" -eq 0 ]; then
@@ -73,18 +73,37 @@ in {
     "--release XF86LightsToggle" = "exec ${kbd-backlight}/bin/kbd-backlight toggle";
   };
 
-  programs.waybar.settings.mainBar.temperature = lib.mkOptionDefault {
-    "chip" = "zenpower";
-    "format" = " {icon} {temperatureC}°C ";
-    "format-icons" = [""];
+programs.waybar.settings.mainBar."custom/temperature" = lib.mkOptionDefault {
+    "return-type" = "json";
+    "exec" = "${pkgs.python3}/bin/python3 -c '
+import re
+import subprocess
+import sys
+
+out = subprocess.check_output([\"sensors\"], text=True)
+lines = out.splitlines()
+
+cpu = gpu = nvme = \"N/A\"
+for i, line in enumerate(lines):
+    if line.startswith(\"zenpower\"):
+        for j in range(i+1, min(i+3, len(lines))):
+            if \"Tdie\" in lines[j]:
+                m = re.search(r\"([0-9.]+)\", lines[j])
+                if m: cpu = m.group(1); break
+    elif line.startswith(\"amdgpu\"):
+        for j in range(i+1, min(i+11, len(lines))):
+            if \"edge\" in lines[j]:
+                m = re.search(r\"([0-9.]+)\", lines[j])
+                if m: gpu = m.group(1); break
+    elif line.startswith(\"nvme\"):
+        for j in range(i+1, min(i+3, len(lines))):
+            if \"Composite\" in lines[j]:
+                m = re.search(r\"([0-9.]+)\", lines[j])
+                if m: nvme = m.group(1); break
+
+print(f\"{{\\\"text\\\": \\\"{cpu}°C\\\", \\\"tooltip\\\": \\\"CPU: {cpu}°C\\\\namdgpu: {gpu}°C\\\\nnvme: {nvme}°C\\\"}}\")
+'";
+    "tooltip" = true;
     "interval" = 30;
-    "format" = " {icon} {}";
-    "format-icons" = [""];
-    "exec" = ''
-      ${pkgs.lm_sensors}/bin/sensors zenpower amdgpu nvme 2>/dev/null | ${pkgs.gawk}/bin/awk '
-        /^[^ ]/ { chip=$0; sub(/:.*/, "", chip); gsub(/^[[:space:]]+|[[:space:]]+$/, "", chip) }
-        /°C/ { sub(/^[^:]+:[[:space:]]*/, ""); gsub(/[[:space:]]+/, " "); if ($0 ~ /[0-9]/) print chip ": " $0 }
-      ' | paste -sd'\n' - | ${pkgs.coreutils}/bin/tr '\n' '\\n'
-    '';
   };
 }
