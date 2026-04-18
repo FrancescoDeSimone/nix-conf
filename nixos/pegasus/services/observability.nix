@@ -452,7 +452,10 @@ in {
     promtail = {
       enable = true;
       configuration = {
-        server.http_listen_port = config.my.services.promtail.port;
+        server = {
+          http_listen_port = config.my.services.promtail.port;
+          grpc_listen_port = 0;
+        };
         clients = [{url = "http://localhost:${toString config.my.services.loki.port}/loki/api/v1/push";}];
         scrape_configs = [
           {
