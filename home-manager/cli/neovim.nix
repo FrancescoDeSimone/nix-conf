@@ -21,7 +21,6 @@ in {
         ripgrep
         fd
         unzip
-        alejandra
         nodejs_24
         python315
         go
@@ -37,13 +36,11 @@ in {
         shellcheck
         statix
         deadnix
+        alejandra
+        nil
       ]
       ++ lib.optionals cfg.extras [
         unstable.neovim
-        # added in a specific layer
-        # rustfmt
-        # gcc
-        # pkg-config
       ];
 
     xdg.configFile."nvim" = {

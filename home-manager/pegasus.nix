@@ -23,4 +23,13 @@
       },
     }
   '';
+
+  xdg.configFile."nvim/plugin/mason.lua".text = ''
+    -- Use nix binary for nil_ls (nil uses --stdio for LSP)
+    vim.lsp.config('nil_ls', {
+      cmd = { '/home/thinkcentre/.nix-profile/bin/nil', '--stdio' },
+      root_markers = { 'flake.nix', '.git' },
+    })
+    vim.lsp.enable('nil_ls')
+  '';
 }
