@@ -97,9 +97,8 @@
       add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline';" always;
       client_max_body_size 20M;
 
-      # Disable rate/connection limits for streaming
+      # Disable rate limiting for streaming
       limit_req off;
-      limit_conn off;
 
       # Disable error interception so Jellyfin controls its own responses
       proxy_intercept_errors off;
@@ -453,14 +452,13 @@ in {
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.homepage.port}/";
       };
       "grafana.pegasus.lan" = {
-        extraConfig =
-          relaxedVhostConfig
-          + ''
-            proxy_intercept_errors off;
-          '';
+        extraConfig = relaxedVhostConfig;
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.my.services.grafana.port}/";
           proxyWebsockets = true;
+          extraConfig = ''
+            proxy_intercept_errors off;
+          '';
         };
       };
       "prometheus.pegasus.lan" = {
