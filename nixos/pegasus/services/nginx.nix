@@ -42,38 +42,45 @@
     add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
     server_tokens off;
   '';
+  relaxedTimeouts = ''
+    # Relaxed timeouts for services handling uploads/downloads
+    client_body_timeout 30s;
+    client_header_timeout 30s;
+    send_timeout 60s;
+  '';
   commonVhostRules = ''
+    # Custom error page
     error_page 404 /404.html;
     proxy_intercept_errors on;
     location = /404.html {
       root ${customErrorPage}/share/nginx/html;
       internal;
     }
-    # Block hidden files and sensitive directories
-    location ~ /\.(git|env|svn|hg|htaccess|vscode|ssh|docker) {
-      deny all;
-      access_log off;
-      log_not_found off;
-    }
+
+    # Block all hidden files and directories (dotfiles)
     location ~ /\. {
       deny all;
       access_log off;
       log_not_found off;
     }
+
     # Block dangerous/probing file extensions
     location ~* \.(git|log|sql|env|yml|yaml|bak|php|asp|aspx|jsp|cgi|sh|py|pl|conf)$ {
       deny all;
       access_log off;
     }
-    # Robots (Polite crawl prevention)
+
+    # Crawl prevention
     location = /robots.txt {
       return 200 "User-agent: *\nDisallow: /admin\nDisallow: /config\nDisallow: /\n";
     }
+
     # Block scanners and aggressive User-Agents
     if ($http_user_agent ~* (nmap|nikto|sqlmap|dirbuster|masscan|zgrab)) {
       return 403;
     }
-    # Rate and Connection limits
+
+    # Rate and connection limits
     limit_req zone=general burst=50 nodelay;
     limit_conn addr 20;
   '';
@@ -89,30 +96,64 @@
     + ''
       add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline';" always;
       client_max_body_size 20M;
-    ''
-    + commonVhostRules;
+
+      # Disable rate/connection limits for streaming
+      limit_req off;
+      limit_conn off;
+
+      # Disable error interception so Jellyfin controls its own responses
+      proxy_intercept_errors off;
+    '';
+  jellyfinProxyConfig = ''
+    # Streaming-friendly proxy settings
+    proxy_buffering off;
+    proxy_read_timeout 3600s;
+    proxy_connect_timeout 10s;
+    send_timeout 600s;
+  '';
   nextcloudVhostConfig =
     baseSecurityHeaders
+    + relaxedTimeouts
     + ''
       client_max_body_size 0;
       proxy_request_buffering off;
 
-      # Explicitly allow .well-known ONLY for Nextcloud
+      # Block all hidden files (except .well-known, handled below)
+      location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+      }
+
+      # Block scanners and aggressive User-Agents
+      if ($http_user_agent ~* (nmap|nikto|sqlmap|dirbuster|masscan|zgrab)) {
+        return 403;
+      }
+
+      # Crawl prevention
+      location = /robots.txt {
+        return 200 "User-agent: *\nDisallow: /\n";
+      }
+
+      # Rate and connection limits
+      limit_req zone=general burst=50 nodelay;
+      limit_conn addr 20;
+
+      # Nextcloud .well-known redirects (must come after dotfile block)
       location ^~ /.well-known/ {
         allow all;
       }
-
       location ^~ /.well-known/carddav { return 301 $scheme://$host/remote.php/dav; }
       location ^~ /.well-known/caldav  { return 301 $scheme://$host/remote.php/dav; }
       location ^~ /.well-known/webfinger { return 301 $scheme://$host/index.php/.well-known/webfinger; }
       location ^~ /.well-known/nodeinfo  { return 301 $scheme://$host/index.php/.well-known/nodeinfo; }
-    ''
-    + commonVhostRules;
+    '';
   relaxedVhostConfig =
     baseSecurityHeaders
     + ''
       add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline';" always;
     ''
+    + relaxedTimeouts
     + commonVhostRules;
 
   figletFonts = pkgs.runCommand "figlet-fonts" {} ''
@@ -188,7 +229,7 @@ in {
   environment.etc = {
     "fail2ban/filter.d/nginx-url-probe.conf".text = ''
       [Definition]
-      failregex = ^<HOST> \- \S+ \[.*?\] "(GET|POST|HEAD) \S*(/wp-admin|/phpmyadmin|/\.env|/\.git|/\.htaccess|/\.svn|/\.hg)
+      failregex = ^<HOST> \- \S+ \[.*?\] "\S+ \S*(/wp-admin|/phpmyadmin|/\.env|/\.git|/\.htaccess|/\.svn|/\.hg)
       ignoreregex =
     '';
   };
@@ -217,7 +258,7 @@ in {
 
   services.nginx = {
     enable = true;
-    additionalModules = [pkgs.nginxModules.brotli pkgs.nginxModules.modsecurity];
+    additionalModules = [pkgs.nginxModules.brotli];
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
@@ -226,28 +267,21 @@ in {
     statusPage = true;
 
     commonHttpConfig = ''
-      #Enable ModSecurity globally but set to DetectionOnly
-      modsecurity on;
-      modsecurity_rules '
-        SecRuleEngine DetectionOnly
-        SecAuditEngine RelevantOnly
-        SecAuditLog /var/log/nginx/modsec_audit.log
-        SecAuditLogParts ABIJDEFHZ
-        SecAuditLogType Serial
-      ';
-
       # Rate limiting
       limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-      limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
       limit_req_zone $binary_remote_addr zone=general:10m rate=30r/s;
       limit_conn_zone $binary_remote_addr zone=addr:10m;
 
       # Limit request size
       client_body_buffer_size 128k;
 
+      # Tight global timeouts (overridden per-vhost where needed)
       client_body_timeout 10s;
       client_header_timeout 10s;
       send_timeout 10s;
+
+      # Hide upstream server identity
+      proxy_hide_header X-Powered-By;
 
       log_format vhost_combined '$remote_addr - $remote_user [$time_local] '
                                 '"$request" $status $body_bytes_sent '
@@ -272,10 +306,6 @@ in {
         default = true;
         rejectSSL = true;
         extraConfig = "return 444;";
-        locations."/" = {
-          root = "${customErrorPage}/share/nginx/html";
-          tryFiles = "/404.html =404";
-        };
       };
       ${"nextcloud." + domain} = {
         forceSSL = true;
@@ -290,6 +320,7 @@ in {
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
           proxyWebsockets = true;
+          extraConfig = jellyfinProxyConfig;
         };
       };
       ${"pdf." + domain} = {
@@ -382,7 +413,11 @@ in {
       };
       "jellyfin.pegasus.lan" = {
         extraConfig = jellyfinVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.jellyfin.port}/";
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString config.my.services.jellyfin.port}/";
+          proxyWebsockets = true;
+          extraConfig = jellyfinProxyConfig;
+        };
       };
       "prowlarr.pegasus.lan" = {
         extraConfig = relaxedVhostConfig;
@@ -403,12 +438,7 @@ in {
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}/";
       };
       "qbittorrent.pegasus.lan" = {
-        extraConfig =
-          relaxedVhostConfig
-          + ''
-            # Stricter rate limiting for qbittorrent web interface
-            limit_req zone=api burst=5 nodelay;
-          '';
+        extraConfig = relaxedVhostConfig;
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.my.services.qui.port}/";
           proxyWebsockets = true;
@@ -423,21 +453,18 @@ in {
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.homepage.port}/";
       };
       "grafana.pegasus.lan" = {
-        extraConfig = ''
-          add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval';" always;
-        '';
+        extraConfig =
+          relaxedVhostConfig
+          + ''
+            proxy_intercept_errors off;
+          '';
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.my.services.grafana.port}/";
           proxyWebsockets = true;
-          extraConfig = ''
-            proxy_intercept_errors off;
-          '';
         };
       };
       "prometheus.pegasus.lan" = {
-        extraConfig = ''
-          add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval';" always;
-        '';
+        extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
       };
     };
