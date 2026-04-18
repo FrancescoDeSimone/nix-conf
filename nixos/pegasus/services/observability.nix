@@ -55,8 +55,8 @@
       url = "http://127.0.0.1:${toString config.my.services.scrutiny.port}";
     }
     {
-      name = "hoarder";
-      url = "http://127.0.0.1:${toString config.my.services.hoarder.port}";
+      name = "karakeep";
+      url = "http://127.0.0.1:${toString config.my.services.karakeep.port}";
     }
     {
       name = "bypass";

@@ -69,5 +69,5 @@ in {
     ollama = mkService 11434;
     jelly-clipper = mkService 3333;
     bypass = mkService 5000;
-  };
+    };
 }
