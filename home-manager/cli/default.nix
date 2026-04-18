@@ -19,6 +19,7 @@
     unstable.rsync
     unzip
     unstable.yt-dlp
+    unstable.regex-tui
   ];
   xdg.enable = true;
 }
