@@ -209,6 +209,8 @@ in {
           http_addr = "0.0.0.0";
           http_port = config.my.services.grafana.port;
           domain = "grafana.pegasus.lan";
+          root_url = "http://grafana.pegasus.lan/";
+          serve_from_sub_path = false;
         };
         unified_alerting = {
           enabled = true;

@@ -423,7 +423,9 @@ in {
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.homepage.port}/";
       };
       "grafana.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
+        extraConfig = ''
+          add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval';" always;
+        '';
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.my.services.grafana.port}/";
           proxyWebsockets = true;
@@ -433,7 +435,9 @@ in {
         };
       };
       "prometheus.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
+        extraConfig = ''
+          add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval';" always;
+        '';
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
       };
     };
