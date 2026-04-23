@@ -31,6 +31,11 @@
       owner = "grafana";
       group = "grafana";
     };
+    "telegram-qbittorrent" = {
+      file = ../../secrets/telegram.age;
+      owner = "thinkcentre";
+      group = "thinkcentre";
+    };
   };
 
   systemd = {
