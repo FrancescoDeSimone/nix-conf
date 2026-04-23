@@ -24,6 +24,7 @@
     ./services/karakeep.nix
     ./services/flaresolverr.nix
     ./services/speedtesttracker.nix
+    ./services/headscale.nix
     # ./services/jelly-clipper.nix
     ./services/bypass.nix
     ./services/lidarr.nix
