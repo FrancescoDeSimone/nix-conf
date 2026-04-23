@@ -16,7 +16,10 @@
 
   networking.hostName = "pegasus";
 
-  system.autoUpgrade.enable = true;
+  system.autoUpgrade = {
+    enable = true;
+    flake = inputs.self.outPath;
+  };
   security.tpm2.enable = false;
 
   age.secrets = {
