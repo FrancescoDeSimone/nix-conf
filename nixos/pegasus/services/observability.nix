@@ -69,6 +69,14 @@
       url = "http://127.0.0.1:${toString config.my.services.speedtesttracker.port}";
     }
     {
+      name = "adguard";
+      url = "http://127.0.0.1:${toString config.my.services.adguard.port}";
+    }
+    {
+      name = "headscale";
+      url = "http://127.0.0.1:${toString config.my.services.headscale.port}";
+    }
+    {
       name = "nextcloud";
       url = "https://nextcloud.${domain}";
       module = "https_2xx";
@@ -168,10 +176,6 @@ in {
         {
           job_name = "nginx";
           static_configs = [{targets = ["localhost:${toString config.my.services.nginx.exporter}"];}];
-        }
-        {
-          job_name = "adguard";
-          static_configs = [{targets = ["localhost:${toString config.my.services.adguard.exporter}"];}];
         }
         # Exportarr-based scrape configs (disabled: exportarr module not in nixpkgs)
         # {

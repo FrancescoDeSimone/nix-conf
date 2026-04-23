@@ -155,8 +155,8 @@
     schemaVersion = 36;
     panels = [
       {
-        title = "DNS Queries (AdGuard)";
-        type = "timeseries";
+        title = "AdGuard Status";
+        type = "stat";
         gridPos = {
           h = 8;
           w = 12;
@@ -166,13 +166,37 @@
         datasource = common.datasource;
         targets = [
           {
-            expr = "rate(adguard_queries_total[5m])";
-            legendFormat = "Queries/s";
+            expr = ''probe_success{instance="adguard"}'';
+            instant = true;
+            legendFormat = "AdGuard";
           }
         ];
+        options = {
+          colorMode = "background";
+          graphMode = "none";
+          textMode = "name";
+          reduceOptions.calcs = ["lastNotNull"];
+        };
+        fieldConfig.defaults = {
+          mappings = [
+            {
+              type = "value";
+              options = {
+                "0" = {
+                  text = "DOWN";
+                  color = "red";
+                };
+                "1" = {
+                  text = "UP";
+                  color = "green";
+                };
+              };
+            }
+          ];
+        };
       }
       {
-        title = "Blocked Queries";
+        title = "AdGuard Probe Duration";
         type = "timeseries";
         gridPos = {
           h = 8;
@@ -183,10 +207,11 @@
         datasource = common.datasource;
         targets = [
           {
-            expr = "rate(adguard_blocked_queries_total[5m])";
-            legendFormat = "Blocked/s";
+            expr = ''probe_duration_seconds{instance="adguard"}'';
+            legendFormat = "Probe Duration";
           }
         ];
+        fieldConfig.defaults.unit = "s";
       }
       {
         title = "Nginx Active Connections";

@@ -399,6 +399,13 @@ in {
         extraConfig = commonVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.filebrowser.port}/";
       };
+      "adguard.pegasus.lan" = {
+        extraConfig = relaxedVhostConfig;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString config.my.services.adguard.port}/";
+          proxyWebsockets = true;
+        };
+      };
       "git.pegasus.lan" = {
         extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://192.168.200.11:${toString config.my.services.git.port}/";
@@ -462,7 +469,23 @@ in {
         extraConfig = relaxedVhostConfig;
         locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
       };
-    };
+      ${"headscale." + domain} = {
+        forceSSL = true;
+        useACMEHost = domain;
+        extraConfig = relaxedVhostConfig;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString config.my.services.headscale.port}";
+          proxyWebsockets = true;
+        };
+      };
+      "headscale.pegasus.lan" = {
+        extraConfig = relaxedVhostConfig;
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString config.my.services.headscale.port}/";
+          proxyWebsockets = true;
+        };
+      };
+      };
   };
 
   networking.firewall = {

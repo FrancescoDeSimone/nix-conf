@@ -25,7 +25,7 @@ in {
     homepage = mkService 8888;
 
     # Security & DNS
-    adguard = mkServiceWithExporter 3003 9617;
+    adguard = mkService 3003;
 
     # Monitoring & Observability
     netdata = mkService 19999;
@@ -66,6 +66,7 @@ in {
     govd = mkService 8083;
     opencloud = mkService 8080;
     git = mkService 3001;
+    headscale = mkService 8088;
     ollama = mkService 11434;
     jelly-clipper = mkService 3333;
     bypass = mkService 5000;
