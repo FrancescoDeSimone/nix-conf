@@ -86,33 +86,35 @@ in
           LocalHostAuth = true;
         };
         General.Locale = "en";
-        Downloads.ExcludedFileNamesEnabled = true;
-        Downloads.ExcludedFileNames = builtins.concatStringsSep "\n" [
-          "*.lnk" "*.zipx" "*sample.mkv" "*sample.avi" "*sample.mp4"
-          "*.py" "*.vbs" "*.html" "*.php" "*.torrent"
-          "*.exe" "*.bat" "*.cmd" "*.com" "*.cpl" "*.dll"
-          "*.js" "*.jse" "*.msi" "*.msp" "*.pif" "*.scr"
-          "*.vbe" "*.wsf" "*.wsh" "*.hta" "*.reg" "*.inf"
-          "*.ps1" "*.ps2" "*.psm1" "*.psd1" "*.sh"
-          "*.apk" "*.app" "*.ipa" "*.iso" "*.jar"
-          "*.bin" "*.tmp" "*.vb" "*.vxd" "*.ocx" "*.drv" "*.sys"
-          "*.scf" "*.ade" "*.adp" "*.bas" "*.chm" "*.crt"
-          "*.hlp" "*.ins" "*.isp" "*.key" "*.mda" "*.mdb"
-          "*.mdt" "*.mdw" "*.mdz" "*.potm" "*.potx" "*.ppam"
-          "*.ppsx" "*.pptm" "*.sldm" "*.sldx" "*.xlam" "*.xlsb"
-          "*.xlsm" "*.xltm" "*.nsh" "*.mht" "*.mhtml"
-        ];
       };
 
-      BitTorrent.Session = {
-        BandwidthSchedulerEnabled = true;
-        AlternativeGlobalDLSpeedLimit = 102400;
-        AlternativeGlobalUPSpeedLimit = 102400;
-        GlobalDLSpeedLimit = 0;
-        GlobalUPSpeedLimit = 0;
-        QueueingSystemEnabled = false;
-        GlobalMaxRatio = -1;
-        GlobalMaxSeedingMinutes = -1;
+      BitTorrent = {
+        ExcludedFileNamesEnabled = true;
+        Session = {
+          ExcludedFileNames = builtins.concatStringsSep "\n" [
+            "*.lnk" "*.zipx" "*sample.mkv" "*sample.avi" "*sample.mp4"
+            "*.py" "*.vbs" "*.html" "*.php" "*.torrent"
+            "*.exe" "*.bat" "*.cmd" "*.com" "*.cpl" "*.dll"
+            "*.js" "*.jse" "*.msi" "*.msp" "*.pif" "*.scr"
+            "*.vbe" "*.wsf" "*.wsh" "*.hta" "*.reg" "*.inf"
+            "*.ps1" "*.ps2" "*.psm1" "*.psd1" "*.sh"
+            "*.apk" "*.app" "*.ipa" "*.iso" "*.jar"
+            "*.bin" "*.tmp" "*.vb" "*.vxd" "*.ocx" "*.drv" "*.sys"
+            "*.scf" "*.ade" "*.adp" "*.bas" "*.chm" "*.crt"
+            "*.hlp" "*.ins" "*.isp" "*.key" "*.mda" "*.mdb"
+            "*.mdt" "*.mdw" "*.mdz" "*.potm" "*.potx" "*.ppam"
+            "*.ppsx" "*.pptm" "*.sldm" "*.sldx" "*.xlam" "*.xlsb"
+            "*.xlsm" "*.xltm" "*.nsh" "*.mht" "*.mhtml"
+          ];
+          BandwidthSchedulerEnabled = true;
+          AlternativeGlobalDLSpeedLimit = 102400;
+          AlternativeGlobalUPSpeedLimit = 102400;
+          GlobalDLSpeedLimit = 0;
+          GlobalUPSpeedLimit = 0;
+          QueueingSystemEnabled = false;
+          GlobalMaxRatio = -1;
+          GlobalMaxSeedingMinutes = -1;
+        };
       };
 
       Preferences.Scheduler = {
