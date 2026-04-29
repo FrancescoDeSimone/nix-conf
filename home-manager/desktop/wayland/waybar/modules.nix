@@ -225,14 +225,14 @@ in {
     };
 
     "custom/audio_idle_inhibitor" = {
-      "format" = " {icon} ";
+      "format" = "{icon}";
       "exec" = "${pkgs.unstable.sway-audio-idle-inhibit}/bin/sway-audio-idle-inhibit --dry-print-both-waybar";
       "exec-if" = "which sway-audio-idle-inhibit";
       "return-type" = "json";
       "format-icons" = {
-        "output" = "";
-        "input" = "";
-        "output-input" = "  ";
+        "output" = "  ";
+        "input" = "  ";
+        "output-input" = "    ";
         "none" = "";
       };
     };
