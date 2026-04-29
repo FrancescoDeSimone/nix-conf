@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   common = {
     datasource = {
       type = "prometheus";
@@ -16,7 +17,7 @@
   systemDashboard = {
     uid = "system-overview";
     title = "Pegasus System";
-    tags = ["system"];
+    tags = [ "system" ];
     timezone = "browser";
     schemaVersion = 36;
     templating.list = [
@@ -70,10 +71,10 @@
       }
       {
         title = "Disk Usage (Root)";
-        type = "gauge";
+        type = "bargauge";
         gridPos = {
-          h = 8;
-          w = 8;
+          h = 6;
+          w = 12;
           x = 0;
           y = 8;
         };
@@ -85,13 +86,29 @@
         ];
       }
       {
+        title = "/data Usage";
+        type = "bargauge";
+        gridPos = {
+          h = 6;
+          w = 12;
+          x = 12;
+          y = 8;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = ''100 - ((node_filesystem_avail_bytes{mountpoint="/data"} / node_filesystem_size_bytes{mountpoint="/data"}) * 100)'';
+          }
+        ];
+      }
+      {
         title = "System Load";
         type = "timeseries";
         gridPos = {
           h = 8;
-          w = 16;
-          x = 8;
-          y = 8;
+          w = 24;
+          x = 0;
+          y = 16;
         };
         datasource = common.datasource;
         targets = [
@@ -109,7 +126,7 @@
           h = 6;
           w = 24;
           x = 0;
-          y = 16;
+          y = 24;
         };
         datasource = common.lokiDatasource;
         targets = [
@@ -130,7 +147,7 @@
           h = 14;
           w = 24;
           x = 0;
-          y = 22;
+          y = 30;
         };
         datasource = common.lokiDatasource;
         targets = [
@@ -151,7 +168,7 @@
   networkDashboard = {
     uid = "network-security";
     title = "Network & Security";
-    tags = ["network" "adguard" "nginx"];
+    tags = [ "network" "adguard" "nginx" ];
     schemaVersion = 36;
     panels = [
       {
@@ -175,7 +192,7 @@
           colorMode = "background";
           graphMode = "none";
           textMode = "name";
-          reduceOptions.calcs = ["lastNotNull"];
+          reduceOptions.calcs = [ "lastNotNull" ];
         };
         fieldConfig.defaults = {
           mappings = [
@@ -223,7 +240,7 @@
           y = 8;
         };
         datasource = common.datasource;
-        targets = [{expr = "nginx_connections_active";}];
+        targets = [{ expr = "nginx_connections_active"; }];
       }
     ];
   };
@@ -239,7 +256,7 @@
   serviceHealthDashboard = {
     uid = "service-health";
     title = "Service Health";
-    tags = ["services" "health" "blackbox"];
+    tags = [ "services" "health" "blackbox" ];
     timezone = "browser";
     schemaVersion = 36;
     refresh = "30s";
@@ -267,7 +284,7 @@
           graphMode = "none";
           textMode = "name";
           reduceOptions = {
-            calcs = ["lastNotNull"];
+            calcs = [ "lastNotNull" ];
           };
         };
         fieldConfig = {
@@ -344,7 +361,7 @@
           colorMode = "background";
           graphMode = "none";
           reduceOptions = {
-            calcs = ["lastNotNull"];
+            calcs = [ "lastNotNull" ];
           };
         };
         fieldConfig = {
@@ -429,7 +446,7 @@
           colorMode = "background";
           graphMode = "none";
           textMode = "name";
-          reduceOptions.calcs = ["lastNotNull"];
+          reduceOptions.calcs = [ "lastNotNull" ];
         };
         fieldConfig.defaults = {
           color.mode = "fixed";
@@ -442,7 +459,7 @@
   nginxTrafficDashboard = {
     uid = "nginx-traffic";
     title = "Nginx Traffic";
-    tags = ["nginx" "traffic" "logs"];
+    tags = [ "nginx" "traffic" "logs" ];
     timezone = "browser";
     schemaVersion = 36;
     refresh = "30s";
@@ -606,7 +623,7 @@
   botActivityDashboard = {
     uid = "bot-activity";
     title = "Bot & LLM Activity";
-    tags = ["bot" "llm" "security" "nginx"];
+    tags = [ "bot" "llm" "security" "nginx" ];
     timezone = "browser";
     schemaVersion = 36;
     refresh = "1m";
@@ -654,7 +671,7 @@
         options = {
           colorMode = "background";
           graphMode = "none";
-          reduceOptions.calcs = ["lastNotNull"];
+          reduceOptions.calcs = [ "lastNotNull" ];
         };
         fieldConfig.defaults = {
           unit = "percent";
@@ -699,7 +716,7 @@
         options = {
           colorMode = "value";
           graphMode = "none";
-          reduceOptions.calcs = ["lastNotNull"];
+          reduceOptions.calcs = [ "lastNotNull" ];
         };
         fieldConfig.defaults.thresholds = {
           mode = "absolute";
@@ -823,7 +840,7 @@
   fail2banDashboard = {
     uid = "fail2ban";
     title = "Fail2ban";
-    tags = ["fail2ban" "security"];
+    tags = [ "fail2ban" "security" ];
     timezone = "browser";
     schemaVersion = 36;
     refresh = "1m";
@@ -848,7 +865,7 @@
         options = {
           colorMode = "background";
           graphMode = "none";
-          reduceOptions.calcs = ["lastNotNull"];
+          reduceOptions.calcs = [ "lastNotNull" ];
         };
         fieldConfig.defaults.thresholds = {
           mode = "absolute";
@@ -888,7 +905,7 @@
         options = {
           colorMode = "value";
           graphMode = "none";
-          reduceOptions.calcs = ["lastNotNull"];
+          reduceOptions.calcs = [ "lastNotNull" ];
         };
         fieldConfig.defaults.thresholds = {
           mode = "absolute";
@@ -928,7 +945,7 @@
         options = {
           colorMode = "value";
           graphMode = "none";
-          reduceOptions.calcs = ["lastNotNull"];
+          reduceOptions.calcs = [ "lastNotNull" ];
         };
         fieldConfig.defaults.color = {
           mode = "fixed";
@@ -999,13 +1016,323 @@
       }
     ];
   };
-in {
+
+  tailnetDashboard = {
+    uid = "tailnet-overview";
+    title = "Headscale & Tailscale";
+    tags = [ "headscale" "tailscale" "tailnet" ];
+    timezone = "browser";
+    schemaVersion = 36;
+    refresh = "30s";
+    panels = [
+      {
+        title = "Headscale Probe";
+        type = "stat";
+        gridPos = {
+          h = 6;
+          w = 8;
+          x = 0;
+          y = 0;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = ''probe_success{instance="headscale"}'';
+            instant = true;
+            legendFormat = "Headscale";
+          }
+        ];
+        options = {
+          colorMode = "background";
+          graphMode = "none";
+          textMode = "name";
+          reduceOptions.calcs = [ "lastNotNull" ];
+        };
+        fieldConfig.defaults = {
+          mappings = [
+            {
+              type = "value";
+              options = {
+                "0" = {
+                  text = "DOWN";
+                  color = "red";
+                };
+                "1" = {
+                  text = "UP";
+                  color = "green";
+                };
+              };
+            }
+          ];
+        };
+      }
+      {
+        title = "Headscale Probe Duration";
+        type = "timeseries";
+        gridPos = {
+          h = 6;
+          w = 16;
+          x = 8;
+          y = 0;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = ''probe_duration_seconds{instance="headscale"}'';
+            legendFormat = "headscale";
+          }
+        ];
+        fieldConfig.defaults.unit = "s";
+      }
+      {
+        title = "Tailnet Nodes Online";
+        type = "stat";
+        gridPos = {
+          h = 6;
+          w = 8;
+          x = 0;
+          y = 6;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = ''headscale_tailnet_nodes_total{state="online"}'';
+            instant = true;
+            legendFormat = "Online";
+          }
+        ];
+        options = {
+          colorMode = "background";
+          graphMode = "none";
+          textMode = "value_and_name";
+          reduceOptions.calcs = [ "lastNotNull" ];
+        };
+      }
+      {
+        title = "Tailnet Nodes Offline";
+        type = "stat";
+        gridPos = {
+          h = 6;
+          w = 8;
+          x = 8;
+          y = 6;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = ''headscale_tailnet_nodes_total{state="offline"}'';
+            instant = true;
+            legendFormat = "Offline";
+          }
+        ];
+        options = {
+          colorMode = "background";
+          graphMode = "none";
+          textMode = "value_and_name";
+          reduceOptions.calcs = [ "lastNotNull" ];
+        };
+      }
+      {
+        title = "Tailnet Metrics Scrape";
+        type = "stat";
+        gridPos = {
+          h = 6;
+          w = 8;
+          x = 16;
+          y = 6;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = ''headscale_tailnet_scrape_success'';
+            instant = true;
+            legendFormat = "Metrics";
+          }
+        ];
+        options = {
+          colorMode = "background";
+          graphMode = "none";
+          textMode = "name";
+          reduceOptions.calcs = [ "lastNotNull" ];
+        };
+        fieldConfig.defaults = {
+          mappings = [
+            {
+              type = "value";
+              options = {
+                "0" = {
+                  text = "FAILED";
+                  color = "red";
+                };
+                "1" = {
+                  text = "OK";
+                  color = "green";
+                };
+              };
+            }
+          ];
+        };
+      }
+      {
+        title = "Headscale Log Rate";
+        type = "timeseries";
+        gridPos = {
+          h = 8;
+          w = 12;
+          x = 0;
+          y = 12;
+        };
+        datasource = common.lokiDatasource;
+        targets = [
+          {
+            expr = ''sum(rate({job="systemd-journal", unit="headscale.service"}[5m]))'';
+            legendFormat = "headscale logs/s";
+          }
+        ];
+      }
+      {
+        title = "Tailscaled Log Rate";
+        type = "timeseries";
+        gridPos = {
+          h = 8;
+          w = 12;
+          x = 12;
+          y = 12;
+        };
+        datasource = common.lokiDatasource;
+        targets = [
+          {
+            expr = ''sum(rate({job="systemd-journal", unit="tailscaled.service"}[5m]))'';
+            legendFormat = "tailscaled logs/s";
+          }
+        ];
+      }
+      {
+        title = "Tailnet Hosts";
+        type = "table";
+        gridPos = {
+          h = 10;
+          w = 24;
+          x = 0;
+          y = 20;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = ''headscale_tailnet_node_online'';
+            instant = true;
+            format = "table";
+          }
+        ];
+        transformations = [
+          {
+            id = "labelsToFields";
+            options = {
+              mode = "columns";
+            };
+          }
+          {
+            id = "organize";
+            options = {
+              excludeByName = {
+                Time = true;
+                __name__ = true;
+                instance = true;
+                job = true;
+              };
+              renameByName = {
+                hostname = "Hostname";
+                fqdn = "FQDN";
+                user = "User";
+                tailnet_ip = "Tail IP";
+                node_id = "Node ID";
+                Value = "Online";
+              };
+            };
+          }
+        ];
+        fieldConfig.defaults.custom.align = "auto";
+        fieldConfig.overrides = [
+          {
+            matcher = {
+              id = "byName";
+              options = "Online";
+            };
+            properties = [
+              {
+                id = "mappings";
+                value = [
+                  {
+                    type = "value";
+                    options = {
+                      "0" = {
+                        text = "offline";
+                        color = "red";
+                      };
+                      "1" = {
+                        text = "online";
+                        color = "green";
+                      };
+                    };
+                  }
+                ];
+              }
+            ];
+          }
+        ];
+      }
+      {
+        title = "Recent Headscale Events";
+        type = "logs";
+        gridPos = {
+          h = 12;
+          w = 12;
+          x = 0;
+          y = 30;
+        };
+        datasource = common.lokiDatasource;
+        targets = [
+          {
+            expr = ''{job="systemd-journal", unit="headscale.service"}'';
+          }
+        ];
+        options = {
+          showTime = true;
+          sortOrder = "Descending";
+          enableLogDetails = true;
+        };
+      }
+      {
+        title = "Recent Tailscaled Events";
+        type = "logs";
+        gridPos = {
+          h = 12;
+          w = 12;
+          x = 12;
+          y = 30;
+        };
+        datasource = common.lokiDatasource;
+        targets = [
+          {
+            expr = ''{job="systemd-journal", unit="tailscaled.service"}'';
+          }
+        ];
+        options = {
+          showTime = true;
+          sortOrder = "Descending";
+          enableLogDetails = true;
+        };
+      }
+    ];
+  };
+in
+{
   services.grafana.provision = {
     enable = true;
     dashboards.settings.providers = [
       {
         name = "Pegasus Dashboards";
-        options.path = pkgs.runCommand "grafana-dashboards" {} ''
+        options.path = pkgs.runCommand "grafana-dashboards" { } ''
           mkdir -p $out
           cp ${pkgs.writeText "system.json" (builtins.toJSON systemDashboard)} $out/system.json
           cp ${pkgs.writeText "network.json" (builtins.toJSON networkDashboard)} $out/network.json
@@ -1013,6 +1340,7 @@ in {
           cp ${pkgs.writeText "nginx-traffic.json" (builtins.toJSON nginxTrafficDashboard)} $out/nginx-traffic.json
           cp ${pkgs.writeText "bot-activity.json" (builtins.toJSON botActivityDashboard)} $out/bot-activity.json
           cp ${pkgs.writeText "fail2ban.json" (builtins.toJSON fail2banDashboard)} $out/fail2ban.json
+          cp ${pkgs.writeText "tailnet-overview.json" (builtins.toJSON tailnetDashboard)} $out/tailnet-overview.json
         '';
       }
     ];

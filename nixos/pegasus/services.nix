@@ -28,6 +28,7 @@
     # ./services/jelly-clipper.nix
     ./services/bypass.nix
     ./services/lidarr.nix
+    ./services/adguard.nix
   ];
 
   services = {

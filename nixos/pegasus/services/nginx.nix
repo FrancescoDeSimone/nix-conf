@@ -1,10 +1,10 @@
-{
-  config,
-  private,
-  pkgs,
-  inputs,
-  ...
-}: let
+{ config
+, private
+, pkgs
+, inputs
+, ...
+}:
+let
   email = private.nginx.email;
   domain = private.nginx.domain;
   provider = private.nginx.provider;
@@ -151,8 +151,32 @@
     ''
     + relaxedTimeouts
     + commonVhostRules;
+  headscaleVhostConfig =
+    baseSecurityHeaders
+    + commonVhostRules;
+  headscaleProxyConfig = ''
+    proxy_buffering off;
+    proxy_request_buffering off;
+    proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
+  '';
+  tailnetOnlyAccess = ''
+    allow 100.64.0.0/10;
+    allow fd7a:115c:a1e0::/48;
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+  '';
+  lanAndTailnetAccess = ''
+    allow 192.168.188.0/24;
+    allow 100.64.0.0/10;
+    allow fd7a:115c:a1e0::/48;
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
+  '';
 
-  figletFonts = pkgs.runCommand "figlet-fonts" {} ''
+  figletFonts = pkgs.runCommand "figlet-fonts" { } ''
     mkdir -p $out
     cp ${pkgs.fetchurl {
       url = "https://unpkg.com/figlet@1.6.0/fonts/3D%20Diagonal.flf";
@@ -167,7 +191,8 @@
       sha256 = "sha256-Rtgtcb3b0AAYfsdSRdN8YO24gqmyE/gZqGRAsRYn5nY=";
     }} "$out/3x5.flf"
   '';
-in {
+in
+{
   security.acme = {
     acceptTerms = true;
     defaults.email = email;
@@ -254,7 +279,7 @@ in {
 
   services.nginx = {
     enable = true;
-    additionalModules = [pkgs.nginxModules.brotli];
+    additionalModules = [ pkgs.nginxModules.brotli ];
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
@@ -404,6 +429,7 @@ in {
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.my.services.adguard.port}/";
           proxyWebsockets = true;
+          extraConfig = lanAndTailnetAccess;
         };
       };
       "git.pegasus.lan" = {
@@ -476,24 +502,28 @@ in {
       ${"headscale." + domain} = {
         forceSSL = true;
         useACMEHost = domain;
-        extraConfig = relaxedVhostConfig;
+        extraConfig = headscaleVhostConfig;
         locations."/" = {
           proxyPass = "http://127.0.0.1:${toString config.my.services.headscale.port}";
           proxyWebsockets = true;
+          extraConfig = headscaleProxyConfig;
         };
       };
       "headscale.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.my.services.headscale.port}/";
-          proxyWebsockets = true;
+        extraConfig = headscaleVhostConfig;
+        locations = {
+          "/" = {
+            proxyPass = "http://127.0.0.1:${toString config.my.services.headscale.port}";
+            proxyWebsockets = true;
+            extraConfig = headscaleProxyConfig;
+          };
         };
       };
-      };
+    };
   };
 
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [80 443 22];
+    allowedTCPPorts = [ 80 443 22 ];
   };
 }

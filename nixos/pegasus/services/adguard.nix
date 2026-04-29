@@ -1,75 +1,122 @@
-{config, ...}: {
-  containers.adguard = {
-    autoStart = true;
-    privateNetwork = true;
-    macvlans = ["eno1"];
-    forwardPorts = [
-      {
-        protocol = "tcp";
-        hostPort = config.my.services.adguard.port;
-        containerPort = 3000;
-      }
-    ];
-    config = {
-      config,
-      ...
-    }: {
-      networking.useHostResolvConf = false;
-      networking.nameservers = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
-      networking.useNetworkd = true;
-      systemd.network.networks."10-adguard-lan" = {
-        matchConfig.Name = "mv-eno1";
-        address = ["192.168.188.2/24"];
-        routes = [
+{ config
+, private
+, ...
+}:
+let
+  pegasusLanIp = "192.168.188.53";
+  pegasusTailIp = "100.64.0.1";
+  tailDomain = "tail.${private.nginx.domain}";
+  pegasusTailName = "pegasus.${tailDomain}";
+  upstreamResolvers = [
+    "1.1.1.1"
+    "1.0.0.1"
+    "8.8.8.8"
+    "8.8.4.4"
+  ];
+  blocklistFilters = [
+    {
+      name = "AdGuard DNS filter";
+      url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt";
+      enabled = true;
+    }
+    {
+      name = "AdAway official hosts";
+      url = "https://adaway.org/hosts.txt";
+      enabled = true;
+    }
+    {
+      name = "Pete Lowe blocklist hosts";
+      url = "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext";
+      enabled = true;
+    }
+    {
+      name = "StevenBlack Unified hosts";
+      url = "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts";
+      enabled = true;
+    }
+    {
+      name = "gambling";
+      url = "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/gambling/hosts";
+      enabled = true;
+    }
+    {
+      name = "porn";
+      url = "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn/hosts";
+      enabled = true;
+    }
+    {
+      name = "spotify";
+      url = "https://raw.githubusercontent.com/Isaaker/Spotify-AdsList/main/Lists/standard_list.txt";
+      enabled = true;
+    }
+  ];
+in
+{
+  services.adguardhome = {
+    enable = true;
+    openFirewall = false;
+    mutableSettings = true;
+
+    host = "0.0.0.0";
+    port = config.my.services.adguard.port;
+
+    settings = {
+      filters = blocklistFilters;
+      dns = {
+        ratelimit = 0;
+        bind_hosts = [
+          "127.0.0.1"
+          pegasusLanIp
+          pegasusTailIp
+        ];
+        port = 53;
+        bootstrap_dns = upstreamResolvers;
+        upstream_dns =
+          [
+            "[/${tailDomain}/]100.100.100.100"
+          ]
+          ++ upstreamResolvers;
+      };
+      filtering = {
+        protection_enabled = true;
+        filtering_enabled = true;
+
+        # Resolve all VPN-only service aliases through the pegasus node.
+        rewrites = [
           {
-            Destination = "0.0.0.0/0";
-            Gateway = "192.168.188.1";
+            domain = "adguard.pegasus.lan";
+            answer = pegasusLanIp;
+            enabled = true;
+          }
+          {
+            domain = "pegasus.lan";
+            answer = pegasusTailName;
+            enabled = true;
+          }
+          {
+            domain = "*.pegasus.lan";
+            answer = pegasusTailName;
+            enabled = true;
           }
         ];
       };
-
-      services.adguardhome = {
-        enable = true;
-        openFirewall = false;
-        mutableSettings = false;
-        allowDHCP = true;
-        host = "0.0.0.0";
-        port = 3000;
-        settings = {
-          schema_version = 28;
-          dns = {
-            ratelimit = 0;
-            bind_hosts = ["192.168.188.2"];
-            bootstrap_dns = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
-            upstream_dns = ["1.1.1.1" "1.0.0.1" "8.8.8.8" "8.8.4.4"];
-            local_domain_name = "lan";
-          };
-          filtering = {
-            protection_enabled = true;
-            filtering_enabled = true;
-          };
-          querylog.enabled = true;
-          statistics.enabled = true;
-          dhcp = {
-            enabled = true;
-            interface_name = "mv-eno1";
-            dhcpv4 = {
-              gateway_ip = "192.168.188.1";
-              subnet_mask = "255.255.255.0";
-              range_start = "192.168.188.100";
-              range_end = "192.168.188.199";
-              lease_duration = 86400;
-            };
-          };
-        };
-      };
-
-      system.stateVersion = "24.11";
-      networking.firewall = {
-        enable = true;
-        allowedTCPPorts = [53 3000];
-        allowedUDPPorts = [53 67];
-      };
+      querylog.enabled = true;
+      statistics.enabled = true;
     };
+  };
+
+  systemd.services.adguardhome = {
+    after = [ "tailscaled.service" ];
+    wants = [ "tailscaled.service" ];
+  };
+
+  networking.firewall.interfaces.tailscale0 = {
+    allowedTCPPorts = [ 53 ];
+    allowedUDPPorts = [ 53 ];
+  };
+
+  networking.firewall.interfaces.eno1 = {
+    allowedTCPPorts = [ 53 config.my.services.adguard.port ];
+    allowedUDPPorts = [ 53 ];
   };
 }
