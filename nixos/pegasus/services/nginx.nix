@@ -1,13 +1,22 @@
-{ config
-, private
-, pkgs
-, inputs
-, ...
-}:
-let
+{
+  config,
+  private,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}: let
   email = private.nginx.email;
   domain = private.nginx.domain;
   provider = private.nginx.provider;
+
+  publicVhostAttrs = {
+    forceSSL = true;
+    useACMEHost = domain;
+  };
+
+  defaultAppCsp = "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval';";
+  mediaAppCsp = "default-src 'self' http: https: data: blob: 'unsafe-inline';";
 
   customErrorPage = pkgs.writeTextDir "share/nginx/html/404.html" ''
     <!DOCTYPE html>
@@ -42,13 +51,13 @@ let
     add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
     server_tokens off;
   '';
-  relaxedTimeouts = ''
+  largeTransferTimeouts = ''
     # Relaxed timeouts for services handling uploads/downloads
     client_body_timeout 30s;
     client_header_timeout 30s;
     send_timeout 60s;
   '';
-  commonVhostRules = ''
+  errorPageRules = ''
     # Custom error page
     error_page 404 /404.html;
     proxy_intercept_errors on;
@@ -56,50 +65,103 @@ let
       root ${customErrorPage}/share/nginx/html;
       internal;
     }
+  '';
 
+  hiddenPathRules = ''
     # Block all hidden files and directories (dotfiles)
     location ~ /\. {
       deny all;
       access_log off;
       log_not_found off;
     }
+  '';
 
+  probeExtensionRules = ''
     # Block dangerous/probing file extensions
     location ~* \.(git|log|sql|env|yml|yaml|bak|php|asp|aspx|jsp|cgi|sh|py|pl|conf)$ {
       deny all;
       access_log off;
     }
+  '';
 
+  defaultRobotsRules = ''
     # Crawl prevention
     location = /robots.txt {
       return 200 "User-agent: *\nDisallow: /admin\nDisallow: /config\nDisallow: /\n";
     }
+  '';
 
+  scannerBlockRules = ''
     # Block scanners and aggressive User-Agents
     if ($http_user_agent ~* (nmap|nikto|sqlmap|dirbuster|masscan|zgrab)) {
       return 403;
     }
+  '';
 
+  rateLimitRules = ''
     # Rate and connection limits
     limit_req zone=general burst=50 nodelay;
     limit_conn addr 20;
   '';
-  commonVhostConfig =
-    baseSecurityHeaders
-    + ''
-      add_header Content-Security-Policy "default-src 'self' http: https: data: blob:" always;
-    ''
-    + commonVhostRules;
 
-  jellyfinVhostConfig =
+  nextcloudRobotsRules = ''
+    # Crawl prevention
+    location = /robots.txt {
+      return 200 "User-agent: *\nDisallow: /\n";
+    }
+  '';
+
+  nextcloudWellKnownRules = ''
+    # Nextcloud .well-known redirects (must come after dotfile block)
+    location ^~ /.well-known/ {
+      allow all;
+    }
+    location ^~ /.well-known/carddav { return 301 $scheme://$host/remote.php/dav; }
+    location ^~ /.well-known/caldav  { return 301 $scheme://$host/remote.php/dav; }
+    location ^~ /.well-known/webfinger { return 301 $scheme://$host/index.php/.well-known/webfinger; }
+    location ^~ /.well-known/nodeinfo  { return 301 $scheme://$host/index.php/.well-known/nodeinfo; }
+  '';
+
+  mkVhostConfig = {
+    csp ? null,
+    extraConfig ? "",
+    rules ? "",
+  }:
     baseSecurityHeaders
-    + ''
-      add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline';" always;
+    + lib.optionalString (csp != null) ''
+      add_header Content-Security-Policy "${csp}" always;
+    ''
+    + extraConfig
+    + rules;
+
+  defaultAppRules =
+    errorPageRules
+    + hiddenPathRules
+    + probeExtensionRules
+    + defaultRobotsRules
+    + scannerBlockRules
+    + rateLimitRules;
+
+  defaultAppVhostConfig = mkVhostConfig {
+    csp = defaultAppCsp;
+    rules = defaultAppRules;
+  };
+
+  largeTransferVhostConfig = mkVhostConfig {
+    csp = defaultAppCsp;
+    extraConfig = largeTransferTimeouts;
+    rules = defaultAppRules;
+  };
+
+  jellyfinVhostConfig = mkVhostConfig {
+    csp = mediaAppCsp;
+    extraConfig = ''
       client_max_body_size 20M;
 
       # Disable error interception so Jellyfin controls its own responses
       proxy_intercept_errors off;
     '';
+  };
   jellyfinProxyConfig = ''
     # Streaming-friendly proxy settings
     proxy_buffering off;
@@ -107,53 +169,37 @@ let
     proxy_connect_timeout 10s;
     send_timeout 600s;
   '';
-  nextcloudVhostConfig =
-    baseSecurityHeaders
-    + relaxedTimeouts
-    + ''
-      client_max_body_size 0;
-      proxy_request_buffering off;
 
-      # Block all hidden files (except .well-known, handled below)
-      location ~ /\. {
-        deny all;
-        access_log off;
-        log_not_found off;
-      }
+  nextcloudVhostConfig = mkVhostConfig {
+    extraConfig =
+      largeTransferTimeouts
+      + ''
+        client_max_body_size 0;
+        proxy_request_buffering off;
+      '';
+    rules =
+      hiddenPathRules
+      + scannerBlockRules
+      + nextcloudRobotsRules
+      + rateLimitRules
+      + nextcloudWellKnownRules;
+  };
 
-      # Block scanners and aggressive User-Agents
-      if ($http_user_agent ~* (nmap|nikto|sqlmap|dirbuster|masscan|zgrab)) {
-        return 403;
-      }
-
-      # Crawl prevention
-      location = /robots.txt {
-        return 200 "User-agent: *\nDisallow: /\n";
-      }
-
-      # Rate and connection limits
-      limit_req zone=general burst=50 nodelay;
-      limit_conn addr 20;
-
-      # Nextcloud .well-known redirects (must come after dotfile block)
-      location ^~ /.well-known/ {
-        allow all;
-      }
-      location ^~ /.well-known/carddav { return 301 $scheme://$host/remote.php/dav; }
-      location ^~ /.well-known/caldav  { return 301 $scheme://$host/remote.php/dav; }
-      location ^~ /.well-known/webfinger { return 301 $scheme://$host/index.php/.well-known/webfinger; }
-      location ^~ /.well-known/nodeinfo  { return 301 $scheme://$host/index.php/.well-known/nodeinfo; }
+  pdfPublicVhostConfig = mkVhostConfig {
+    csp = mediaAppCsp;
+    extraConfig = ''
+      client_max_body_size 100M;
     '';
-  relaxedVhostConfig =
-    baseSecurityHeaders
-    + ''
-      add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline';" always;
-    ''
-    + relaxedTimeouts
-    + commonVhostRules;
-  headscaleVhostConfig =
-    baseSecurityHeaders
-    + commonVhostRules;
+    rules = defaultAppRules;
+  };
+
+  grafanaVhostConfig = mkVhostConfig {
+    csp = defaultAppCsp;
+  };
+
+  headscaleVhostConfig = mkVhostConfig {
+    rules = defaultAppRules;
+  };
   headscaleProxyConfig = ''
     proxy_buffering off;
     proxy_request_buffering off;
@@ -167,16 +213,82 @@ let
     allow ::1;
     deny all;
   '';
-  lanAndTailnetAccess = ''
-    allow 192.168.188.0/24;
-    allow 100.64.0.0/10;
-    allow fd7a:115c:a1e0::/48;
-    allow 127.0.0.1;
-    allow ::1;
-    deny all;
-  '';
 
-  figletFonts = pkgs.runCommand "figlet-fonts" { } ''
+  mkVhost = {
+    public ? false,
+    extraConfig,
+    accessPolicy ? null,
+    root ? null,
+    locations ? null,
+  }:
+    lib.optionalAttrs public publicVhostAttrs
+    // {
+      extraConfig = extraConfig + lib.optionalString (accessPolicy != null) accessPolicy;
+    }
+    // lib.optionalAttrs (root != null) {inherit root;}
+    // lib.optionalAttrs (locations != null) {inherit locations;};
+
+  mkProxyLocation = {
+    upstream,
+    websockets ? false,
+    extraConfig ? null,
+  }:
+    {
+      proxyPass = upstream;
+    }
+    // lib.optionalAttrs websockets {proxyWebsockets = true;}
+    // lib.optionalAttrs (extraConfig != null) {inherit extraConfig;};
+
+  mkProxyVhost = {
+    public ? false,
+    upstream,
+    vhostConfig,
+    accessPolicy ? null,
+    websockets ? false,
+    locationExtraConfig ? null,
+  }:
+    mkVhost {
+      inherit public;
+      inherit accessPolicy;
+      extraConfig = vhostConfig;
+      locations = {
+        "/" = mkProxyLocation {
+          inherit upstream websockets;
+          extraConfig = locationExtraConfig;
+        };
+      };
+    };
+
+  mkStaticVhost = {
+    public ? false,
+    root,
+    vhostConfig,
+    accessPolicy ? null,
+  }:
+    mkVhost {
+      inherit public root;
+      inherit accessPolicy;
+      extraConfig = vhostConfig;
+    };
+
+  mkSimpleProxyVhosts = vhostConfig: hosts:
+    builtins.listToAttrs (
+      map
+      (
+        {
+          name,
+          public ? false,
+          upstream,
+          accessPolicy ? null,
+        }:
+          lib.nameValuePair name (mkProxyVhost {
+            inherit public upstream vhostConfig accessPolicy;
+          })
+      )
+      hosts
+    );
+
+  figletFonts = pkgs.runCommand "figlet-fonts" {} ''
     mkdir -p $out
     cp ${pkgs.fetchurl {
       url = "https://unpkg.com/figlet@1.6.0/fonts/3D%20Diagonal.flf";
@@ -191,8 +303,121 @@ let
       sha256 = "sha256-Rtgtcb3b0AAYfsdSRdN8YO24gqmyE/gZqGRAsRYn5nY=";
     }} "$out/3x5.flf"
   '';
-in
-{
+
+  defaultProxyVhosts = mkSimpleProxyVhosts defaultAppVhostConfig [
+    {
+      name = "bypass.${domain}";
+      public = true;
+      upstream = "http://127.0.0.1:${toString config.my.services.bypass.port}";
+    }
+    {
+      name = "opencloud.pegasus.lan";
+      upstream = "http://192.168.103.11:${toString config.my.services.opencloud.port}";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "bypass.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.bypass.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "filebrowser.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.filebrowser.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "glances.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.glances.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "homepage.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.homepage.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+  ];
+
+  largeTransferProxyVhosts = mkSimpleProxyVhosts largeTransferVhostConfig [
+    {
+      name = "jellyseer.${domain}";
+      public = true;
+      upstream = "http://127.0.0.1:${toString config.my.services.jellyseerr.port}";
+    }
+    {
+      name = "git.${domain}";
+      public = true;
+      upstream = "http://192.168.200.11:${toString config.my.services.git.port}";
+    }
+    {
+      name = "sonarr.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.sonarr.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "radarr.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.radarr.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "lidarr.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.lidarr.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "git.pegasus.lan";
+      upstream = "http://192.168.200.11:${toString config.my.services.git.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "scrutiny.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.scrutiny.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "pdf.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "karakeep.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.karakeep.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+    {
+      name = "prometheus.pegasus.lan";
+      upstream = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
+      accessPolicy = tailnetOnlyAccess;
+    }
+  ];
+
+  speedtrackerLocationConfig = ''
+    proxy_buffer_size 16k;
+    proxy_buffers 8 16k;
+    proxy_busy_buffers_size 32k;
+  '';
+
+  staticVhosts = {
+    "it-tools.${domain}" = mkStaticVhost {
+      public = true;
+      root = "${pkgs.it-tools}/lib";
+      vhostConfig =
+        defaultAppVhostConfig
+        + ''
+          index index.html;
+          location /fonts/ { alias ${figletFonts}/; }
+        '';
+    };
+    "paint.${domain}" = mkStaticVhost {
+      public = true;
+      root = "${inputs.p5aint}";
+      vhostConfig =
+        largeTransferVhostConfig
+        + ''
+          index index.html;
+        '';
+    };
+  };
+in {
   security.acme = {
     acceptTerms = true;
     defaults.email = email;
@@ -279,7 +504,7 @@ in
 
   services.nginx = {
     enable = true;
-    additionalModules = [ pkgs.nginxModules.brotli ];
+    additionalModules = [pkgs.nginxModules.brotli];
     recommendedGzipSettings = true;
     recommendedOptimisation = true;
     recommendedProxySettings = true;
@@ -322,208 +547,106 @@ in
         application/xml+rss;
     '';
 
-    virtualHosts = {
-      "_" = {
-        default = true;
-        rejectSSL = true;
-        extraConfig = "return 444;";
-      };
-      ${"nextcloud." + domain} = {
-        forceSSL = true;
-        useACMEHost = domain;
-        extraConfig = nextcloudVhostConfig;
-        locations."/".proxyPass = "http://192.168.100.10:${toString config.my.services.nextcloud.port}";
-      };
-      ${"jellyfin." + domain} = {
-        forceSSL = true;
-        useACMEHost = domain;
-        extraConfig = jellyfinVhostConfig;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
-          proxyWebsockets = true;
-          extraConfig = jellyfinProxyConfig;
+    virtualHosts =
+      defaultProxyVhosts
+      // largeTransferProxyVhosts
+      // staticVhosts
+      // {
+        "_" = {
+          default = true;
+          rejectSSL = true;
+          extraConfig = "return 444;";
         };
-      };
-      ${"pdf." + domain} = {
-        forceSSL = true;
-        useACMEHost = domain;
-        extraConfig =
-          baseSecurityHeaders
-          + ''
-            add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline';" always;
-            client_max_body_size 100M;
-          ''
-          + commonVhostRules;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}";
-      };
-      ${"it-tools." + domain} = {
-        forceSSL = true;
-        useACMEHost = domain;
-        root = "${pkgs.it-tools}/lib";
-        extraConfig =
-          commonVhostConfig
-          + ''
-            index index.html;
-            location /fonts/ { alias ${figletFonts}/; }
-          '';
-      };
-      ${"bypass." + domain} = {
-        forceSSL = true;
-        useACMEHost = domain;
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.bypass.port}";
-      };
-      ${"jellyseer." + domain} = {
-        forceSSL = true;
-        useACMEHost = domain;
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.jellyseerr.port}";
-      };
-      ${"git." + domain} = {
-        forceSSL = true;
-        useACMEHost = domain;
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://192.168.200.11:${toString config.my.services.git.port}";
-      };
-      ${"paint." + domain} = {
-        forceSSL = true;
-        useACMEHost = domain;
-        root = "${inputs.p5aint}";
-        extraConfig =
-          relaxedVhostConfig
-          + ''
-            index index.html;
-          '';
-      };
 
-      "opencloud.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://192.168.103.11:${toString config.my.services.opencloud.port}";
-      };
-      "sonarr.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.sonarr.port}/";
-      };
-      "radarr.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.radarr.port}/";
-      };
-      "lidarr.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.lidarr.port}/";
-      };
-      "bypass.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.bypass.port}/";
-      };
-      "speedtracker.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.speedtesttracker.port}/";
-      };
-      "filebrowser.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.filebrowser.port}/";
-      };
-      "adguard.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.my.services.adguard.port}/";
-          proxyWebsockets = true;
-          extraConfig = lanAndTailnetAccess;
+        "nextcloud.${domain}" = mkProxyVhost {
+          public = true;
+          upstream = "http://192.168.100.10:${toString config.my.services.nextcloud.port}";
+          vhostConfig = nextcloudVhostConfig;
         };
-      };
-      "git.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://192.168.200.11:${toString config.my.services.git.port}/";
-      };
-      "glances.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.glances.port}/";
-      };
-      "jellyfin.pegasus.lan" = {
-        extraConfig = jellyfinVhostConfig;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.my.services.jellyfin.port}/";
-          proxyWebsockets = true;
-          extraConfig = jellyfinProxyConfig;
+
+        "jellyfin.${domain}" = mkProxyVhost {
+          public = true;
+          upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
+          vhostConfig = jellyfinVhostConfig;
+          websockets = true;
+          locationExtraConfig = jellyfinProxyConfig;
         };
-      };
-      "prowlarr.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.my.services.prowlarr.port}/";
-          proxyWebsockets = true;
-          extraConfig = ''
+
+        "pdf.${domain}" = mkProxyVhost {
+          public = true;
+          upstream = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}";
+          vhostConfig = pdfPublicVhostConfig;
+        };
+
+        "adguard.pegasus.lan" = mkProxyVhost {
+          upstream = "http://127.0.0.1:${toString config.my.services.adguard.port}/";
+          accessPolicy = tailnetOnlyAccess;
+          vhostConfig = largeTransferVhostConfig;
+          websockets = true;
+        };
+
+        "jellyfin.pegasus.lan" = mkProxyVhost {
+          upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}/";
+          accessPolicy = tailnetOnlyAccess;
+          vhostConfig = jellyfinVhostConfig;
+          websockets = true;
+          locationExtraConfig = jellyfinProxyConfig;
+        };
+
+        "prowlarr.pegasus.lan" = mkProxyVhost {
+          upstream = "http://127.0.0.1:${toString config.my.services.prowlarr.port}/";
+          accessPolicy = tailnetOnlyAccess;
+          vhostConfig = largeTransferVhostConfig;
+          websockets = true;
+          locationExtraConfig = ''
             proxy_read_timeout 300s;
           '';
         };
-      };
-      "scrutiny.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.scrutiny.port}/";
-      };
-      "pdf.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}/";
-      };
-      "qbittorrent.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.my.services.qui.port}/";
-          proxyWebsockets = true;
+
+        "qbittorrent.pegasus.lan" = mkProxyVhost {
+          upstream = "http://127.0.0.1:${toString config.my.services.qui.port}/";
+          accessPolicy = tailnetOnlyAccess;
+          vhostConfig = largeTransferVhostConfig;
+          websockets = true;
         };
-      };
-      "karakeep.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.karakeep.port}/";
-      };
-      "homepage.pegasus.lan" = {
-        extraConfig = commonVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.homepage.port}/";
-      };
-      "grafana.pegasus.lan" = {
-        extraConfig =
-          baseSecurityHeaders
-          + ''
-            add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval';" always;
-          '';
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.my.services.grafana.port}/";
-          proxyWebsockets = true;
-          extraConfig = ''
+
+        "grafana.pegasus.lan" = mkProxyVhost {
+          upstream = "http://127.0.0.1:${toString config.my.services.grafana.port}/";
+          accessPolicy = tailnetOnlyAccess;
+          vhostConfig = grafanaVhostConfig;
+          websockets = true;
+          locationExtraConfig = ''
             proxy_intercept_errors off;
           '';
         };
-      };
-      "prometheus.pegasus.lan" = {
-        extraConfig = relaxedVhostConfig;
-        locations."/".proxyPass = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
-      };
-      ${"headscale." + domain} = {
-        forceSSL = true;
-        useACMEHost = domain;
-        extraConfig = headscaleVhostConfig;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${toString config.my.services.headscale.port}";
-          proxyWebsockets = true;
-          extraConfig = headscaleProxyConfig;
+
+        "headscale.${domain}" = mkProxyVhost {
+          public = true;
+          upstream = "http://127.0.0.1:${toString config.my.services.headscale.port}";
+          vhostConfig = headscaleVhostConfig;
+          websockets = true;
+          locationExtraConfig = headscaleProxyConfig;
+        };
+
+        "headscale.pegasus.lan" = mkProxyVhost {
+          upstream = "http://127.0.0.1:${toString config.my.services.headscale.port}";
+          accessPolicy = tailnetOnlyAccess;
+          vhostConfig = headscaleVhostConfig;
+          websockets = true;
+          locationExtraConfig = headscaleProxyConfig;
+        };
+
+        "speedtracker.pegasus.lan" = mkProxyVhost {
+          upstream = "http://127.0.0.1:${toString config.my.services.speedtest-tracker.port}/";
+          accessPolicy = tailnetOnlyAccess;
+          vhostConfig = largeTransferVhostConfig;
+          locationExtraConfig = speedtrackerLocationConfig;
         };
       };
-      "headscale.pegasus.lan" = {
-        extraConfig = headscaleVhostConfig;
-        locations = {
-          "/" = {
-            proxyPass = "http://127.0.0.1:${toString config.my.services.headscale.port}";
-            proxyWebsockets = true;
-            extraConfig = headscaleProxyConfig;
-          };
-        };
-      };
-    };
   };
 
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 22 ];
+    allowedTCPPorts = [80 443 22];
   };
 }
