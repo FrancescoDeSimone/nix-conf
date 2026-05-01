@@ -39,8 +39,6 @@ in {
     process-exporter = mkService 9005;
     systemd-exporter = mkService 9006;
     ntopng = mkService 7777;
-    speedtesttracker = mkService 8765;
-
     # Media & Arr Stack
     jellyfin = mkService 8096;
     jellyseerr = mkService 5055;
@@ -70,5 +68,5 @@ in {
     ollama = mkService 11434;
     jelly-clipper = mkService 3333;
     bypass = mkService 5000;
-    };
+  };
 }

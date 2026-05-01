@@ -1,7 +1,4 @@
-{
-  config,
-  ...
-}: {
+{config, ...}: {
   services.lidarr = {
     enable = true;
     openFirewall = false;

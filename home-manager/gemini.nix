@@ -73,9 +73,10 @@ in {
     "--release XF86LightsToggle" = "exec ${kbd-backlight}/bin/kbd-backlight toggle";
   };
 
-programs.waybar.settings.mainBar."custom/temperature" = lib.mkOptionDefault {
-    "return-type" = "json";
-    "exec" = "${pkgs.python3}/bin/python3 -c '
+  programs.waybar.settings.mainBar."custom/temperature" =
+    lib.mkOptionDefault {
+      "return-type" = "json";
+      "exec" = "${pkgs.python3}/bin/python3 -c '
 import re
 import subprocess
 import sys
@@ -103,7 +104,7 @@ for i, line in enumerate(lines):
 
 print(f\"{{\\\"text\\\": \\\"{cpu}°C\\\", \\\"tooltip\\\": \\\"CPU: {cpu}°C\\\\namdgpu: {gpu}°C\\\\nnvme: {nvme}°C\\\"}}\")
 '";
-    "tooltip" = true;
-    "interval" = 30;
-  };
+      "tooltip" = true;
+      "interval" = 30;
+    };
 }

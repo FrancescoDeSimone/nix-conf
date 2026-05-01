@@ -2,17 +2,15 @@
   imports = [
     ./services/ports.nix
     ./services/observability.nix
-    # ./services/exportarr.nix # exportarr module not in nixpkgs
     ./services/docker.nix
     ./services/filebrowser.nix
     ./services/git.nix
-    # ./services/glances.nix
     ./services/homepage.nix
     ./services/jellyfin.nix
     ./services/jellyseer.nix
     ./services/nextcloud.nix
+    # ./services/opencloud.nix
     ./services/nginx.nix
-    # ./services/netdata.nix
     ./services/prowlarr.nix
     ./services/govd.nix
     ./services/radarr.nix
@@ -25,7 +23,6 @@
     ./services/flaresolverr.nix
     ./services/speedtesttracker.nix
     ./services/headscale.nix
-    # ./services/jelly-clipper.nix
     ./services/bypass.nix
     ./services/lidarr.nix
     ./services/adguard.nix
