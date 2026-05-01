@@ -1,10 +1,10 @@
-{ config
-, pkgs
-, lib
-, private
-, ...
-}:
-let
+{
+  config,
+  pkgs,
+  lib,
+  private,
+  ...
+}: let
   domain = private.nginx.domain;
   headscaleTailnetMetricsDir = "/var/lib/prometheus-node-exporter-textfile";
   # All services to probe via blackbox HTTP checks
@@ -66,8 +66,8 @@ let
       url = "http://127.0.0.1:${toString config.my.services.bypass.port}";
     }
     {
-      name = "speedtesttracker";
-      url = "http://127.0.0.1:${toString config.my.services.speedtesttracker.port}";
+      name = "speedtest-tracker";
+      url = "http://127.0.0.1:${toString config.my.services.speedtest-tracker.port}";
     }
     {
       name = "adguard";
@@ -120,63 +120,62 @@ let
     fi
   '';
   headscaleTailnetMetricsScript = pkgs.writeShellScript "headscale-tailnet-metrics" ''
-    set -euo pipefail
+        set -euo pipefail
 
-    metrics_tmp="$(mktemp "${headscaleTailnetMetricsDir}/headscale-tailnet.prom.XXXXXX")"
-    json_tmp="$(mktemp)"
-    trap 'rm -f "$metrics_tmp" "$json_tmp"' EXIT
+        metrics_tmp="$(mktemp "${headscaleTailnetMetricsDir}/headscale-tailnet.prom.XXXXXX")"
+        json_tmp="$(mktemp)"
+        trap 'rm -f "$metrics_tmp" "$json_tmp"' EXIT
 
-    cat > "$metrics_tmp" <<'EOF'
-# HELP headscale_tailnet_scrape_success Whether the Headscale tailnet scrape succeeded.
-# TYPE headscale_tailnet_scrape_success gauge
-EOF
+        cat > "$metrics_tmp" <<'EOF'
+    # HELP headscale_tailnet_scrape_success Whether the Headscale tailnet scrape succeeded.
+    # TYPE headscale_tailnet_scrape_success gauge
+    EOF
 
-    if ${lib.getExe config.services.headscale.package} nodes list --output json > "$json_tmp"; then
-      printf 'headscale_tailnet_scrape_success 1\n' >> "$metrics_tmp"
-      ${pkgs.jq}/bin/jq -r '
-        def esc:
-          tostring
-          | gsub("\\\\"; "\\\\\\\\")
-          | gsub("\n"; "\\n")
-          | gsub("\""; "\\\"");
-        def metric_line:
-          "headscale_tailnet_node_online{node_id=\"\(.id)\",hostname=\"\((.given_name // "") | esc)\",fqdn=\"\((.name // "") | esc)\",user=\"\((.user.name // "") | esc)\",tailnet_ip=\"\((.ip_addresses[0] // "") | esc)\"} \(if .online then 1 else 0 end)";
-        [
-          "# HELP headscale_tailnet_node_online Whether the tailnet node is currently online.",
-          "# TYPE headscale_tailnet_node_online gauge"
-        ]
-        + map(metric_line)
-        + [
-          "# HELP headscale_tailnet_nodes_total Total Headscale nodes by online state.",
-          "# TYPE headscale_tailnet_nodes_total gauge",
-          "headscale_tailnet_nodes_total{state=\"online\"} \(map(select(.online == true)) | length)",
-          "headscale_tailnet_nodes_total{state=\"offline\"} \(map(select(.online != true)) | length)"
-        ]
-        | .[]
-      ' "$json_tmp" >> "$metrics_tmp"
-    else
-      printf 'headscale_tailnet_scrape_success 0\n' >> "$metrics_tmp"
-    fi
+        if ${lib.getExe config.services.headscale.package} nodes list --output json > "$json_tmp"; then
+          printf 'headscale_tailnet_scrape_success 1\n' >> "$metrics_tmp"
+          ${pkgs.jq}/bin/jq -r '
+            def esc:
+              tostring
+              | gsub("\\\\"; "\\\\\\\\")
+              | gsub("\n"; "\\n")
+              | gsub("\""; "\\\"");
+            def metric_line:
+              "headscale_tailnet_node_online{node_id=\"\(.id)\",hostname=\"\((.given_name // "") | esc)\",fqdn=\"\((.name // "") | esc)\",user=\"\((.user.name // "") | esc)\",tailnet_ip=\"\((.ip_addresses[0] // "") | esc)\"} \(if .online then 1 else 0 end)";
+            [
+              "# HELP headscale_tailnet_node_online Whether the tailnet node is currently online.",
+              "# TYPE headscale_tailnet_node_online gauge"
+            ]
+            + map(metric_line)
+            + [
+              "# HELP headscale_tailnet_nodes_total Total Headscale nodes by online state.",
+              "# TYPE headscale_tailnet_nodes_total gauge",
+              "headscale_tailnet_nodes_total{state=\"online\"} \(map(select(.online == true)) | length)",
+              "headscale_tailnet_nodes_total{state=\"offline\"} \(map(select(.online != true)) | length)"
+            ]
+            | .[]
+          ' "$json_tmp" >> "$metrics_tmp"
+        else
+          printf 'headscale_tailnet_scrape_success 0\n' >> "$metrics_tmp"
+        fi
 
-    chmod 0644 "$metrics_tmp"
-    mv "$metrics_tmp" "${headscaleTailnetMetricsDir}/headscale-tailnet.prom"
+        chmod 0644 "$metrics_tmp"
+        mv "$metrics_tmp" "${headscaleTailnetMetricsDir}/headscale-tailnet.prom"
   '';
-in
-{
-  imports = [ ./grafana-dashboards.nix ];
+in {
+  imports = [./grafana-dashboards.nix];
 
   services = {
     prometheus = {
       enable = true;
-      extraFlags = [ "--storage.tsdb.retention.size=2GB" ];
+      extraFlags = ["--storage.tsdb.retention.size=2GB"];
 
       exporters = {
         node = {
           enable = true;
           port = config.my.services.node-exporter.port;
-          enabledCollectors = [ "systemd" "textfile" ];
-          disabledCollectors = [ "interrupts" "mdadm" "ntp" "qdisc" "runit" "supervisord" ];
-          extraFlags = [ "--collector.textfile.directory=${headscaleTailnetMetricsDir}" ];
+          enabledCollectors = ["systemd" "textfile"];
+          disabledCollectors = ["interrupts" "mdadm" "ntp" "qdisc" "runit" "supervisord"];
+          extraFlags = ["--collector.textfile.directory=${headscaleTailnetMetricsDir}"];
         };
 
         blackbox = {
@@ -189,8 +188,8 @@ in
                 prober = "http";
                 timeout = "10s";
                 http = {
-                  valid_http_versions = [ "HTTP/1.1" "HTTP/2.0" ];
-                  valid_status_codes = [ 200 301 302 303 307 308 401 403 404 ];
+                  valid_http_versions = ["HTTP/1.1" "HTTP/2.0"];
+                  valid_status_codes = [200 301 302 303 307 308 401 403 404];
                   method = "GET";
                   follow_redirects = true;
                   preferred_ip_protocol = "ip4";
@@ -200,8 +199,8 @@ in
                 prober = "http";
                 timeout = "10s";
                 http = {
-                  valid_http_versions = [ "HTTP/1.1" "HTTP/2.0" ];
-                  valid_status_codes = [ 200 301 302 303 307 308 401 403 404 ];
+                  valid_http_versions = ["HTTP/1.1" "HTTP/2.0"];
+                  valid_status_codes = [200 301 302 303 307 308 401 403 404];
                   method = "GET";
                   follow_redirects = true;
                   preferred_ip_protocol = "ip4";
@@ -216,11 +215,11 @@ in
       scrapeConfigs = [
         {
           job_name = "node";
-          static_configs = [{ targets = [ "localhost:${toString config.my.services.node-exporter.port}" ]; }];
+          static_configs = [{targets = ["localhost:${toString config.my.services.node-exporter.port}"];}];
         }
         {
           job_name = "nginx";
-          static_configs = [{ targets = [ "localhost:${toString config.my.services.nginx.exporter}" ]; }];
+          static_configs = [{targets = ["localhost:${toString config.my.services.nginx.exporter}"];}];
         }
         # Exportarr-based scrape configs (disabled: exportarr module not in nixpkgs)
         # {
@@ -242,10 +241,11 @@ in
         {
           job_name = "blackbox";
           metrics_path = "/probe";
-          params.module = [ "http_2xx" ];
-          static_configs = map
+          params.module = ["http_2xx"];
+          static_configs =
+            map
             (t: {
-              targets = [ t.url ];
+              targets = [t.url];
               labels = {
                 service = t.name;
                 __param_module = t.module or "http_2xx";
@@ -254,15 +254,15 @@ in
             blackboxTargets;
           relabel_configs = [
             {
-              source_labels = [ "__param_module" ];
+              source_labels = ["__param_module"];
               target_label = "__param_module";
             }
             {
-              source_labels = [ "__address__" ];
+              source_labels = ["__address__"];
               target_label = "__param_target";
             }
             {
-              source_labels = [ "service" ];
+              source_labels = ["service"];
               target_label = "instance";
             }
             {
@@ -273,7 +273,17 @@ in
         }
         {
           job_name = "blackbox_exporter";
-          static_configs = [{ targets = [ "127.0.0.1:${toString config.my.services.blackbox-exporter.port}" ]; }];
+          static_configs = [{targets = ["127.0.0.1:${toString config.my.services.blackbox-exporter.port}"];}];
+        }
+        {
+          job_name = "speedtest-tracker";
+          metrics_path = "/prometheus";
+          scrape_interval = "5m";
+          static_configs = [
+            {
+              targets = ["localhost:${toString config.my.services.speedtest-tracker.port}"];
+            }
+          ];
         }
       ];
     };
@@ -355,7 +365,7 @@ in
                             type = "query";
                             evaluator = {
                               type = "gt";
-                              params = [ 0 ];
+                              params = [0];
                             };
                           }
                         ];
@@ -376,7 +386,7 @@ in
                             type = "query";
                             evaluator = {
                               type = "lt";
-                              params = [ 1 ];
+                              params = [1];
                             };
                           }
                         ];
@@ -434,7 +444,7 @@ in
                             type = "query";
                             evaluator = {
                               type = "gt";
-                              params = [ 0 ];
+                              params = [0];
                             };
                           }
                         ];
@@ -455,7 +465,7 @@ in
                             type = "query";
                             evaluator = {
                               type = "gt";
-                              params = [ 0.5 ];
+                              params = [0.5];
                             };
                           }
                         ];
@@ -486,7 +496,10 @@ in
                   data = [
                     {
                       refId = "A";
-                      relativeTimeRange = { from = 900; to = 0; };
+                      relativeTimeRange = {
+                        from = 900;
+                        to = 0;
+                      };
                       datasourceUid = "prometheus_default";
                       model = {
                         expr = ''(node_filesystem_avail_bytes{job="node",fstype!~"tmpfs|squashfs"} / node_filesystem_size_bytes{job="node",fstype!~"tmpfs|squashfs"}) * 100'';
@@ -496,7 +509,10 @@ in
                     }
                     {
                       refId = "B";
-                      relativeTimeRange = { from = 900; to = 0; };
+                      relativeTimeRange = {
+                        from = 900;
+                        to = 0;
+                      };
                       datasourceUid = "__expr__";
                       model = {
                         type = "reduce";
@@ -506,12 +522,23 @@ in
                     }
                     {
                       refId = "C";
-                      relativeTimeRange = { from = 900; to = 0; };
+                      relativeTimeRange = {
+                        from = 900;
+                        to = 0;
+                      };
                       datasourceUid = "__expr__";
                       model = {
                         type = "threshold";
                         expression = "B";
-                        conditions = [{ type = "query"; evaluator = { type = "lt"; params = [ 15 ]; }; }];
+                        conditions = [
+                          {
+                            type = "query";
+                            evaluator = {
+                              type = "lt";
+                              params = [15];
+                            };
+                          }
+                        ];
                       };
                     }
                   ];
@@ -531,7 +558,10 @@ in
                   data = [
                     {
                       refId = "A";
-                      relativeTimeRange = { from = 900; to = 0; };
+                      relativeTimeRange = {
+                        from = 900;
+                        to = 0;
+                      };
                       datasourceUid = "prometheus_default";
                       model = {
                         expr = ''(node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100'';
@@ -541,7 +571,10 @@ in
                     }
                     {
                       refId = "B";
-                      relativeTimeRange = { from = 900; to = 0; };
+                      relativeTimeRange = {
+                        from = 900;
+                        to = 0;
+                      };
                       datasourceUid = "__expr__";
                       model = {
                         type = "reduce";
@@ -551,12 +584,23 @@ in
                     }
                     {
                       refId = "C";
-                      relativeTimeRange = { from = 900; to = 0; };
+                      relativeTimeRange = {
+                        from = 900;
+                        to = 0;
+                      };
                       datasourceUid = "__expr__";
                       model = {
                         type = "threshold";
                         expression = "B";
-                        conditions = [{ type = "query"; evaluator = { type = "lt"; params = [ 10 ]; }; }];
+                        conditions = [
+                          {
+                            type = "query";
+                            evaluator = {
+                              type = "lt";
+                              params = [10];
+                            };
+                          }
+                        ];
                       };
                     }
                   ];
@@ -576,7 +620,10 @@ in
                   data = [
                     {
                       refId = "A";
-                      relativeTimeRange = { from = 600; to = 0; };
+                      relativeTimeRange = {
+                        from = 600;
+                        to = 0;
+                      };
                       datasourceUid = "prometheus_default";
                       model = {
                         expr = ''node_systemd_unit_state{state="failed"}'';
@@ -586,7 +633,10 @@ in
                     }
                     {
                       refId = "B";
-                      relativeTimeRange = { from = 600; to = 0; };
+                      relativeTimeRange = {
+                        from = 600;
+                        to = 0;
+                      };
                       datasourceUid = "__expr__";
                       model = {
                         type = "reduce";
@@ -596,12 +646,23 @@ in
                     }
                     {
                       refId = "C";
-                      relativeTimeRange = { from = 600; to = 0; };
+                      relativeTimeRange = {
+                        from = 600;
+                        to = 0;
+                      };
                       datasourceUid = "__expr__";
                       model = {
                         type = "threshold";
                         expression = "B";
-                        conditions = [{ type = "query"; evaluator = { type = "eq"; params = [ 1 ]; }; }];
+                        conditions = [
+                          {
+                            type = "query";
+                            evaluator = {
+                              type = "eq";
+                              params = [1];
+                            };
+                          }
+                        ];
                       };
                     }
                   ];
@@ -629,7 +690,10 @@ in
                   data = [
                     {
                       refId = "A";
-                      relativeTimeRange = { from = 900; to = 0; };
+                      relativeTimeRange = {
+                        from = 900;
+                        to = 0;
+                      };
                       datasourceUid = "loki_default";
                       model = {
                         expr = ''sum by (host) (count_over_time({unit="fail2ban.service"} |= "Ban" [15m]))'';
@@ -639,7 +703,10 @@ in
                     }
                     {
                       refId = "B";
-                      relativeTimeRange = { from = 900; to = 0; };
+                      relativeTimeRange = {
+                        from = 900;
+                        to = 0;
+                      };
                       datasourceUid = "__expr__";
                       model = {
                         type = "reduce";
@@ -649,12 +716,23 @@ in
                     }
                     {
                       refId = "C";
-                      relativeTimeRange = { from = 900; to = 0; };
+                      relativeTimeRange = {
+                        from = 900;
+                        to = 0;
+                      };
                       datasourceUid = "__expr__";
                       model = {
                         type = "threshold";
                         expression = "B";
-                        conditions = [{ type = "query"; evaluator = { type = "gt"; params = [ 5 ]; }; }];
+                        conditions = [
+                          {
+                            type = "query";
+                            evaluator = {
+                              type = "gt";
+                              params = [5];
+                            };
+                          }
+                        ];
                       };
                     }
                   ];
@@ -682,7 +760,10 @@ in
                   data = [
                     {
                       refId = "A";
-                      relativeTimeRange = { from = 60; to = 0; };
+                      relativeTimeRange = {
+                        from = 60;
+                        to = 0;
+                      };
                       datasourceUid = "prometheus_default";
                       model = {
                         expr = "vector(1)";
@@ -692,12 +773,23 @@ in
                     }
                     {
                       refId = "B";
-                      relativeTimeRange = { from = 60; to = 0; };
+                      relativeTimeRange = {
+                        from = 60;
+                        to = 0;
+                      };
                       datasourceUid = "__expr__";
                       model = {
                         type = "threshold";
                         expression = "A";
-                        conditions = [{ type = "query"; evaluator = { type = "gt"; params = [ 0 ]; }; }];
+                        conditions = [
+                          {
+                            type = "query";
+                            evaluator = {
+                              type = "gt";
+                              params = [0];
+                            };
+                          }
+                        ];
                       };
                     }
                   ];
@@ -770,7 +862,7 @@ in
           http_listen_port = config.my.services.promtail.port;
           grpc_listen_port = 0;
         };
-        clients = [{ url = "http://localhost:${toString config.my.services.loki.port}/loki/api/v1/push"; }];
+        clients = [{url = "http://localhost:${toString config.my.services.loki.port}/loki/api/v1/push";}];
         scrape_configs = [
           {
             job_name = "journal";
@@ -783,7 +875,7 @@ in
             };
             relabel_configs = [
               {
-                source_labels = [ "__journal__systemd_unit" ];
+                source_labels = ["__journal__systemd_unit"];
                 target_label = "unit";
               }
             ];
@@ -792,7 +884,7 @@ in
             job_name = "nginx";
             static_configs = [
               {
-                targets = [ "localhost" ];
+                targets = ["localhost"];
                 labels = {
                   job = "nginx";
                   host = "pegasus";
@@ -839,7 +931,7 @@ in
             job_name = "nginx-error";
             static_configs = [
               {
-                targets = [ "localhost" ];
+                targets = ["localhost"];
                 labels = {
                   job = "nginx-error";
                   host = "pegasus";
@@ -852,7 +944,7 @@ in
             job_name = "modsecurity";
             static_configs = [
               {
-                targets = [ "localhost" ];
+                targets = ["localhost"];
                 labels = {
                   job = "modsecurity";
                   host = "pegasus";
@@ -873,8 +965,8 @@ in
 
   systemd.services.headscale-tailnet-metrics = {
     description = "Export Headscale tailnet metrics";
-    after = [ "headscale.service" ];
-    wants = [ "headscale.service" ];
+    after = ["headscale.service"];
+    wants = ["headscale.service"];
     serviceConfig = {
       Type = "oneshot";
     };
@@ -885,7 +977,7 @@ in
 
   systemd.timers.headscale-tailnet-metrics = {
     description = "Refresh Headscale tailnet metrics";
-    wantedBy = [ "timers.target" ];
+    wantedBy = ["timers.target"];
     timerConfig = {
       OnBootSec = "30s";
       OnUnitActiveSec = "30s";
@@ -898,5 +990,5 @@ in
   ];
 
   # Allow promtail to read nginx log files
-  users.users.promtail.extraGroups = [ "nginx" ];
+  users.users.promtail.extraGroups = ["nginx"];
 }

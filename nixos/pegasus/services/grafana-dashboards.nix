@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-let
+{pkgs, ...}: let
   common = {
     datasource = {
       type = "prometheus";
@@ -17,7 +16,7 @@ let
   systemDashboard = {
     uid = "system-overview";
     title = "Pegasus System";
-    tags = [ "system" ];
+    tags = ["system"];
     timezone = "browser";
     schemaVersion = 36;
     templating.list = [
@@ -71,7 +70,7 @@ let
       }
       {
         title = "Disk Usage (Root)";
-        type = "bargauge";
+        type = "stat";
         gridPos = {
           h = 6;
           w = 12;
@@ -82,12 +81,25 @@ let
         targets = [
           {
             expr = ''100 - ((node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100)'';
+            instant = true;
           }
         ];
+        options = {
+          colorMode = "value";
+          graphMode = "none";
+          textMode = "value";
+          reduceOptions = {
+            calcs = ["lastNotNull"];
+          };
+        };
+        fieldConfig.defaults = {
+          unit = "percent";
+          decimals = 1;
+        };
       }
       {
         title = "/data Usage";
-        type = "bargauge";
+        type = "stat";
         gridPos = {
           h = 6;
           w = 12;
@@ -98,8 +110,21 @@ let
         targets = [
           {
             expr = ''100 - ((node_filesystem_avail_bytes{mountpoint="/data"} / node_filesystem_size_bytes{mountpoint="/data"}) * 100)'';
+            instant = true;
           }
         ];
+        options = {
+          colorMode = "value";
+          graphMode = "none";
+          textMode = "value";
+          reduceOptions = {
+            calcs = ["lastNotNull"];
+          };
+        };
+        fieldConfig.defaults = {
+          unit = "percent";
+          decimals = 1;
+        };
       }
       {
         title = "System Load";
@@ -168,7 +193,7 @@ let
   networkDashboard = {
     uid = "network-security";
     title = "Network & Security";
-    tags = [ "network" "adguard" "nginx" ];
+    tags = ["network" "adguard" "nginx"];
     schemaVersion = 36;
     panels = [
       {
@@ -192,7 +217,7 @@ let
           colorMode = "background";
           graphMode = "none";
           textMode = "name";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
         fieldConfig.defaults = {
           mappings = [
@@ -240,7 +265,7 @@ let
           y = 8;
         };
         datasource = common.datasource;
-        targets = [{ expr = "nginx_connections_active"; }];
+        targets = [{expr = "nginx_connections_active";}];
       }
     ];
   };
@@ -256,7 +281,7 @@ let
   serviceHealthDashboard = {
     uid = "service-health";
     title = "Service Health";
-    tags = [ "services" "health" "blackbox" ];
+    tags = ["services" "health" "blackbox"];
     timezone = "browser";
     schemaVersion = 36;
     refresh = "30s";
@@ -284,7 +309,7 @@ let
           graphMode = "none";
           textMode = "name";
           reduceOptions = {
-            calcs = [ "lastNotNull" ];
+            calcs = ["lastNotNull"];
           };
         };
         fieldConfig = {
@@ -361,7 +386,7 @@ let
           colorMode = "background";
           graphMode = "none";
           reduceOptions = {
-            calcs = [ "lastNotNull" ];
+            calcs = ["lastNotNull"];
           };
         };
         fieldConfig = {
@@ -446,7 +471,7 @@ let
           colorMode = "background";
           graphMode = "none";
           textMode = "name";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
         fieldConfig.defaults = {
           color.mode = "fixed";
@@ -459,7 +484,7 @@ let
   nginxTrafficDashboard = {
     uid = "nginx-traffic";
     title = "Nginx Traffic";
-    tags = [ "nginx" "traffic" "logs" ];
+    tags = ["nginx" "traffic" "logs"];
     timezone = "browser";
     schemaVersion = 36;
     refresh = "30s";
@@ -623,7 +648,7 @@ let
   botActivityDashboard = {
     uid = "bot-activity";
     title = "Bot & LLM Activity";
-    tags = [ "bot" "llm" "security" "nginx" ];
+    tags = ["bot" "llm" "security" "nginx"];
     timezone = "browser";
     schemaVersion = 36;
     refresh = "1m";
@@ -671,7 +696,7 @@ let
         options = {
           colorMode = "background";
           graphMode = "none";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
         fieldConfig.defaults = {
           unit = "percent";
@@ -716,7 +741,7 @@ let
         options = {
           colorMode = "value";
           graphMode = "none";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
         fieldConfig.defaults.thresholds = {
           mode = "absolute";
@@ -840,7 +865,7 @@ let
   fail2banDashboard = {
     uid = "fail2ban";
     title = "Fail2ban";
-    tags = [ "fail2ban" "security" ];
+    tags = ["fail2ban" "security"];
     timezone = "browser";
     schemaVersion = 36;
     refresh = "1m";
@@ -865,7 +890,7 @@ let
         options = {
           colorMode = "background";
           graphMode = "none";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
         fieldConfig.defaults.thresholds = {
           mode = "absolute";
@@ -905,7 +930,7 @@ let
         options = {
           colorMode = "value";
           graphMode = "none";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
         fieldConfig.defaults.thresholds = {
           mode = "absolute";
@@ -945,7 +970,7 @@ let
         options = {
           colorMode = "value";
           graphMode = "none";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
         fieldConfig.defaults.color = {
           mode = "fixed";
@@ -1020,7 +1045,7 @@ let
   tailnetDashboard = {
     uid = "tailnet-overview";
     title = "Headscale & Tailscale";
-    tags = [ "headscale" "tailscale" "tailnet" ];
+    tags = ["headscale" "tailscale" "tailnet"];
     timezone = "browser";
     schemaVersion = 36;
     refresh = "30s";
@@ -1046,7 +1071,7 @@ let
           colorMode = "background";
           graphMode = "none";
           textMode = "name";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
         fieldConfig.defaults = {
           mappings = [
@@ -1105,7 +1130,7 @@ let
           colorMode = "background";
           graphMode = "none";
           textMode = "value_and_name";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
       }
       {
@@ -1129,7 +1154,7 @@ let
           colorMode = "background";
           graphMode = "none";
           textMode = "value_and_name";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
       }
       {
@@ -1153,7 +1178,7 @@ let
           colorMode = "background";
           graphMode = "none";
           textMode = "name";
-          reduceOptions.calcs = [ "lastNotNull" ];
+          reduceOptions.calcs = ["lastNotNull"];
         };
         fieldConfig.defaults = {
           mappings = [
@@ -1325,14 +1350,383 @@ let
       }
     ];
   };
-in
-{
+
+  speedtestDashboard = {
+    uid = "speedtest-tracker";
+    title = "Speedtest Tracker";
+    tags = ["speedtest" "network" "speedtest-tracker"];
+    timezone = "browser";
+    schemaVersion = 36;
+    refresh = "5m";
+    panels = [
+      {
+        title = "Download Speed";
+        type = "stat";
+        gridPos = {
+          h = 4;
+          w = 6;
+          x = 0;
+          y = 0;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = "avg(speedtest_tracker_download_bits)";
+            legendFormat = "Download";
+          }
+        ];
+        fieldConfig.defaults = {
+          unit = "bps";
+          decimals = 1;
+          thresholds = {
+            mode = "percentage";
+            steps = [
+              {
+                color = "dark-red";
+                value = 0;
+              }
+              {
+                color = "dark-yellow";
+                value = 60;
+              }
+              {
+                color = "dark-green";
+                value = 70;
+              }
+            ];
+          };
+        };
+        options = {
+          colorMode = "value";
+          graphMode = "area";
+          reduceOptions.calcs = ["mean"];
+        };
+      }
+      {
+        title = "Upload Speed";
+        type = "stat";
+        gridPos = {
+          h = 4;
+          w = 6;
+          x = 6;
+          y = 0;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = "avg(speedtest_tracker_upload_bits)";
+            legendFormat = "Upload";
+          }
+        ];
+        fieldConfig.defaults = {
+          unit = "bps";
+          decimals = 1;
+          thresholds = {
+            mode = "percentage";
+            steps = [
+              {
+                color = "dark-red";
+                value = 0;
+              }
+              {
+                color = "dark-yellow";
+                value = 70;
+              }
+              {
+                color = "dark-green";
+                value = 90;
+              }
+            ];
+          };
+        };
+        options = {
+          colorMode = "value";
+          graphMode = "area";
+          reduceOptions.calcs = ["mean"];
+        };
+      }
+      {
+        title = "Ping";
+        type = "stat";
+        gridPos = {
+          h = 4;
+          w = 6;
+          x = 12;
+          y = 0;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = "avg(speedtest_tracker_ping_ms)";
+            legendFormat = "Ping";
+          }
+        ];
+        fieldConfig.defaults = {
+          unit = "ms";
+          decimals = 1;
+          thresholds = {
+            mode = "percentage";
+            steps = [
+              {
+                color = "dark-green";
+                value = 0;
+              }
+              {
+                color = "dark-yellow";
+                value = 50;
+              }
+              {
+                color = "dark-red";
+                value = 100;
+              }
+            ];
+          };
+        };
+        options = {
+          colorMode = "value";
+          graphMode = "area";
+          reduceOptions.calcs = ["mean"];
+        };
+      }
+      {
+        title = "Jitter";
+        type = "stat";
+        gridPos = {
+          h = 4;
+          w = 6;
+          x = 18;
+          y = 0;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = "avg(speedtest_tracker_ping_jitter_ms)";
+            legendFormat = "Jitter";
+          }
+        ];
+        fieldConfig.defaults = {
+          unit = "ms";
+          decimals = 1;
+          thresholds = {
+            mode = "percentage";
+            steps = [
+              {
+                color = "dark-green";
+                value = 0;
+              }
+              {
+                color = "dark-yellow";
+                value = 50;
+              }
+              {
+                color = "dark-red";
+                value = 100;
+              }
+            ];
+          };
+        };
+        options = {
+          colorMode = "value";
+          graphMode = "area";
+          reduceOptions.calcs = ["mean"];
+        };
+      }
+      {
+        title = "Speedtest Results";
+        type = "timeseries";
+        gridPos = {
+          h = 10;
+          w = 24;
+          x = 0;
+          y = 4;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = "speedtest_tracker_download_bits";
+            legendFormat = "Download";
+          }
+          {
+            expr = "speedtest_tracker_upload_bits";
+            legendFormat = "Upload";
+          }
+        ];
+        fieldConfig.defaults = {
+          unit = "bps";
+          decimals = 1;
+          custom = {
+            lineWidth = 1;
+            fillOpacity = 30;
+          };
+        };
+        options = {
+          legend = {
+            displayMode = "table";
+            placement = "bottom";
+          };
+        };
+      }
+      {
+        title = "Ping (ms)";
+        type = "timeseries";
+        gridPos = {
+          h = 8;
+          w = 12;
+          x = 0;
+          y = 14;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = "speedtest_tracker_ping_ms";
+            legendFormat = "Ping";
+          }
+        ];
+        fieldConfig.defaults = {
+          unit = "ms";
+          decimals = 1;
+          custom = {
+            lineWidth = 1;
+            fillOpacity = 30;
+          };
+        };
+        options = {
+          legend = {
+            displayMode = "table";
+            placement = "bottom";
+          };
+        };
+      }
+      {
+        title = "Jitter (ms)";
+        type = "timeseries";
+        gridPos = {
+          h = 8;
+          w = 12;
+          x = 12;
+          y = 14;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = "speedtest_tracker_ping_jitter_ms";
+            legendFormat = "Jitter";
+          }
+        ];
+        fieldConfig.defaults = {
+          unit = "ms";
+          decimals = 1;
+          custom = {
+            lineWidth = 1;
+            fillOpacity = 30;
+          };
+        };
+        options = {
+          legend = {
+            displayMode = "table";
+            placement = "bottom";
+          };
+        };
+      }
+      {
+        title = "Packet Loss (%)";
+        type = "timeseries";
+        gridPos = {
+          h = 8;
+          w = 12;
+          x = 0;
+          y = 22;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = "speedtest_tracker_packet_loss_percent";
+            legendFormat = "Packet Loss";
+          }
+        ];
+        fieldConfig.defaults = {
+          unit = "percent";
+          decimals = 2;
+          thresholds = {
+            mode = "absolute";
+            steps = [
+              {
+                color = "green";
+                value = null;
+              }
+              {
+                color = "yellow";
+                value = 2;
+              }
+              {
+                color = "red";
+                value = 5;
+              }
+            ];
+          };
+          custom = {
+            lineWidth = 1;
+            fillOpacity = 30;
+          };
+        };
+        options = {
+          legend = {
+            displayMode = "table";
+            placement = "bottom";
+          };
+        };
+      }
+      {
+        title = "Server Info";
+        type = "table";
+        gridPos = {
+          h = 8;
+          w = 12;
+          x = 12;
+          y = 22;
+        };
+        datasource = common.datasource;
+        targets = [
+          {
+            expr = "speedtest_tracker_download_bits";
+            instant = true;
+            format = "table";
+          }
+        ];
+        options = {showHeader = true;};
+        transformations = [
+          {
+            id = "labelsToFields";
+            options = {};
+          }
+          {
+            id = "organize";
+            options = {
+              excludeByName = {
+                Time = true;
+                __name__ = true;
+                job = true;
+              };
+              renameByName = {
+                server_name = "Server";
+                server_location = "Location";
+                server_country = "Country";
+                isp = "ISP";
+                Value = "Download (bps)";
+              };
+            };
+          }
+        ];
+      }
+    ];
+  };
+in {
   services.grafana.provision = {
     enable = true;
     dashboards.settings.providers = [
       {
         name = "Pegasus Dashboards";
-        options.path = pkgs.runCommand "grafana-dashboards" { } ''
+        options.path = pkgs.runCommand "grafana-dashboards" {} ''
           mkdir -p $out
           cp ${pkgs.writeText "system.json" (builtins.toJSON systemDashboard)} $out/system.json
           cp ${pkgs.writeText "network.json" (builtins.toJSON networkDashboard)} $out/network.json
@@ -1341,6 +1735,7 @@ in
           cp ${pkgs.writeText "bot-activity.json" (builtins.toJSON botActivityDashboard)} $out/bot-activity.json
           cp ${pkgs.writeText "fail2ban.json" (builtins.toJSON fail2banDashboard)} $out/fail2ban.json
           cp ${pkgs.writeText "tailnet-overview.json" (builtins.toJSON tailnetDashboard)} $out/tailnet-overview.json
+          cp ${pkgs.writeText "speedtest-tracker.json" (builtins.toJSON speedtestDashboard)} $out/speedtest-tracker.json
         '';
       }
     ];
