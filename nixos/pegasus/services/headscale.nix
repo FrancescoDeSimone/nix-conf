@@ -1,9 +1,9 @@
-{ config
-, lib
-, private
-, ...
-}:
-let
+{
+  config,
+  lib,
+  private,
+  ...
+}: let
   pegasusLanIp = "192.168.188.53";
   pegasusTailIp = "100.64.0.1";
   headscaleHost = "headscale.${private.nginx.domain}";
@@ -16,10 +16,9 @@ let
     "--hostname=pegasus"
     "--advertise-routes=${advertisedRoutes}"
   ];
-in
-{
+in {
   networking.hosts = lib.mkIf hasHeadscaleAuthKey {
-    "127.0.0.1" = [ headscaleHost ];
+    "127.0.0.1" = [headscaleHost];
   };
 
   age.secrets = lib.optionalAttrs hasHeadscaleAuthKey {
@@ -36,10 +35,12 @@ in
     openFirewall = true;
     useRoutingFeatures = "server";
     authKeyFile = config.age.secrets."headscale-authkey".path;
-    extraUpFlags = [
-      "--reset"
-      "--login-server=https://${headscaleHost}"
-    ] ++ tailscaleFlags;
+    extraUpFlags =
+      [
+        "--reset"
+        "--login-server=https://${headscaleHost}"
+      ]
+      ++ tailscaleFlags;
   };
 
   services.headscale = {
@@ -59,7 +60,7 @@ in
         nameservers.global = lib.optional hasHeadscaleAuthKey pegasusTailIp;
       };
       derp = {
-        urls = [ "https://controlplane.tailscale.com/derpmap/default" ];
+        urls = ["https://controlplane.tailscale.com/derpmap/default"];
         auto_update_enabled = true;
       };
       prefixes = {

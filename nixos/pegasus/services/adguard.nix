@@ -1,8 +1,8 @@
-{ config
-, private
-, ...
-}:
-let
+{
+  config,
+  private,
+  ...
+}: let
   pegasusLanIp = "192.168.188.53";
   pegasusTailIp = "100.64.0.1";
   tailDomain = "tail.${private.nginx.domain}";
@@ -50,8 +50,7 @@ let
       enabled = true;
     }
   ];
-in
-{
+in {
   services.adguardhome = {
     enable = true;
     openFirewall = false;
@@ -106,17 +105,17 @@ in
   };
 
   systemd.services.adguardhome = {
-    after = [ "tailscaled.service" ];
-    wants = [ "tailscaled.service" ];
+    after = ["tailscaled.service"];
+    wants = ["tailscaled.service"];
   };
 
   networking.firewall.interfaces.tailscale0 = {
-    allowedTCPPorts = [ 53 ];
-    allowedUDPPorts = [ 53 ];
+    allowedTCPPorts = [53];
+    allowedUDPPorts = [53];
   };
 
   networking.firewall.interfaces.eno1 = {
-    allowedTCPPorts = [ 53 config.my.services.adguard.port ];
-    allowedUDPPorts = [ 53 ];
+    allowedTCPPorts = [53 config.my.services.adguard.port];
+    allowedUDPPorts = [53];
   };
 }
