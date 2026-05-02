@@ -132,12 +132,15 @@
     + extraConfig
     + rules;
 
-  defaultAppRules =
+  sharedAppRules =
     errorPageRules
     + hiddenPathRules
     + probeExtensionRules
     + defaultRobotsRules
-    + scannerBlockRules
+    + scannerBlockRules;
+
+  defaultAppRules =
+    sharedAppRules
     + rateLimitRules;
 
   defaultAppVhostConfig = mkVhostConfig {
@@ -488,7 +491,11 @@ in {
           "pdf.${domain}" = mkProxyVhost {
             public = true;
             upstream = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}";
-            vhostConfig = largeTransferVhostConfig;
+            vhostConfig = mkVhostConfig {
+              csp = defaultAppCsp;
+              extraConfig = largeTransferTimeouts;
+              rules = sharedAppRules;
+            };
             locationExtraConfig = ''
               client_max_body_size 100M;
             '';
