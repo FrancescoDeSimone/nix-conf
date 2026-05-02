@@ -6,9 +6,7 @@
   lib,
   ...
 }: let
-  email = private.nginx.email;
-  domain = private.nginx.domain;
-  provider = private.nginx.provider;
+  inherit (private.nginx) email domain provider;
 
   publicVhostAttrs = {
     forceSSL = true;
@@ -162,12 +160,14 @@
       proxy_intercept_errors off;
     '';
   };
+
   jellyfinProxyConfig = ''
     # Streaming-friendly proxy settings
     proxy_buffering off;
+    proxy_request_buffering off;
     proxy_read_timeout 3600s;
+    proxy_send_timeout 3600s;
     proxy_connect_timeout 10s;
-    send_timeout 600s;
   '';
 
   nextcloudVhostConfig = mkVhostConfig {
@@ -183,14 +183,6 @@
       + nextcloudRobotsRules
       + rateLimitRules
       + nextcloudWellKnownRules;
-  };
-
-  pdfPublicVhostConfig = mkVhostConfig {
-    csp = mediaAppCsp;
-    extraConfig = ''
-      client_max_body_size 100M;
-    '';
-    rules = defaultAppRules;
   };
 
   grafanaVhostConfig = mkVhostConfig {
@@ -288,6 +280,21 @@
       hosts
     );
 
+  mkCustomTailnetService = ip: subdomain: port: {
+    name = "${subdomain}.pegasus.lan";
+    upstream = "http://${ip}:${toString port}/";
+    accessPolicy = tailnetOnlyAccess;
+  };
+
+  mkCustomPublicService = ip: subdomain: port: {
+    name = "${subdomain}.${domain}";
+    public = true;
+    upstream = "http://${ip}:${toString port}";
+  };
+
+  mkTailnetService = mkCustomTailnetService "127.0.0.1";
+  mkPublicService = mkCustomPublicService "127.0.0.1";
+
   figletFonts = pkgs.runCommand "figlet-fonts" {} ''
     mkdir -p $out
     cp ${pkgs.fetchurl {
@@ -305,89 +312,25 @@
   '';
 
   defaultProxyVhosts = mkSimpleProxyVhosts defaultAppVhostConfig [
-    {
-      name = "bypass.${domain}";
-      public = true;
-      upstream = "http://127.0.0.1:${toString config.my.services.bypass.port}";
-    }
-    {
-      name = "opencloud.pegasus.lan";
-      upstream = "http://192.168.103.11:${toString config.my.services.opencloud.port}";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "bypass.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.bypass.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "filebrowser.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.filebrowser.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "glances.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.glances.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "homepage.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.homepage.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
+    (mkPublicService "bypass" config.my.services.bypass.port)
+    (mkCustomTailnetService "192.168.103.11" "opencloud" config.my.services.opencloud.port)
+    (mkTailnetService "bypass" config.my.services.bypass.port)
+    (mkTailnetService "filebrowser" config.my.services.filebrowser.port)
+    (mkTailnetService "glances" config.my.services.glances.port)
+    (mkTailnetService "homepage" config.my.services.homepage.port)
   ];
 
   largeTransferProxyVhosts = mkSimpleProxyVhosts largeTransferVhostConfig [
-    {
-      name = "jellyseer.${domain}";
-      public = true;
-      upstream = "http://127.0.0.1:${toString config.my.services.jellyseerr.port}";
-    }
-    {
-      name = "git.${domain}";
-      public = true;
-      upstream = "http://192.168.200.11:${toString config.my.services.git.port}";
-    }
-    {
-      name = "sonarr.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.sonarr.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "radarr.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.radarr.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "lidarr.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.lidarr.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "git.pegasus.lan";
-      upstream = "http://192.168.200.11:${toString config.my.services.git.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "scrutiny.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.scrutiny.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "pdf.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "karakeep.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.karakeep.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
-    {
-      name = "prometheus.pegasus.lan";
-      upstream = "http://127.0.0.1:${toString config.my.services.prometheus.port}/";
-      accessPolicy = tailnetOnlyAccess;
-    }
+    (mkPublicService "jellyseer" config.my.services.jellyseerr.port)
+    (mkCustomPublicService "192.168.200.11" "git" config.my.services.git.port)
+    (mkCustomTailnetService "192.168.200.11" "git" config.my.services.git.port)
+    (mkTailnetService "sonarr" config.my.services.sonarr.port)
+    (mkTailnetService "radarr" config.my.services.radarr.port)
+    (mkTailnetService "lidarr" config.my.services.lidarr.port)
+    (mkTailnetService "scrutiny" config.my.services.scrutiny.port)
+    (mkTailnetService "pdf" config.my.services.stirling-pdf.port)
+    (mkTailnetService "karakeep" config.my.services.karakeep.port)
+    (mkTailnetService "prometheus" config.my.services.prometheus.port)
   ];
 
   speedtrackerLocationConfig = ''
@@ -430,45 +373,198 @@ in {
       environmentFile = config.age.secrets.provider.path;
     };
   };
-  services.prometheus.exporters.nginx = {
-    enable = true;
-    openFirewall = false;
-    port = config.my.services.nginx.exporter;
-    listenAddress = "127.0.0.1";
-  };
 
-  services.fail2ban = {
-    enable = true;
-    maxretry = 5;
-    ignoreIP = [
-      "10.0.0.0/8"
-      "172.16.0.0/12"
-      "192.168.0.0/16"
-      "127.0.0.0/8"
-      "::1"
-    ];
-    jails = {
-      nginx-noscan = {
-        settings = {
-          enabled = true;
-          filter = "nginx-botsearch";
-          logpath = "/var/log/nginx/error.log";
-          maxretry = 2;
-          bantime = "1d";
+  services = {
+    prometheus.exporters.nginx = {
+      enable = true;
+      openFirewall = false;
+      port = config.my.services.nginx.exporter;
+      listenAddress = "127.0.0.1";
+    };
+
+    fail2ban = {
+      enable = true;
+      maxretry = 5;
+      ignoreIP = [
+        "10.0.0.0/8"
+        "172.16.0.0/12"
+        "192.168.0.0/16"
+        "127.0.0.0/8"
+        "::1"
+      ];
+      jails = {
+        nginx-noscan = {
+          settings = {
+            enabled = true;
+            filter = "nginx-botsearch";
+            logpath = "/var/log/nginx/error.log";
+            maxretry = 2;
+            bantime = "1d";
+          };
+        };
+
+        nginx-url-probe = {
+          settings = {
+            enabled = true;
+            filter = "nginx-url-probe";
+            logpath = "/var/log/nginx/access.log";
+            backend = "auto";
+            maxretry = 5;
+            findtime = "10m";
+            bantime = "1h";
+          };
         };
       };
+    };
 
-      nginx-url-probe = {
-        settings = {
-          enabled = true;
-          filter = "nginx-url-probe";
-          logpath = "/var/log/nginx/access.log";
-          backend = "auto";
-          maxretry = 5;
-          findtime = "10m";
-          bantime = "1h";
+    nginx = {
+      enable = true;
+      additionalModules = [pkgs.nginxModules.brotli];
+      recommendedGzipSettings = true;
+      recommendedOptimisation = true;
+      recommendedProxySettings = true;
+      recommendedTlsSettings = true;
+      statusPage = true;
+      commonHttpConfig = ''
+        # Rate limiting
+        limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+        limit_req_zone $binary_remote_addr zone=general:10m rate=30r/s;
+        limit_conn_zone $binary_remote_addr zone=addr:10m;
+
+        # Limit request size
+        client_body_buffer_size 128k;
+
+        # Tight global timeouts (overridden per-vhost where needed)
+        client_body_timeout 10s;
+        client_header_timeout 10s;
+        send_timeout 10s;
+
+        # Hide upstream server identity
+        proxy_hide_header X-Powered-By;
+
+        log_format vhost_combined '$remote_addr - $remote_user [$time_local] '
+                                  '"$request" $status $body_bytes_sent '
+                                  '"$http_referer" "$http_user_agent" '
+                                  '"$host" $request_time';
+        access_log /var/log/nginx/access.log vhost_combined;
+
+        brotli on;
+        brotli_static on;
+        brotli_comp_level 6;
+        brotli_types
+          text/plain
+          text/css
+          application/javascript
+          application/json
+          image/svg+xml
+          application/xml+rss;
+      '';
+
+      virtualHosts =
+        defaultProxyVhosts
+        // largeTransferProxyVhosts
+        // staticVhosts
+        // {
+          "_" = {
+            default = true;
+            rejectSSL = true;
+            extraConfig = "return 444;";
+          };
+
+          "nextcloud.${domain}" = mkProxyVhost {
+            public = true;
+            upstream = "http://192.168.100.10:${toString config.my.services.nextcloud.port}";
+            vhostConfig = nextcloudVhostConfig;
+          };
+
+          "jellyfin.${domain}" = mkProxyVhost {
+            public = true;
+            upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
+            vhostConfig = jellyfinVhostConfig;
+            websockets = true;
+            locationExtraConfig = jellyfinProxyConfig;
+          };
+
+          "pdf.${domain}" = mkProxyVhost {
+            public = true;
+            upstream = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}";
+            vhostConfig = largeTransferVhostConfig;
+            locationExtraConfig = ''
+              client_max_body_size 100M;
+            '';
+          };
+
+          "adguard.pegasus.lan" = mkProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services.adguard.port}/";
+            accessPolicy = tailnetOnlyAccess;
+            vhostConfig = largeTransferVhostConfig;
+            websockets = true;
+          };
+
+          "adguard-exporter.pegasus.lan" = mkProxyVhost {
+            upstream = "http://127.0.0.1:9618/metrics";
+            accessPolicy = tailnetOnlyAccess;
+            vhostConfig = largeTransferVhostConfig;
+          };
+
+          "jellyfin.pegasus.lan" = mkProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}/";
+            accessPolicy = tailnetOnlyAccess;
+            vhostConfig = jellyfinVhostConfig;
+            websockets = true;
+            locationExtraConfig = jellyfinProxyConfig;
+          };
+
+          "prowlarr.pegasus.lan" = mkProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services.prowlarr.port}/";
+            accessPolicy = tailnetOnlyAccess;
+            vhostConfig = largeTransferVhostConfig;
+            websockets = true;
+            locationExtraConfig = ''
+              proxy_read_timeout 300s;
+            '';
+          };
+
+          "qbittorrent.pegasus.lan" = mkProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services.qui.port}/";
+            accessPolicy = tailnetOnlyAccess;
+            vhostConfig = largeTransferVhostConfig;
+            websockets = true;
+          };
+
+          "grafana.pegasus.lan" = mkProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services.grafana.port}/";
+            accessPolicy = tailnetOnlyAccess;
+            vhostConfig = grafanaVhostConfig;
+            websockets = true;
+            locationExtraConfig = ''
+              proxy_intercept_errors off;
+            '';
+          };
+
+          "headscale.${domain}" = mkProxyVhost {
+            public = true;
+            upstream = "http://127.0.0.1:${toString config.my.services.headscale.port}";
+            vhostConfig = headscaleVhostConfig;
+            websockets = true;
+            locationExtraConfig = headscaleProxyConfig;
+          };
+
+          "headscale.pegasus.lan" = mkProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services.headscale.port}";
+            accessPolicy = tailnetOnlyAccess;
+            vhostConfig = headscaleVhostConfig;
+            websockets = true;
+            locationExtraConfig = headscaleProxyConfig;
+          };
+
+          "speedtracker.pegasus.lan" = mkProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services.speedtest-tracker.port}/";
+            accessPolicy = tailnetOnlyAccess;
+            vhostConfig = largeTransferVhostConfig;
+            locationExtraConfig = speedtrackerLocationConfig;
+          };
         };
-      };
     };
   };
 
@@ -478,177 +574,6 @@ in {
       failregex = ^<HOST> \- \S+ \[.*?\] "\S+ \S*(/wp-admin|/phpmyadmin|/\.env|/\.git|/\.htaccess|/\.svn|/\.hg)
       ignoreregex =
     '';
-  };
-
-  # services.crowdsec = {
-  #   enable = true;
-  #   localConfig.acquisitions = [
-  #     {
-  #       filenames = ["/var/log/nginx/access.log" "/var/log/nginx/error.log"];
-  #       labels.type = "nginx";
-  #     }
-  #   ];
-  #   settings = {
-  #     config.api.server = {
-  #       enable = true;
-  #       listen_uri = "127.0.0.1:8080";
-  #     };
-  #     lapi.credentialsFile = "/var/lib/crowdsec/config/lapi-credentials.yaml";
-  #     capi.credentialsFile = "/var/lib/crowdsec/config/capi-credentials.yaml";
-  #   };
-  # };
-  # services.crowdsec-firewall-bouncer = {
-  #   enable = true;
-  #   registerBouncer.enable = true;
-  # };
-
-  services.nginx = {
-    enable = true;
-    additionalModules = [pkgs.nginxModules.brotli];
-    recommendedGzipSettings = true;
-    recommendedOptimisation = true;
-    recommendedProxySettings = true;
-    recommendedTlsSettings = true;
-
-    statusPage = true;
-
-    commonHttpConfig = ''
-      # Rate limiting
-      limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-      limit_req_zone $binary_remote_addr zone=general:10m rate=30r/s;
-      limit_conn_zone $binary_remote_addr zone=addr:10m;
-
-      # Limit request size
-      client_body_buffer_size 128k;
-
-      # Tight global timeouts (overridden per-vhost where needed)
-      client_body_timeout 10s;
-      client_header_timeout 10s;
-      send_timeout 10s;
-
-      # Hide upstream server identity
-      proxy_hide_header X-Powered-By;
-
-      log_format vhost_combined '$remote_addr - $remote_user [$time_local] '
-                                '"$request" $status $body_bytes_sent '
-                                '"$http_referer" "$http_user_agent" '
-                                '"$host" $request_time';
-      access_log /var/log/nginx/access.log vhost_combined;
-
-      brotli on;
-      brotli_static on;
-      brotli_comp_level 6;
-      brotli_types
-        text/plain
-        text/css
-        application/javascript
-        application/json
-        image/svg+xml
-        application/xml+rss;
-    '';
-
-    virtualHosts =
-      defaultProxyVhosts
-      // largeTransferProxyVhosts
-      // staticVhosts
-      // {
-        "_" = {
-          default = true;
-          rejectSSL = true;
-          extraConfig = "return 444;";
-        };
-
-        "nextcloud.${domain}" = mkProxyVhost {
-          public = true;
-          upstream = "http://192.168.100.10:${toString config.my.services.nextcloud.port}";
-          vhostConfig = nextcloudVhostConfig;
-        };
-
-        "jellyfin.${domain}" = mkProxyVhost {
-          public = true;
-          upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
-          vhostConfig = jellyfinVhostConfig;
-          websockets = true;
-          locationExtraConfig = jellyfinProxyConfig;
-        };
-
-        "pdf.${domain}" = mkProxyVhost {
-          public = true;
-          upstream = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}";
-          vhostConfig = pdfPublicVhostConfig;
-        };
-
-        "adguard.pegasus.lan" = mkProxyVhost {
-          upstream = "http://127.0.0.1:${toString config.my.services.adguard.port}/";
-          accessPolicy = tailnetOnlyAccess;
-          vhostConfig = largeTransferVhostConfig;
-          websockets = true;
-        };
-
-        "adguard-exporter.pegasus.lan" = mkProxyVhost {
-          upstream = "http://127.0.0.1:9618/metrics";
-          accessPolicy = tailnetOnlyAccess;
-          vhostConfig = largeTransferVhostConfig;
-        };
-
-        "jellyfin.pegasus.lan" = mkProxyVhost {
-          upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}/";
-          accessPolicy = tailnetOnlyAccess;
-          vhostConfig = jellyfinVhostConfig;
-          websockets = true;
-          locationExtraConfig = jellyfinProxyConfig;
-        };
-
-        "prowlarr.pegasus.lan" = mkProxyVhost {
-          upstream = "http://127.0.0.1:${toString config.my.services.prowlarr.port}/";
-          accessPolicy = tailnetOnlyAccess;
-          vhostConfig = largeTransferVhostConfig;
-          websockets = true;
-          locationExtraConfig = ''
-            proxy_read_timeout 300s;
-          '';
-        };
-
-        "qbittorrent.pegasus.lan" = mkProxyVhost {
-          upstream = "http://127.0.0.1:${toString config.my.services.qui.port}/";
-          accessPolicy = tailnetOnlyAccess;
-          vhostConfig = largeTransferVhostConfig;
-          websockets = true;
-        };
-
-        "grafana.pegasus.lan" = mkProxyVhost {
-          upstream = "http://127.0.0.1:${toString config.my.services.grafana.port}/";
-          accessPolicy = tailnetOnlyAccess;
-          vhostConfig = grafanaVhostConfig;
-          websockets = true;
-          locationExtraConfig = ''
-            proxy_intercept_errors off;
-          '';
-        };
-
-        "headscale.${domain}" = mkProxyVhost {
-          public = true;
-          upstream = "http://127.0.0.1:${toString config.my.services.headscale.port}";
-          vhostConfig = headscaleVhostConfig;
-          websockets = true;
-          locationExtraConfig = headscaleProxyConfig;
-        };
-
-        "headscale.pegasus.lan" = mkProxyVhost {
-          upstream = "http://127.0.0.1:${toString config.my.services.headscale.port}";
-          accessPolicy = tailnetOnlyAccess;
-          vhostConfig = headscaleVhostConfig;
-          websockets = true;
-          locationExtraConfig = headscaleProxyConfig;
-        };
-
-        "speedtracker.pegasus.lan" = mkProxyVhost {
-          upstream = "http://127.0.0.1:${toString config.my.services.speedtest-tracker.port}/";
-          accessPolicy = tailnetOnlyAccess;
-          vhostConfig = largeTransferVhostConfig;
-          locationExtraConfig = speedtrackerLocationConfig;
-        };
-      };
   };
 
   networking.firewall = {
