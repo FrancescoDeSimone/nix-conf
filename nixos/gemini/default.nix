@@ -21,4 +21,6 @@
     PasswordAuthentication = true;
     PermitRootLogin = "yes";
   };
+
+  services.tailscale.enable = true;
 }
