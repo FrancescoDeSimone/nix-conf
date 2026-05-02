@@ -27,6 +27,11 @@ in {
       DisableFirefoxAccounts = true;
       DisableAccounts = true;
       DisableFirefoxScreenshots = true;
+      Homepage = {
+        URL = "http://homepage.pegasus.lan/";
+        Locked = true;
+        StartPage = "homepage";
+      };
       OverrideFirstRunPage = "";
       OverridePostUpdatePage = "";
       DontCheckDefaultBrowser = true;
@@ -140,6 +145,40 @@ in {
         "browser.newtabpage.activity-stream.showSponsored" = lock-false;
         "browser.newtabpage.activity-stream.system.showSponsored" = lock-false;
         "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
+
+        # --- Privacy hardening ---
+        # Disable WebRTC IP leak
+        "media.peerconnection.ice.default_address_only" = lock-true;
+        # Disable speculative connections
+        "network.http.speculative-parallel-limit" = {
+          Value = 0;
+          Status = "locked";
+        };
+        # Disable prefetching
+        "network.dns.disablePrefetch" = lock-true;
+        "network.prefetch-next" = lock-false;
+        # Disable Safe Browsing telemetry (downloads still checked locally)
+        "browser.safebrowsing.malware.enabled" = lock-false;
+        "browser.safebrowsing.phishing.enabled" = lock-false;
+        # Disable beacon/ping tracking
+        "beacon.enabled" = lock-false;
+        # Isolate cookies to first-party (Total Cookie Protection)
+        "network.cookie.cookieBehavior" = {
+          Value = 5;
+          Status = "locked";
+        };
+        # Enable HTTPS-Only mode
+        "dom.security.https_only_mode" = lock-true;
+        "dom.security.https_only_mode_ever_enabled" = lock-true;
+        # Disable Activity Stream telemetry
+        "browser.newtabpage.activity-stream.feeds.telemetry" = lock-false;
+        "browser.newtabpage.activity-stream.telemetry" = lock-false;
+        # Set homepage/newtab
+        "browser.startup.homepage" = {
+          Value = "http://homepage.pegasus.lan/";
+          Status = "locked";
+        };
+        "browser.newtabpage.enabled" = lock-false;
       };
     };
   };
