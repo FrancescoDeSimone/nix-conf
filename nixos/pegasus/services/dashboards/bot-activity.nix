@@ -1,8 +1,7 @@
-{ common }:
-{
+{common}: {
   uid = "bot-activity";
   title = "Bot & LLM Activity";
-  tags = [ "bot" "llm" "security" "nginx" ];
+  tags = ["bot" "llm" "security" "nginx"];
   timezone = "browser";
   schemaVersion = 36;
   refresh = "1m";
@@ -48,7 +47,7 @@
       options = {
         colorMode = "background";
         graphMode = "none";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         unit = "percent";
@@ -92,7 +91,7 @@
       options = {
         colorMode = "value";
         graphMode = "none";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults.thresholds = {
         mode = "absolute";

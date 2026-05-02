@@ -17,12 +17,12 @@ buildGoModule {
 
   vendorHash = "sha256-TmEAaScJxj63r5bQH2dLiVbWQ7UUQBlG34evEdmYVMM=";
 
-  ldflags = [ "-s" "-w" ];
+  ldflags = ["-s" "-w"];
 
   meta = with lib; {
     description = "Prometheus exporter for AdGuard Home metrics";
     homepage = "https://github.com/znandev/adguardexporter";
-    maintainers = [ ];
+    maintainers = [];
     mainProgram = "adguardexporter";
     license = licenses.mit;
   };

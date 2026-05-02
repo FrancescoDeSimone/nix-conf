@@ -1,8 +1,7 @@
-{ common }:
-{
+{common}: {
   uid = "nginx-traffic";
   title = "Nginx Traffic";
-  tags = [ "nginx" "traffic" "logs" ];
+  tags = ["nginx" "traffic" "logs"];
   timezone = "browser";
   schemaVersion = 36;
   refresh = "30s";

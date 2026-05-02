@@ -5,7 +5,7 @@
   ...
 }: let
   cfg = config.my.services.speedtest-tracker;
-  inherit (lib) optionalAttrs optionalString types;
+  inherit (lib) optionalAttrs types;
 
   package =
     if cfg.package ? override
@@ -28,36 +28,37 @@
       escaped = lib.replaceStrings ["\\" "\""] ["\\\\" "\\\""] (toString value);
     in "\"${escaped}\"";
 
-  envAttrs = {
-    APP_NAME = cfg.appName;
-    APP_ENV = "production";
-    APP_DEBUG = false;
-    APP_URL = cfg.appURL;
-    APP_LOCALE = cfg.appLocale;
-    APP_FALLBACK_LOCALE = cfg.appFallbackLocale;
-    APP_FAKER_LOCALE = cfg.appFakerLocale;
-    LOG_CHANNEL = "stack";
-    LOG_STACK = "single";
-    LOG_LEVEL = "info";
-    DB_CONNECTION = cfg.database;
-    BROADCAST_CONNECTION = "log";
-    FILESYSTEM_DISK = "local";
-    QUEUE_CONNECTION = "database";
-    CACHE_STORE = "database";
-    MAIL_MAILER = "smtp";
-    MAIL_HOST = "localhost";
-    MAIL_PORT = 25;
-    MAIL_FROM_ADDRESS = "hello@example.com";
-    MAIL_FROM_NAME = cfg.appName;
-    SESSION_DRIVER = "cookie";
-    SESSION_LIFETIME = 10080;
-    SESSION_ENCRYPT = false;
-    SESSION_PATH = "/";
-    DISPLAY_TIMEZONE = cfg.displayTimeZone;
-    ADMIN_NAME = cfg.adminName;
-    ADMIN_EMAIL = cfg.adminEmail;
-    ADMIN_PASSWORD = cfg.adminPassword;
-  }
+  envAttrs =
+    {
+      APP_NAME = cfg.appName;
+      APP_ENV = "production";
+      APP_DEBUG = false;
+      APP_URL = cfg.appURL;
+      APP_LOCALE = cfg.appLocale;
+      APP_FALLBACK_LOCALE = cfg.appFallbackLocale;
+      APP_FAKER_LOCALE = cfg.appFakerLocale;
+      LOG_CHANNEL = "stack";
+      LOG_STACK = "single";
+      LOG_LEVEL = "info";
+      DB_CONNECTION = cfg.database;
+      BROADCAST_CONNECTION = "log";
+      FILESYSTEM_DISK = "local";
+      QUEUE_CONNECTION = "database";
+      CACHE_STORE = "database";
+      MAIL_MAILER = "smtp";
+      MAIL_HOST = "localhost";
+      MAIL_PORT = 25;
+      MAIL_FROM_ADDRESS = "hello@example.com";
+      MAIL_FROM_NAME = cfg.appName;
+      SESSION_DRIVER = "cookie";
+      SESSION_LIFETIME = 10080;
+      SESSION_ENCRYPT = false;
+      SESSION_PATH = "/";
+      DISPLAY_TIMEZONE = cfg.displayTimeZone;
+      ADMIN_NAME = cfg.adminName;
+      ADMIN_EMAIL = cfg.adminEmail;
+      ADMIN_PASSWORD = cfg.adminPassword;
+    }
     // optionalAttrs (cfg.assetURL != null) {
       ASSET_URL = cfg.assetURL;
     }

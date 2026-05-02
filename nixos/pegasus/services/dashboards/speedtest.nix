@@ -1,8 +1,7 @@
-{ common }:
-{
+{common}: {
   uid = "speedtest-tracker";
   title = "Speedtest Tracker";
-  tags = [ "speedtest" "network" "speedtest-tracker" ];
+  tags = ["speedtest" "network" "speedtest-tracker"];
   timezone = "browser";
   schemaVersion = 36;
   refresh = "5m";
@@ -47,7 +46,7 @@
       options = {
         colorMode = "value";
         graphMode = "area";
-        reduceOptions.calcs = [ "mean" ];
+        reduceOptions.calcs = ["mean"];
       };
     }
     {
@@ -90,7 +89,7 @@
       options = {
         colorMode = "value";
         graphMode = "area";
-        reduceOptions.calcs = [ "mean" ];
+        reduceOptions.calcs = ["mean"];
       };
     }
     {
@@ -133,7 +132,7 @@
       options = {
         colorMode = "value";
         graphMode = "area";
-        reduceOptions.calcs = [ "mean" ];
+        reduceOptions.calcs = ["mean"];
       };
     }
     {
@@ -176,7 +175,7 @@
       options = {
         colorMode = "value";
         graphMode = "area";
-        reduceOptions.calcs = [ "mean" ];
+        reduceOptions.calcs = ["mean"];
       };
     }
     {
@@ -341,11 +340,11 @@
           format = "table";
         }
       ];
-      options = { showHeader = true; };
+      options = {showHeader = true;};
       transformations = [
         {
           id = "labelsToFields";
-          options = { };
+          options = {};
         }
         {
           id = "organize";

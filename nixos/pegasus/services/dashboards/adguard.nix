@@ -1,8 +1,7 @@
-{ common }:
-{
+{common}: {
   uid = "adguard-home";
   title = "AdGuard Home";
-  tags = [ "adguard" "dns" "network" "security" ];
+  tags = ["adguard" "dns" "network" "security"];
   timezone = "browser";
   schemaVersion = 39;
   version = 1;
@@ -15,12 +14,22 @@
     {
       type = "row";
       title = "Status";
-      gridPos = { h = 1; w = 24; x = 0; y = 0; };
+      gridPos = {
+        h = 1;
+        w = 24;
+        x = 0;
+        y = 0;
+      };
     }
     {
       title = "AdGuard Running";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 0; y = 1; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 0;
+        y = 1;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -32,15 +41,21 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         mappings = [
           {
             type = "value";
             options = {
-              "0" = { text = "STOPPED"; color = "red"; };
-              "1" = { text = "RUNNING"; color = "green"; };
+              "0" = {
+                text = "STOPPED";
+                color = "red";
+              };
+              "1" = {
+                text = "RUNNING";
+                color = "green";
+              };
             };
           }
         ];
@@ -51,7 +66,12 @@
     {
       title = "Protection Enabled";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 4; y = 1; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 4;
+        y = 1;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -63,15 +83,21 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         mappings = [
           {
             type = "value";
             options = {
-              "0" = { text = "DISABLED"; color = "orange"; };
-              "1" = { text = "ENABLED"; color = "green"; };
+              "0" = {
+                text = "DISABLED";
+                color = "orange";
+              };
+              "1" = {
+                text = "ENABLED";
+                color = "green";
+              };
             };
           }
         ];
@@ -82,7 +108,12 @@
     {
       title = "DHCP Available";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 8; y = 1; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 8;
+        y = 1;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -94,15 +125,21 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         mappings = [
           {
             type = "value";
             options = {
-              "0" = { text = "UNAVAILABLE"; color = "gray"; };
-              "1" = { text = "AVAILABLE"; color = "blue"; };
+              "0" = {
+                text = "UNAVAILABLE";
+                color = "gray";
+              };
+              "1" = {
+                text = "AVAILABLE";
+                color = "blue";
+              };
             };
           }
         ];
@@ -113,7 +150,12 @@
     {
       title = "Exporter Up";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 12; y = 1; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 12;
+        y = 1;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -125,15 +167,21 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         mappings = [
           {
             type = "value";
             options = {
-              "0" = { text = "DOWN"; color = "red"; };
-              "1" = { text = "UP"; color = "green"; };
+              "0" = {
+                text = "DOWN";
+                color = "red";
+              };
+              "1" = {
+                text = "UP";
+                color = "green";
+              };
             };
           }
         ];
@@ -144,7 +192,12 @@
     {
       title = "HTTP Probe";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 16; y = 1; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 16;
+        y = 1;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -156,15 +209,21 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         mappings = [
           {
             type = "value";
             options = {
-              "0" = { text = "DOWN"; color = "red"; };
-              "1" = { text = "UP"; color = "green"; };
+              "0" = {
+                text = "DOWN";
+                color = "red";
+              };
+              "1" = {
+                text = "UP";
+                color = "green";
+              };
             };
           }
         ];
@@ -175,7 +234,12 @@
     {
       title = "Scrape Duration";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 20; y = 1; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 20;
+        y = 1;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -187,7 +251,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         unit = "s";
@@ -196,9 +260,18 @@
         thresholds = {
           mode = "absolute";
           steps = [
-            { value = 0; color = "green"; }
-            { value = 2; color = "orange"; }
-            { value = 5; color = "red"; }
+            {
+              value = 0;
+              color = "green";
+            }
+            {
+              value = 2;
+              color = "orange";
+            }
+            {
+              value = 5;
+              color = "red";
+            }
           ];
         };
       };
@@ -206,12 +279,22 @@
     {
       type = "row";
       title = "DNS Overview";
-      gridPos = { h = 1; w = 24; x = 0; y = 5; };
+      gridPos = {
+        h = 1;
+        w = 24;
+        x = 0;
+        y = 5;
+      };
     }
     {
       title = "Total Queries (24h)";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 0; y = 6; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 0;
+        y = 6;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -223,14 +306,19 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults.unit = "short";
     }
     {
       title = "Blocked Queries (24h)";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 4; y = 6; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 4;
+        y = 6;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -242,14 +330,19 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults.unit = "short";
     }
     {
       title = "Blocked Ratio";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 8; y = 6; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 8;
+        y = 6;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -261,7 +354,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         unit = "percent";
@@ -271,7 +364,12 @@
     {
       title = "Avg Processing Time";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 12; y = 6; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 12;
+        y = 6;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -283,7 +381,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         unit = "ms";
@@ -293,7 +391,12 @@
     {
       title = "Parental Replaced (24h)";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 16; y = 6; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 16;
+        y = 6;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -305,14 +408,19 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults.unit = "short";
     }
     {
       title = "Scrape Errors (24h)";
       type = "stat";
-      gridPos = { h = 4; w = 4; x = 20; y = 6; };
+      gridPos = {
+        h = 4;
+        w = 4;
+        x = 20;
+        y = 6;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -324,7 +432,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         unit = "short";
@@ -332,8 +440,14 @@
         thresholds = {
           mode = "absolute";
           steps = [
-            { value = 0; color = "green"; }
-            { value = 1; color = "red"; }
+            {
+              value = 0;
+              color = "green";
+            }
+            {
+              value = 1;
+              color = "red";
+            }
           ];
         };
       };
@@ -341,12 +455,22 @@
     {
       type = "row";
       title = "Activity";
-      gridPos = { h = 1; w = 24; x = 0; y = 10; };
+      gridPos = {
+        h = 1;
+        w = 24;
+        x = 0;
+        y = 10;
+      };
     }
     {
       title = "DNS Query Rate";
       type = "timeseries";
-      gridPos = { h = 8; w = 12; x = 0; y = 11; };
+      gridPos = {
+        h = 8;
+        w = 12;
+        x = 0;
+        y = 11;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -378,7 +502,12 @@
     {
       title = "DNS Query Types";
       type = "timeseries";
-      gridPos = { h = 8; w = 12; x = 12; y = 11; };
+      gridPos = {
+        h = 8;
+        w = 12;
+        x = 12;
+        y = 11;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -403,7 +532,12 @@
     {
       title = "Block Reasons";
       type = "timeseries";
-      gridPos = { h = 8; w = 12; x = 0; y = 19; };
+      gridPos = {
+        h = 8;
+        w = 12;
+        x = 0;
+        y = 19;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -431,7 +565,12 @@
     {
       title = "Top Client / Reason Activity";
       type = "timeseries";
-      gridPos = { h = 8; w = 12; x = 12; y = 19; };
+      gridPos = {
+        h = 8;
+        w = 12;
+        x = 12;
+        y = 19;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -459,12 +598,22 @@
     {
       type = "row";
       title = "Top Lists";
-      gridPos = { h = 1; w = 24; x = 0; y = 27; };
+      gridPos = {
+        h = 1;
+        w = 24;
+        x = 0;
+        y = 27;
+      };
     }
     {
       title = "Top Queried Domains";
       type = "table";
-      gridPos = { h = 10; w = 8; x = 0; y = 28; };
+      gridPos = {
+        h = 10;
+        w = 8;
+        x = 0;
+        y = 28;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -475,13 +624,23 @@
       ];
       options = {
         showHeader = true;
-        sortBy = [ { desc = true; displayName = "Value"; } ];
+        sortBy = [
+          {
+            desc = true;
+            displayName = "Value";
+          }
+        ];
       };
     }
     {
       title = "Top Blocked Domains";
       type = "table";
-      gridPos = { h = 10; w = 8; x = 8; y = 28; };
+      gridPos = {
+        h = 10;
+        w = 8;
+        x = 8;
+        y = 28;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -492,13 +651,23 @@
       ];
       options = {
         showHeader = true;
-        sortBy = [ { desc = true; displayName = "Value"; } ];
+        sortBy = [
+          {
+            desc = true;
+            displayName = "Value";
+          }
+        ];
       };
     }
     {
       title = "Top Clients";
       type = "table";
-      gridPos = { h = 10; w = 8; x = 16; y = 28; };
+      gridPos = {
+        h = 10;
+        w = 8;
+        x = 16;
+        y = 28;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -509,18 +678,33 @@
       ];
       options = {
         showHeader = true;
-        sortBy = [ { desc = true; displayName = "Value"; } ];
+        sortBy = [
+          {
+            desc = true;
+            displayName = "Value";
+          }
+        ];
       };
     }
     {
       type = "row";
       title = "Upstreams & Probe";
-      gridPos = { h = 1; w = 24; x = 0; y = 38; };
+      gridPos = {
+        h = 1;
+        w = 24;
+        x = 0;
+        y = 38;
+      };
     }
     {
       title = "Upstream Query Rate";
       type = "timeseries";
-      gridPos = { h = 8; w = 12; x = 0; y = 39; };
+      gridPos = {
+        h = 8;
+        w = 12;
+        x = 0;
+        y = 39;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -548,7 +732,12 @@
     {
       title = "Upstream p95 Latency";
       type = "timeseries";
-      gridPos = { h = 8; w = 12; x = 12; y = 39; };
+      gridPos = {
+        h = 8;
+        w = 12;
+        x = 12;
+        y = 39;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -576,7 +765,12 @@
     {
       title = "Upstream Avg Response Time";
       type = "timeseries";
-      gridPos = { h = 8; w = 12; x = 0; y = 47; };
+      gridPos = {
+        h = 8;
+        w = 12;
+        x = 0;
+        y = 47;
+      };
       datasource = common.datasource;
       targets = [
         {
@@ -604,7 +798,12 @@
     {
       title = "HTTP Probe Duration";
       type = "timeseries";
-      gridPos = { h = 8; w = 12; x = 12; y = 47; };
+      gridPos = {
+        h = 8;
+        w = 12;
+        x = 12;
+        y = 47;
+      };
       datasource = common.datasource;
       targets = [
         {

@@ -1,8 +1,7 @@
-{ common }:
-{
+{common}: {
   uid = "tailnet-overview";
   title = "Headscale & Tailscale";
-  tags = [ "headscale" "tailscale" "tailnet" ];
+  tags = ["headscale" "tailscale" "tailnet"];
   timezone = "browser";
   schemaVersion = 36;
   refresh = "30s";
@@ -28,7 +27,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "name";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         mappings = [
@@ -87,7 +86,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value_and_name";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
     }
     {
@@ -111,7 +110,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value_and_name";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
     }
     {
@@ -135,7 +134,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "name";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         mappings = [

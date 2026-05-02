@@ -1,8 +1,7 @@
-{ common }:
-{
+{common}: {
   uid = "fail2ban";
   title = "Fail2ban";
-  tags = [ "fail2ban" "security" ];
+  tags = ["fail2ban" "security"];
   timezone = "browser";
   schemaVersion = 36;
   refresh = "1m";
@@ -26,7 +25,7 @@
       options = {
         colorMode = "background";
         graphMode = "none";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults.thresholds = {
         mode = "absolute";
@@ -65,7 +64,7 @@
       options = {
         colorMode = "value";
         graphMode = "none";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults.thresholds = {
         mode = "absolute";
@@ -104,7 +103,7 @@
       options = {
         colorMode = "value";
         graphMode = "none";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults.color = {
         mode = "fixed";

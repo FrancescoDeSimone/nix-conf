@@ -1,8 +1,7 @@
-{ common }:
-{
+{common}: {
   uid = "service-health";
   title = "Service Health";
-  tags = [ "services" "health" "blackbox" ];
+  tags = ["services" "health" "blackbox"];
   timezone = "browser";
   schemaVersion = 36;
   refresh = "30s";
@@ -29,7 +28,7 @@
         graphMode = "none";
         textMode = "name";
         reduceOptions = {
-          calcs = [ "lastNotNull" ];
+          calcs = ["lastNotNull"];
         };
       };
       fieldConfig = {
@@ -104,7 +103,7 @@
         colorMode = "background";
         graphMode = "none";
         reduceOptions = {
-          calcs = [ "lastNotNull" ];
+          calcs = ["lastNotNull"];
         };
       };
       fieldConfig = {
@@ -187,7 +186,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "name";
-        reduceOptions.calcs = [ "lastNotNull" ];
+        reduceOptions.calcs = ["lastNotNull"];
       };
       fieldConfig.defaults = {
         color.mode = "fixed";
