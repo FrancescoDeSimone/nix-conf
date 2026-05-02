@@ -10,9 +10,17 @@
   system.activationScripts.import-gpg-key = ''
     GPG_KEY="${config.age.secrets.gpg-key.path}"
     if [ -f "$GPG_KEY" ]; then
-      ${pkgs.sudo}/bin/sudo -u fdesi ${pkgs.gnupg}/bin/gpg --batch --import "$GPG_KEY" 2>/dev/null || true
+      mkdir -p /home/fdesi/.local/share/gnupg
+      chown -R fdesi:users /home/fdesi/.local/share/gnupg
+      ${pkgs.gnupg}/bin/gpg --homedir /home/fdesi/.local/share/gnupg --batch --import "$GPG_KEY" 2>/dev/null || true
+      chown -R fdesi:users /home/fdesi/.local/share/gnupg/private-keys-v1.d/ 2>/dev/null || true
     fi
   '';
+
+  programs.gnupg.agent = {
+    enable = true;
+    pinentryPackage = pkgs.pinentry-rofi;
+  };
 
   users.users.fdesi = {
     isNormalUser = true;

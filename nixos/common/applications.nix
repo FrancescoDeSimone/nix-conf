@@ -16,6 +16,8 @@
   };
 
   environment.systemPackages = with pkgs; [
+    gnupg
+    pinentry-rofi
     wget
     curl
     git
