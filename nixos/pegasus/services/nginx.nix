@@ -585,6 +585,12 @@ in {
           websockets = true;
         };
 
+        "adguard-exporter.pegasus.lan" = mkProxyVhost {
+          upstream = "http://127.0.0.1:9618/metrics";
+          accessPolicy = tailnetOnlyAccess;
+          vhostConfig = largeTransferVhostConfig;
+        };
+
         "jellyfin.pegasus.lan" = mkProxyVhost {
           upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}/";
           accessPolicy = tailnetOnlyAccess;

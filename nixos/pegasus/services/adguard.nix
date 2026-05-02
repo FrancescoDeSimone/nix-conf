@@ -1,12 +1,30 @@
 {
   config,
   private,
+  pkgs,
   ...
 }: let
   pegasusLanIp = "192.168.188.53";
   pegasusTailIp = "100.64.0.1";
   tailDomain = "tail.${private.nginx.domain}";
   pegasusTailName = "pegasus.${tailDomain}";
+  exporterPort = 9618;
+  exporterUserCleanup = pkgs.writeShellScript "adguard-exporter-user-cleanup" ''
+    set -eu
+
+    config_file="/var/lib/AdGuardHome/AdGuardHome.yaml"
+    if [ ! -f "$config_file" ]; then
+      exit 0
+    fi
+
+    # Keep the AdGuard UI passwordless by removing the injected exporter user.
+    ${pkgs.yq-go}/bin/yq -i 'del(.users[] | select(.name == "exporter"))' "$config_file"
+
+    users_len="$(${pkgs.yq-go}/bin/yq '.users | length // 0' "$config_file")"
+    if [ "$users_len" -eq 0 ]; then
+      ${pkgs.yq-go}/bin/yq -i 'del(.users)' "$config_file"
+    fi
+  '';
   upstreamResolvers = [
     "1.1.1.1"
     "1.0.0.1"
@@ -107,6 +125,34 @@ in {
   systemd.services.adguardhome = {
     after = ["tailscaled.service"];
     wants = ["tailscaled.service"];
+    serviceConfig.PermissionsStartOnly = true;
+    preStart = ''
+      ${exporterUserCleanup}
+    '';
+  };
+
+  systemd.services.adguard-exporter = {
+    description = "AdGuard Home Prometheus Exporter";
+    after = ["adguardhome.service" "network.target"];
+    requires = ["adguardhome.service"];
+    wantedBy = ["multi-user.target"];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.adguard-exporter}/bin/adguardexporter";
+      Restart = "on-failure";
+      DynamicUser = true;
+      WorkingDirectory = "/tmp";
+      StateDirectory = "adguard-exporter";
+      RuntimeDirectory = "adguard-exporter";
+      Environment = [
+        "ADGUARD_HOST=http://127.0.0.1:${toString config.my.services.adguard.port}"
+        "ADGUARD_USER="
+        "ADGUARD_PASS="
+        "EXPORTER_PORT=${toString exporterPort}"
+        "SCRAPE_INTERVAL=30"
+        "LOG_LEVEL=INFO"
+      ];
+    };
   };
 
   networking.firewall.interfaces.tailscale0 = {

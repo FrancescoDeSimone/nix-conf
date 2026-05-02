@@ -285,6 +285,14 @@ in {
             }
           ];
         }
+        {
+          job_name = "adguard-exporter";
+          static_configs = [
+            {
+              targets = ["localhost:9618"];
+            }
+          ];
+        }
       ];
     };
 
