@@ -14,4 +14,5 @@ in {
   "lidarr.age".publicKeys = keys;
   "telegram.age".publicKeys = keys;
   "headscale-authkey.age".publicKeys = keys;
+  "gpg-key.age".publicKeys = keys;
 }
