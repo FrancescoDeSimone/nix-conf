@@ -133,15 +133,9 @@
     + rules;
 
   sharedAppRules =
-    errorPageRules
-    + hiddenPathRules
-    + probeExtensionRules
-    + defaultRobotsRules
-    + scannerBlockRules;
+    errorPageRules + hiddenPathRules + probeExtensionRules + defaultRobotsRules + scannerBlockRules;
 
-  defaultAppRules =
-    sharedAppRules
-    + rateLimitRules;
+  defaultAppRules = sharedAppRules + rateLimitRules;
 
   defaultAppVhostConfig = mkVhostConfig {
     csp = defaultAppCsp;
@@ -188,19 +182,20 @@
       + nextcloudWellKnownRules;
   };
 
-  grafanaVhostConfig = mkVhostConfig {
-    csp = defaultAppCsp;
-  };
+  grafanaVhostConfig = mkVhostConfig {csp = defaultAppCsp;};
 
-  headscaleVhostConfig = mkVhostConfig {
-    rules = defaultAppRules;
-  };
+  headscaleVhostConfig = mkVhostConfig {rules = defaultAppRules;};
   headscaleProxyConfig = ''
     proxy_buffering off;
     proxy_request_buffering off;
     proxy_read_timeout 3600s;
     proxy_send_timeout 3600s;
   '';
+  gitUiAnubisInstance = "git-ui";
+  gitUpstream = "http://192.168.200.11:${toString config.my.services.git.port}";
+  gitUiAnubisUpstream = "http://unix:${
+    config.services.anubis.instances.${gitUiAnubisInstance}.settings.BIND
+  }";
   tailnetOnlyAccess = ''
     allow 100.64.0.0/10;
     allow fd7a:115c:a1e0::/48;
@@ -208,6 +203,17 @@
     allow ::1;
     deny all;
   '';
+  gitPublicLocations = {
+    # Keep Git smart HTTP, LFS and API traffic unchallenged so CLI clients keep working.
+    "^~ /.well-known/" = mkProxyLocation {upstream = gitUpstream;};
+    "^~ /api/" = mkProxyLocation {upstream = gitUpstream;};
+    "^~ /v2/" = mkProxyLocation {upstream = gitUpstream;};
+    "~ \\.git/(info/refs|git-upload-pack|git-receive-pack)$" = mkProxyLocation {
+      upstream = gitUpstream;
+    };
+    "~ \\.git/info/lfs/" = mkProxyLocation {upstream = gitUpstream;};
+    "/" = mkProxyLocation {upstream = gitUiAnubisUpstream;};
+  };
 
   mkVhost = {
     public ? false,
@@ -268,8 +274,7 @@
 
   mkSimpleProxyVhosts = vhostConfig: hosts:
     builtins.listToAttrs (
-      map
-      (
+      map (
         {
           name,
           public ? false,
@@ -277,7 +282,12 @@
           accessPolicy ? null,
         }:
           lib.nameValuePair name (mkProxyVhost {
-            inherit public upstream vhostConfig accessPolicy;
+            inherit
+              public
+              upstream
+              vhostConfig
+              accessPolicy
+              ;
           })
       )
       hosts
@@ -300,18 +310,24 @@
 
   figletFonts = pkgs.runCommand "figlet-fonts" {} ''
     mkdir -p $out
-    cp ${pkgs.fetchurl {
-      url = "https://unpkg.com/figlet@1.6.0/fonts/3D%20Diagonal.flf";
-      sha256 = "sha256-CsZh0A4xMuCy6bny4jwolxprdbA+mmmOpsUkPjh+Lpc=";
-    }} "$out/3D Diagonal.flf"
-    cp ${pkgs.fetchurl {
-      url = "https://unpkg.com/figlet@1.6.0/fonts/3D-ASCII.flf";
-      sha256 = "sha256-ywpy1pJ7fKZbFxNCVfqkvfgXVApoPfNff70yt8lTBS4=";
-    }} "$out/3D-ASCII.flf"
-    cp ${pkgs.fetchurl {
-      url = "https://unpkg.com/figlet@1.6.0/fonts/3x5.flf";
-      sha256 = "sha256-Rtgtcb3b0AAYfsdSRdN8YO24gqmyE/gZqGRAsRYn5nY=";
-    }} "$out/3x5.flf"
+    cp ${
+      pkgs.fetchurl {
+        url = "https://unpkg.com/figlet@1.6.0/fonts/3D%20Diagonal.flf";
+        sha256 = "sha256-CsZh0A4xMuCy6bny4jwolxprdbA+mmmOpsUkPjh+Lpc=";
+      }
+    } "$out/3D Diagonal.flf"
+    cp ${
+      pkgs.fetchurl {
+        url = "https://unpkg.com/figlet@1.6.0/fonts/3D-ASCII.flf";
+        sha256 = "sha256-ywpy1pJ7fKZbFxNCVfqkvfgXVApoPfNff70yt8lTBS4=";
+      }
+    } "$out/3D-ASCII.flf"
+    cp ${
+      pkgs.fetchurl {
+        url = "https://unpkg.com/figlet@1.6.0/fonts/3x5.flf";
+        sha256 = "sha256-Rtgtcb3b0AAYfsdSRdN8YO24gqmyE/gZqGRAsRYn5nY=";
+      }
+    } "$out/3x5.flf"
   '';
 
   defaultProxyVhosts = mkSimpleProxyVhosts defaultAppVhostConfig [
@@ -480,6 +496,11 @@ in {
             vhostConfig = nextcloudVhostConfig;
           };
 
+          "git.${domain}" = mkVhost {
+            public = true;
+            extraConfig = largeTransferVhostConfig;
+            locations = gitPublicLocations;
+          };
           "jellyfin.${domain}" = mkProxyVhost {
             public = true;
             upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
