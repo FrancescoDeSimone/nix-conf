@@ -197,18 +197,15 @@
     config.services.anubis.instances.${gitUiAnubisInstance}.settings.BIND
   }";
   pdfUiAnubisInstance = "pdf-ui";
-  pdfUpstream = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}";
   pdfUiAnubisUpstream = "http://unix:${
     config.services.anubis.instances.${pdfUiAnubisInstance}.settings.BIND
   }";
   bypassUiAnubisInstance = "bypass-ui";
-  bypassUpstream = "http://127.0.0.1:${toString config.my.services.bypass.port}";
   bypassUiAnubisUpstream = "http://unix:${
     config.services.anubis.instances.${bypassUiAnubisInstance}.settings.BIND
   }";
   itToolsUiAnubisInstance = "it-tools-ui";
   itToolsInternalHost = "it-tools-internal.pegasus.lan";
-  itToolsUpstream = "http://127.0.0.1:${toString config.my.services.it-tools.port}";
   itToolsUiAnubisUpstream = "http://unix:${
     config.services.anubis.instances.${itToolsUiAnubisInstance}.settings.BIND
   }";
@@ -316,7 +313,8 @@
 
   mkSimpleProxyVhosts = vhostConfig: hosts:
     builtins.listToAttrs (
-      map (
+      map
+      (
         {
           name,
           public ? false,
@@ -401,15 +399,20 @@
   '';
 
   staticVhosts = {
-    "${itToolsInternalHost}" = mkStaticVhost {
+    "${itToolsInternalHost}" = {
+      serverName = itToolsInternalHost;
+      serverAliases = ["it-tools.${domain}"];
+      listen = [
+        {
+          addr = "127.0.0.1";
+          port = config.my.services.it-tools.port;
+        }
+      ];
       root = "${pkgs.it-tools}/lib";
-      accessPolicy = tailnetOnlyAccess;
-      vhostConfig =
+      extraConfig =
         defaultAppVhostConfig
         + ''
           index index.html;
-          serverName ${itToolsInternalHost};
-          listen 127.0.0.1:${toString config.my.services.it-tools.port};
           location /fonts/ { alias ${figletFonts}/; }
         '';
     };
@@ -558,18 +561,6 @@ in {
             locationExtraConfig = jellyfinProxyConfig;
           };
 
-          "pdf.${domain}" = mkProxyVhost {
-            public = true;
-            upstream = pdfUpstream;
-            vhostConfig = mkVhostConfig {
-              csp = defaultAppCsp;
-              extraConfig = largeTransferTimeouts;
-              rules = sharedAppRules;
-            };
-            locationExtraConfig = ''
-              client_max_body_size 100M;
-            '';
-          };
           "pdf.${domain}" = mkVhost {
             public = true;
             extraConfig = mkVhostConfig {
