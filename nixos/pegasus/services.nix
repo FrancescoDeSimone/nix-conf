@@ -1,7 +1,7 @@
 {
   imports = [
     ./services/ports.nix
-    ./services/observability.nix
+    ./services/observability
     ./services/docker.nix
     ./services/filebrowser.nix
     ./services/git.nix

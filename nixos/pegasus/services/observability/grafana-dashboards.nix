@@ -1,4 +1,5 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   common = {
     datasource = {
       type = "prometheus";
@@ -9,12 +10,13 @@
       uid = "loki_default";
     };
   };
-  dashboards = import ./dashboards {inherit common;};
+  dashboards = import ./dashboards { inherit common; };
   dashboardFiles = builtins.map (name: {
     inherit name;
     path = pkgs.writeText name (builtins.toJSON dashboards.${name});
   }) (builtins.attrNames dashboards);
-in {
+in
+{
   services.grafana.provision = {
     enable = true;
     dashboards.settings.providers = [

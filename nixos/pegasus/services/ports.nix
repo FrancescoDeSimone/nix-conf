@@ -1,4 +1,5 @@
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib) mkOption types;
 
   mkService = defaultPort: {
@@ -18,7 +19,8 @@
       default = exporterPort;
     };
   };
-in {
+in
+{
   options.my.services = {
     # Proxies & Web
     nginx = mkServiceWithExporter 80 9113;
@@ -44,8 +46,10 @@ in {
     jellyseerr = mkService 5055;
     sonarr = mkServiceWithExporter 8989 9898;
     radarr = mkServiceWithExporter 7878 9707;
-    lidarr = mkService 8686;
+    lidarr = mkServiceWithExporter 8686 8687;
     prowlarr = mkServiceWithExporter 9696 9697;
+    readarr = mkServiceWithExporter 8787 8788;
+    bazarr = mkServiceWithExporter 6767 6768;
 
     # Downloading
     transmission = mkService 9091;

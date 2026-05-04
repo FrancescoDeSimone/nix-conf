@@ -1,7 +1,13 @@
-{common}: {
+{ common }:
+{
   uid = "adguard-home";
   title = "AdGuard Home";
-  tags = ["adguard" "dns" "network" "security"];
+  tags = [
+    "adguard"
+    "dns"
+    "network"
+    "security"
+  ];
   timezone = "browser";
   schemaVersion = 39;
   version = 1;
@@ -41,7 +47,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         mappings = [
@@ -83,7 +89,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         mappings = [
@@ -125,7 +131,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         mappings = [
@@ -167,7 +173,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         mappings = [
@@ -209,7 +215,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         mappings = [
@@ -251,7 +257,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         unit = "s";
@@ -306,7 +312,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults.unit = "short";
     }
@@ -330,7 +336,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults.unit = "short";
     }
@@ -354,7 +360,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         unit = "percent";
@@ -381,7 +387,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         unit = "ms";
@@ -408,7 +414,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults.unit = "short";
     }
@@ -432,7 +438,7 @@
         colorMode = "value";
         graphMode = "none";
         textMode = "value";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         unit = "short";

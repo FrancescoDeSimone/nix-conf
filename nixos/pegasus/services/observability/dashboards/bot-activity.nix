@@ -1,7 +1,13 @@
-{common}: {
+{ common }:
+{
   uid = "bot-activity";
   title = "Bot & LLM Activity";
-  tags = ["bot" "llm" "security" "nginx"];
+  tags = [
+    "bot"
+    "llm"
+    "security"
+    "nginx"
+  ];
   timezone = "browser";
   schemaVersion = 36;
   refresh = "1m";
@@ -47,7 +53,7 @@
       options = {
         colorMode = "background";
         graphMode = "none";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         unit = "percent";
@@ -91,7 +97,7 @@
       options = {
         colorMode = "value";
         graphMode = "none";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults.thresholds = {
         mode = "absolute";
@@ -194,11 +200,7 @@
         y = 26;
       };
       datasource = common.lokiDatasource;
-      targets = [
-        {
-          expr = ''{job="nginx", bot_type="bot"}'';
-        }
-      ];
+      targets = [ { expr = ''{job="nginx", bot_type="bot"}''; } ];
       options = {
         showTime = true;
         sortOrder = "Descending";

@@ -1,7 +1,8 @@
-{common}: {
+{ common }:
+{
   uid = "system-overview";
   title = "Pegasus System";
-  tags = ["system"];
+  tags = [ "system" ];
   timezone = "browser";
   schemaVersion = 36;
   templating.list = [
@@ -74,7 +75,7 @@
         graphMode = "none";
         textMode = "value";
         reduceOptions = {
-          calcs = ["lastNotNull"];
+          calcs = [ "lastNotNull" ];
         };
       };
       fieldConfig.defaults = {
@@ -103,7 +104,7 @@
         graphMode = "none";
         textMode = "value";
         reduceOptions = {
-          calcs = ["lastNotNull"];
+          calcs = [ "lastNotNull" ];
         };
       };
       fieldConfig.defaults = {
@@ -159,11 +160,7 @@
         y = 30;
       };
       datasource = common.lokiDatasource;
-      targets = [
-        {
-          expr = ''{job="systemd-journal", unit=~"$unit"}'';
-        }
-      ];
+      targets = [ { expr = ''{job="systemd-journal", unit=~"$unit"}''; } ];
       options = {
         showTime = true;
         sortOrder = "Descending";

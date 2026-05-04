@@ -1,7 +1,12 @@
-{common}: {
+{ common }:
+{
   uid = "tailnet-overview";
   title = "Headscale & Tailscale";
-  tags = ["headscale" "tailscale" "tailnet"];
+  tags = [
+    "headscale"
+    "tailscale"
+    "tailnet"
+  ];
   timezone = "browser";
   schemaVersion = 36;
   refresh = "30s";
@@ -27,7 +32,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "name";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         mappings = [
@@ -86,7 +91,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value_and_name";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
     }
     {
@@ -110,7 +115,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "value_and_name";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
     }
     {
@@ -134,7 +139,7 @@
         colorMode = "background";
         graphMode = "none";
         textMode = "name";
-        reduceOptions.calcs = ["lastNotNull"];
+        reduceOptions.calcs = [ "lastNotNull" ];
       };
       fieldConfig.defaults = {
         mappings = [
@@ -272,11 +277,7 @@
         y = 30;
       };
       datasource = common.lokiDatasource;
-      targets = [
-        {
-          expr = ''{job="systemd-journal", unit="headscale.service"}'';
-        }
-      ];
+      targets = [ { expr = ''{job="systemd-journal", unit="headscale.service"}''; } ];
       options = {
         showTime = true;
         sortOrder = "Descending";
@@ -293,11 +294,7 @@
         y = 30;
       };
       datasource = common.lokiDatasource;
-      targets = [
-        {
-          expr = ''{job="systemd-journal", unit="tailscaled.service"}'';
-        }
-      ];
+      targets = [ { expr = ''{job="systemd-journal", unit="tailscaled.service"}''; } ];
       options = {
         showTime = true;
         sortOrder = "Descending";
