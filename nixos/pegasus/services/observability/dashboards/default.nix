@@ -1,6 +1,7 @@
 { common }:
 {
   "adguard-home.json" = import ./adguard.nix { inherit common; };
+  "arr-stack.json" = import ./arr-stack.nix { inherit common; };
   "bot-activity.json" = import ./bot-activity.nix { inherit common; };
   "fail2ban.json" = import ./fail2ban.nix { inherit common; };
   "nginx-traffic.json" = import ./nginx.nix { inherit common; };
