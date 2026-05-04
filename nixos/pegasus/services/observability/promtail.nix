@@ -1,5 +1,4 @@
-{ config, ... }:
-{
+{config, ...}: {
   services.promtail = {
     enable = true;
     configuration = {
@@ -8,7 +7,7 @@
         grpc_listen_port = 0;
       };
       clients = [
-        { url = "http://localhost:${toString config.my.services.loki.port}/loki/api/v1/push"; }
+        {url = "http://localhost:${toString config.my.services.loki.port}/loki/api/v1/push";}
       ];
       scrape_configs = [
         {
@@ -22,7 +21,7 @@
           };
           relabel_configs = [
             {
-              source_labels = [ "__journal__systemd_unit" ];
+              source_labels = ["__journal__systemd_unit"];
               target_label = "unit";
             }
           ];
@@ -31,7 +30,7 @@
           job_name = "nginx";
           static_configs = [
             {
-              targets = [ "localhost" ];
+              targets = ["localhost"];
               labels = {
                 job = "nginx";
                 host = "pegasus";
@@ -77,7 +76,7 @@
           job_name = "nginx-error";
           static_configs = [
             {
-              targets = [ "localhost" ];
+              targets = ["localhost"];
               labels = {
                 job = "nginx-error";
                 host = "pegasus";
@@ -90,7 +89,7 @@
           job_name = "modsecurity";
           static_configs = [
             {
-              targets = [ "localhost" ];
+              targets = ["localhost"];
               labels = {
                 job = "modsecurity";
                 host = "pegasus";
@@ -103,5 +102,5 @@
     };
   };
 
-  users.users.promtail.extraGroups = [ "nginx" ];
+  users.users.promtail.extraGroups = ["nginx"];
 }

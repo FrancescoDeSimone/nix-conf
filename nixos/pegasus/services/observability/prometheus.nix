@@ -4,8 +4,7 @@
   pkgs,
   private,
   ...
-}:
-let
+}: let
   domain = private.nginx.domain;
   headscaleTailnetMetricsDir = "/var/lib/prometheus-node-exporter-textfile";
   blackboxTargets = [
@@ -93,13 +92,12 @@ let
   ];
   mkStaticScrape = name: port: {
     job_name = name;
-    static_configs = [ { targets = [ "127.0.0.1:${toString port}" ]; } ];
+    static_configs = [{targets = ["127.0.0.1:${toString port}"];}];
   };
-in
-{
+in {
   services.prometheus = {
     enable = true;
-    extraFlags = [ "--storage.tsdb.retention.size=2GB" ];
+    extraFlags = ["--storage.tsdb.retention.size=2GB"];
 
     exporters = {
       node = {
@@ -117,7 +115,7 @@ in
           "runit"
           "supervisord"
         ];
-        extraFlags = [ "--collector.textfile.directory=${headscaleTailnetMetricsDir}" ];
+        extraFlags = ["--collector.textfile.directory=${headscaleTailnetMetricsDir}"];
       };
 
       blackbox = {
@@ -209,25 +207,27 @@ in
         {
           job_name = "blackbox";
           metrics_path = "/probe";
-          params.module = [ "http_2xx" ];
-          static_configs = map (t: {
-            targets = [ t.url ];
-            labels = {
-              service = t.name;
-              __param_module = t.module or "http_2xx";
-            };
-          }) blackboxTargets;
+          params.module = ["http_2xx"];
+          static_configs =
+            map (t: {
+              targets = [t.url];
+              labels = {
+                service = t.name;
+                __param_module = t.module or "http_2xx";
+              };
+            })
+            blackboxTargets;
           relabel_configs = [
             {
-              source_labels = [ "__param_module" ];
+              source_labels = ["__param_module"];
               target_label = "__param_module";
             }
             {
-              source_labels = [ "__address__" ];
+              source_labels = ["__address__"];
               target_label = "__param_target";
             }
             {
-              source_labels = [ "service" ];
+              source_labels = ["service"];
               target_label = "instance";
             }
             {
@@ -242,12 +242,12 @@ in
           metrics_path = "/prometheus";
           scrape_interval = "5m";
           static_configs = [
-            { targets = [ "127.0.0.1:${toString config.my.services.speedtest-tracker.port}" ]; }
+            {targets = ["127.0.0.1:${toString config.my.services.speedtest-tracker.port}"];}
           ];
         }
         {
           job_name = "adguard-exporter";
-          static_configs = [ { targets = [ "localhost:9618" ]; } ];
+          static_configs = [{targets = ["localhost:9618"];}];
         }
       ];
   };

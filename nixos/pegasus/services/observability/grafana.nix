@@ -3,8 +3,7 @@
   pkgs,
   lib,
   ...
-}:
-let
+}: let
   telegramContactPointScript = pkgs.writeShellScript "grafana-telegram-setup" ''
     if [ -f "${config.age.secrets.telegram.path}" ]; then
       source "${config.age.secrets.telegram.path}"
@@ -31,8 +30,7 @@ let
     EOF
     fi
   '';
-in
-{
+in {
   services.grafana = {
     enable = true;
     settings = {
@@ -110,7 +108,7 @@ in
                           type = "query";
                           evaluator = {
                             type = "gt";
-                            params = [ 0 ];
+                            params = [0];
                           };
                         }
                       ];
@@ -131,7 +129,7 @@ in
                           type = "query";
                           evaluator = {
                             type = "lt";
-                            params = [ 1 ];
+                            params = [1];
                           };
                         }
                       ];
@@ -189,7 +187,7 @@ in
                           type = "query";
                           evaluator = {
                             type = "gt";
-                            params = [ 0 ];
+                            params = [0];
                           };
                         }
                       ];
@@ -210,7 +208,7 @@ in
                           type = "query";
                           evaluator = {
                             type = "gt";
-                            params = [ 0.5 ];
+                            params = [0.5];
                           };
                         }
                       ];
@@ -280,7 +278,7 @@ in
                           type = "query";
                           evaluator = {
                             type = "lt";
-                            params = [ 15 ];
+                            params = [15];
                           };
                         }
                       ];
@@ -342,7 +340,7 @@ in
                           type = "query";
                           evaluator = {
                             type = "lt";
-                            params = [ 10 ];
+                            params = [10];
                           };
                         }
                       ];
@@ -404,7 +402,7 @@ in
                           type = "query";
                           evaluator = {
                             type = "eq";
-                            params = [ 1 ];
+                            params = [1];
                           };
                         }
                       ];
@@ -474,7 +472,7 @@ in
                           type = "query";
                           evaluator = {
                             type = "gt";
-                            params = [ 5 ];
+                            params = [5];
                           };
                         }
                       ];
@@ -531,7 +529,7 @@ in
                           type = "query";
                           evaluator = {
                             type = "gt";
-                            params = [ 0 ];
+                            params = [0];
                           };
                         }
                       ];

@@ -1,5 +1,4 @@
-{ common }:
-{
+{common}: {
   uid = "nginx-traffic";
   title = "Nginx Traffic";
   tags = [
@@ -163,7 +162,7 @@
         y = 34;
       };
       datasource = common.lokiDatasource;
-      targets = [ { expr = ''{job="nginx"}''; } ];
+      targets = [{expr = ''{job="nginx"}'';}];
       options = {
         showTime = true;
         sortOrder = "Descending";

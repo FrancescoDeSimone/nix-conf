@@ -3,17 +3,15 @@
   lib,
   pkgs,
   ...
-}:
-let
-  mkExporter =
-    {
-      exporterPort,
-      servicePort,
-      configPath ? null,
-      apiKeyFile ? null,
-      user ? "root",
-      environment ? { },
-    }:
+}: let
+  mkExporter = {
+    exporterPort,
+    servicePort,
+    configPath ? null,
+    apiKeyFile ? null,
+    user ? "root",
+    environment ? {},
+  }:
     {
       enable = true;
       package = pkgs.exportarr;
@@ -21,11 +19,10 @@ let
       port = exporterPort;
       url = "http://127.0.0.1:${toString servicePort}";
       inherit user;
-      environment = environment // lib.optionalAttrs (configPath != null) { CONFIG = configPath; };
+      environment = environment // lib.optionalAttrs (configPath != null) {CONFIG = configPath;};
     }
-    // lib.optionalAttrs (apiKeyFile != null) { inherit apiKeyFile; };
-in
-{
+    // lib.optionalAttrs (apiKeyFile != null) {inherit apiKeyFile;};
+in {
   services.prometheus.exporters = lib.mkMerge [
     (lib.optionalAttrs config.services.sonarr.enable {
       exportarr-sonarr = mkExporter {

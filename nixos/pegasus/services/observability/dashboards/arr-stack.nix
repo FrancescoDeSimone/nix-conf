@@ -1,185 +1,175 @@
-{ common }:
-let
-  mkStat =
-    {
-      title,
-      expr,
-      x,
-      y,
-      unit ? "none",
-      w ? 4,
-      h ? 4,
-      colorMode ? "value",
-    }:
-    {
-      inherit title;
-      type = "stat";
-      gridPos = {
-        inherit
-          h
-          w
-          x
-          y
-          ;
-      };
-      datasource = common.datasource;
-      targets = [
-        {
-          inherit expr;
-          instant = true;
-        }
-      ];
-      options = {
-        inherit colorMode;
-        graphMode = "none";
-        textMode = "value";
-        reduceOptions.calcs = [ "lastNotNull" ];
-      };
-      fieldConfig.defaults = {
-        inherit unit;
-        decimals = 0;
-        color.mode = "thresholds";
-        thresholds = {
-          mode = "absolute";
-          steps = [
-            {
-              color = "green";
-              value = null;
-            }
-          ];
-        };
+{common}: let
+  mkStat = {
+    title,
+    expr,
+    x,
+    y,
+    unit ? "none",
+    w ? 4,
+    h ? 4,
+    colorMode ? "value",
+  }: {
+    inherit title;
+    type = "stat";
+    gridPos = {
+      inherit
+        h
+        w
+        x
+        y
+        ;
+    };
+    datasource = common.datasource;
+    targets = [
+      {
+        inherit expr;
+        instant = true;
+      }
+    ];
+    options = {
+      inherit colorMode;
+      graphMode = "none";
+      textMode = "value";
+      reduceOptions.calcs = ["lastNotNull"];
+    };
+    fieldConfig.defaults = {
+      inherit unit;
+      decimals = 0;
+      color.mode = "thresholds";
+      thresholds = {
+        mode = "absolute";
+        steps = [
+          {
+            color = "green";
+            value = null;
+          }
+        ];
       };
     };
+  };
 
-  mkTimeseries =
-    {
-      title,
-      targets,
-      x,
-      y,
-      w ? 12,
-      h ? 8,
-      unit ? "none",
-    }:
-    {
-      inherit title;
-      type = "timeseries";
-      gridPos = {
-        inherit
-          h
-          w
-          x
-          y
-          ;
-      };
-      datasource = common.datasource;
-      inherit targets;
-      fieldConfig.defaults = {
-        inherit unit;
-        custom = {
-          drawStyle = "line";
-          lineWidth = 2;
-          fillOpacity = 12;
-        };
-      };
-      options.legend = {
-        displayMode = "table";
-        placement = "bottom";
+  mkTimeseries = {
+    title,
+    targets,
+    x,
+    y,
+    w ? 12,
+    h ? 8,
+    unit ? "none",
+  }: {
+    inherit title;
+    type = "timeseries";
+    gridPos = {
+      inherit
+        h
+        w
+        x
+        y
+        ;
+    };
+    datasource = common.datasource;
+    inherit targets;
+    fieldConfig.defaults = {
+      inherit unit;
+      custom = {
+        drawStyle = "line";
+        lineWidth = 2;
+        fillOpacity = 12;
       };
     };
-
-  mkBarGauge =
-    {
-      title,
-      expr,
-      x,
-      y,
-      w ? 12,
-      h ? 8,
-    }:
-    {
-      inherit title;
-      type = "bargauge";
-      gridPos = {
-        inherit
-          h
-          w
-          x
-          y
-          ;
-      };
-      datasource = common.datasource;
-      targets = [
-        {
-          inherit expr;
-          instant = true;
-        }
-      ];
-      options = {
-        orientation = "horizontal";
-        displayMode = "gradient";
-        showUnfilled = true;
-        reduceOptions = {
-          calcs = [ "lastNotNull" ];
-          fields = "";
-          values = false;
-        };
-      };
-      fieldConfig.defaults.color.mode = "palette-classic";
+    options.legend = {
+      displayMode = "table";
+      placement = "bottom";
     };
+  };
 
-  mkLabelTable =
-    {
-      title,
-      expr,
-      x,
-      y,
-      renameByName,
-      w ? 6,
-      h ? 8,
-    }:
-    {
-      inherit title;
-      type = "table";
-      gridPos = {
-        inherit
-          h
-          w
-          x
-          y
-          ;
+  mkBarGauge = {
+    title,
+    expr,
+    x,
+    y,
+    w ? 12,
+    h ? 8,
+  }: {
+    inherit title;
+    type = "bargauge";
+    gridPos = {
+      inherit
+        h
+        w
+        x
+        y
+        ;
+    };
+    datasource = common.datasource;
+    targets = [
+      {
+        inherit expr;
+        instant = true;
+      }
+    ];
+    options = {
+      orientation = "horizontal";
+      displayMode = "gradient";
+      showUnfilled = true;
+      reduceOptions = {
+        calcs = ["lastNotNull"];
+        fields = "";
+        values = false;
       };
-      datasource = common.datasource;
-      targets = [
-        {
-          inherit expr;
-          instant = true;
-          format = "table";
-        }
-      ];
-      transformations = [
-        {
-          id = "labelsToFields";
-          options.mode = "columns";
-        }
-        {
-          id = "organize";
-          options = {
-            excludeByName = {
-              Time = true;
-              __name__ = true;
-              instance = true;
-              job = true;
-              url = true;
-            };
-            inherit renameByName;
+    };
+    fieldConfig.defaults.color.mode = "palette-classic";
+  };
+
+  mkLabelTable = {
+    title,
+    expr,
+    x,
+    y,
+    renameByName,
+    w ? 6,
+    h ? 8,
+  }: {
+    inherit title;
+    type = "table";
+    gridPos = {
+      inherit
+        h
+        w
+        x
+        y
+        ;
+    };
+    datasource = common.datasource;
+    targets = [
+      {
+        inherit expr;
+        instant = true;
+        format = "table";
+      }
+    ];
+    transformations = [
+      {
+        id = "labelsToFields";
+        options.mode = "columns";
+      }
+      {
+        id = "organize";
+        options = {
+          excludeByName = {
+            Time = true;
+            __name__ = true;
+            instance = true;
+            job = true;
+            url = true;
           };
-        }
-      ];
-      fieldConfig.defaults.custom.align = "auto";
-    };
-in
-{
+          inherit renameByName;
+        };
+      }
+    ];
+    fieldConfig.defaults.custom.align = "auto";
+  };
+in {
   uid = "arr-stack";
   title = "Arr Stack";
   tags = [

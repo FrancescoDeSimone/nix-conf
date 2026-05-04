@@ -1,5 +1,4 @@
-{ config, ... }:
-{
+{config, ...}: {
   services.loki = {
     enable = true;
     configuration = {

@@ -1,5 +1,4 @@
-{ common }:
-{
+{common}: {
   uid = "speedtest-tracker";
   title = "Speedtest Tracker";
   tags = [
@@ -51,7 +50,7 @@
       options = {
         colorMode = "value";
         graphMode = "area";
-        reduceOptions.calcs = [ "mean" ];
+        reduceOptions.calcs = ["mean"];
       };
     }
     {
@@ -94,7 +93,7 @@
       options = {
         colorMode = "value";
         graphMode = "area";
-        reduceOptions.calcs = [ "mean" ];
+        reduceOptions.calcs = ["mean"];
       };
     }
     {
@@ -137,7 +136,7 @@
       options = {
         colorMode = "value";
         graphMode = "area";
-        reduceOptions.calcs = [ "mean" ];
+        reduceOptions.calcs = ["mean"];
       };
     }
     {
@@ -180,7 +179,7 @@
       options = {
         colorMode = "value";
         graphMode = "area";
-        reduceOptions.calcs = [ "mean" ];
+        reduceOptions.calcs = ["mean"];
       };
     }
     {
@@ -351,7 +350,7 @@
       transformations = [
         {
           id = "labelsToFields";
-          options = { };
+          options = {};
         }
         {
           id = "organize";

@@ -3,19 +3,17 @@
   pkgs,
   private,
   ...
-}:
-let
+}: let
   gitUiInstance = "git-ui";
   gitUpstream = "http://192.168.200.11:${toString config.my.services.git.port}";
   gitRuntimeDir = "/run/anubis/anubis-${gitUiInstance}";
-in
-{
+in {
   services.anubis = {
     package = pkgs.anubis;
     defaultOptions = {
       user = "anubis";
       group = "anubis";
-      extraFlags = [ ];
+      extraFlags = [];
       botPolicy = null;
       settings = {
         BIND_NETWORK = "unix";
@@ -34,5 +32,5 @@ in
     };
   };
 
-  users.users.nginx.extraGroups = [ config.services.anubis.defaultOptions.group ];
+  users.users.nginx.extraGroups = [config.services.anubis.defaultOptions.group];
 }

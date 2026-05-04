@@ -9,7 +9,7 @@
   users.users.thinkcentre = {
     isNormalUser = true;
     description = "thinkcentre";
-    extraGroups = ["networkmanager" "wheel" "incus" "docker"];
+    extraGroups = ["networkmanager" "wheel" "incus" "incus-admin" "docker"];
     shell = pkgs.zsh;
   };
 

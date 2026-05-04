@@ -189,21 +189,22 @@
   serviceHostnames = lib.sort (a: b: a < b) (lib.attrNames lanHosts);
 
   serviceEntries = lib.sort (a: b: a.displayName < b.displayName) (map (host: let
-    name = lib.removeSuffix ".pegasus.lan" host;
-    override = serviceOverrides.${name} or {};
-    displayName = override.name or (titleCase name);
-  in {
-    inherit displayName;
-    group = override.group or "Other";
-    item = {
-      "${displayName}" = {
-        id = name;
-        href = "http://${host}";
-        description = override.description or "${displayName} service";
-        icon = override.icon or "mdi-application-outline";
+      name = lib.removeSuffix ".pegasus.lan" host;
+      override = serviceOverrides.${name} or {};
+      displayName = override.name or (titleCase name);
+    in {
+      inherit displayName;
+      group = override.group or "Other";
+      item = {
+        "${displayName}" = {
+          id = name;
+          href = "http://${host}";
+          description = override.description or "${displayName} service";
+          icon = override.icon or "mdi-application-outline";
+        };
       };
-    };
-  }) serviceHostnames);
+    })
+    serviceHostnames);
 
   presentGroups = builtins.filter (group: builtins.elem group entryGroups) groupOrder;
 

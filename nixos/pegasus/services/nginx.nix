@@ -336,7 +336,7 @@
     (mkCustomTailnetService "192.168.103.11" "opencloud" config.my.services.opencloud.port)
     (mkTailnetService "bypass" config.my.services.bypass.port)
     (mkTailnetService "filebrowser" config.my.services.filebrowser.port)
-    (mkTailnetService "glances" config.my.services.glances.port)
+    # (mkTailnetService "glances" config.my.services.glances.port)
     (mkTailnetService "homepage" config.my.services.homepage.port)
   ];
 

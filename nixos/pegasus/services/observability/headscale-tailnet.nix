@@ -3,8 +3,7 @@
   lib,
   pkgs,
   ...
-}:
-let
+}: let
   headscaleTailnetMetricsDir = "/var/lib/prometheus-node-exporter-textfile";
   headscaleTailnetMetricsScript = pkgs.writeShellScript "headscale-tailnet-metrics" ''
         set -euo pipefail
@@ -48,12 +47,11 @@ let
         chmod 0644 "$metrics_tmp"
         mv "$metrics_tmp" "${headscaleTailnetMetricsDir}/headscale-tailnet.prom"
   '';
-in
-{
+in {
   systemd.services.headscale-tailnet-metrics = {
     description = "Export Headscale tailnet metrics";
-    after = [ "headscale.service" ];
-    wants = [ "headscale.service" ];
+    after = ["headscale.service"];
+    wants = ["headscale.service"];
     serviceConfig = {
       Type = "oneshot";
     };
@@ -64,7 +62,7 @@ in
 
   systemd.timers.headscale-tailnet-metrics = {
     description = "Refresh Headscale tailnet metrics";
-    wantedBy = [ "timers.target" ];
+    wantedBy = ["timers.target"];
     timerConfig = {
       OnBootSec = "30s";
       OnUnitActiveSec = "30s";
@@ -72,5 +70,5 @@ in
     };
   };
 
-  systemd.tmpfiles.rules = [ "d ${headscaleTailnetMetricsDir} 0755 root root -" ];
+  systemd.tmpfiles.rules = ["d ${headscaleTailnetMetricsDir} 0755 root root -"];
 }
