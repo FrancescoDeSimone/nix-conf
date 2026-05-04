@@ -205,6 +205,7 @@
   '';
   gitPublicLocations = {
     # Keep Git smart HTTP, LFS and API traffic unchallenged so CLI clients keep working.
+    "^~ /.within.website/" = mkProxyLocation {upstream = gitUiAnubisUpstream;};
     "^~ /.well-known/" = mkProxyLocation {upstream = gitUpstream;};
     "^~ /api/" = mkProxyLocation {upstream = gitUpstream;};
     "^~ /v2/" = mkProxyLocation {upstream = gitUpstream;};
