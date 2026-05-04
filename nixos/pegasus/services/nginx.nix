@@ -196,6 +196,22 @@
   gitUiAnubisUpstream = "http://unix:${
     config.services.anubis.instances.${gitUiAnubisInstance}.settings.BIND
   }";
+  pdfUiAnubisInstance = "pdf-ui";
+  pdfUpstream = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}";
+  pdfUiAnubisUpstream = "http://unix:${
+    config.services.anubis.instances.${pdfUiAnubisInstance}.settings.BIND
+  }";
+  bypassUiAnubisInstance = "bypass-ui";
+  bypassUpstream = "http://127.0.0.1:${toString config.my.services.bypass.port}";
+  bypassUiAnubisUpstream = "http://unix:${
+    config.services.anubis.instances.${bypassUiAnubisInstance}.settings.BIND
+  }";
+  itToolsUiAnubisInstance = "it-tools-ui";
+  itToolsInternalHost = "it-tools-internal.pegasus.lan";
+  itToolsUpstream = "http://127.0.0.1:${toString config.my.services.it-tools.port}";
+  itToolsUiAnubisUpstream = "http://unix:${
+    config.services.anubis.instances.${itToolsUiAnubisInstance}.settings.BIND
+  }";
   tailnetOnlyAccess = ''
     allow 100.64.0.0/10;
     allow fd7a:115c:a1e0::/48;
@@ -214,6 +230,31 @@
     };
     "~ \\.git/info/lfs/" = mkProxyLocation {upstream = gitUpstream;};
     "/" = mkProxyLocation {upstream = gitUiAnubisUpstream;};
+  };
+
+  anubisAssetLocation = anubisUpstream:
+    mkProxyLocation {
+      upstream = anubisUpstream;
+    };
+
+  pdfPublicLocations = {
+    "^~ /.within.website/" = anubisAssetLocation pdfUiAnubisUpstream;
+    "/" = mkProxyLocation {
+      upstream = pdfUiAnubisUpstream;
+      extraConfig = ''
+        client_max_body_size 100M;
+      '';
+    };
+  };
+
+  bypassPublicLocations = {
+    "^~ /.within.website/" = anubisAssetLocation bypassUiAnubisUpstream;
+    "/" = mkProxyLocation {upstream = bypassUiAnubisUpstream;};
+  };
+
+  itToolsPublicLocations = {
+    "^~ /.within.website/" = anubisAssetLocation itToolsUiAnubisUpstream;
+    "/" = mkProxyLocation {upstream = itToolsUiAnubisUpstream;};
   };
 
   mkVhost = {
@@ -360,13 +401,15 @@
   '';
 
   staticVhosts = {
-    "it-tools.${domain}" = mkStaticVhost {
-      public = true;
+    "${itToolsInternalHost}" = mkStaticVhost {
       root = "${pkgs.it-tools}/lib";
+      accessPolicy = tailnetOnlyAccess;
       vhostConfig =
         defaultAppVhostConfig
         + ''
           index index.html;
+          serverName ${itToolsInternalHost};
+          listen 127.0.0.1:${toString config.my.services.it-tools.port};
           location /fonts/ { alias ${figletFonts}/; }
         '';
     };
@@ -502,6 +545,11 @@ in {
             extraConfig = largeTransferVhostConfig;
             locations = gitPublicLocations;
           };
+          "bypass.${domain}" = mkVhost {
+            public = true;
+            extraConfig = defaultAppVhostConfig;
+            locations = bypassPublicLocations;
+          };
           "jellyfin.${domain}" = mkProxyVhost {
             public = true;
             upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
@@ -512,7 +560,7 @@ in {
 
           "pdf.${domain}" = mkProxyVhost {
             public = true;
-            upstream = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}";
+            upstream = pdfUpstream;
             vhostConfig = mkVhostConfig {
               csp = defaultAppCsp;
               extraConfig = largeTransferTimeouts;
@@ -521,6 +569,20 @@ in {
             locationExtraConfig = ''
               client_max_body_size 100M;
             '';
+          };
+          "pdf.${domain}" = mkVhost {
+            public = true;
+            extraConfig = mkVhostConfig {
+              csp = defaultAppCsp;
+              extraConfig = largeTransferTimeouts;
+              rules = sharedAppRules;
+            };
+            locations = pdfPublicLocations;
+          };
+          "it-tools.${domain}" = mkVhost {
+            public = true;
+            extraConfig = defaultAppVhostConfig;
+            locations = itToolsPublicLocations;
           };
 
           "adguard.pegasus.lan" = mkProxyVhost {
