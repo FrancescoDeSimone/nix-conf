@@ -1,4 +1,5 @@
 {
+  lib,
   private,
   config,
   pkgs,
@@ -53,6 +54,7 @@ in {
   services.qui = {
     enable = true;
     openFirewall = false;
+    package = pkgs.unstable.qui;
     settings = {
       port = config.my.services.qui.port;
       host = "127.0.0.1";
@@ -90,7 +92,7 @@ in {
       BitTorrent = {
         ExcludedFileNamesEnabled = true;
         Session = {
-          ExcludedFileNames = builtins.concatStringsSep "\n" [
+          ExcludedFileNames = lib.concatStringsSep ", " [
             "*.lnk"
             "*.zipx"
             "*sample.mkv"
