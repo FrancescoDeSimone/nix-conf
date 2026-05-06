@@ -205,7 +205,7 @@
     config.services.anubis.instances.${bypassUiAnubisInstance}.settings.BIND
   }";
   itToolsUiAnubisInstance = "it-tools-ui";
-  itToolsInternalHost = "it-tools-internal.pegasus.lan";
+  itToolsInternalHost = "it-tools.pegasus.lan";
   itToolsUiAnubisUpstream = "http://unix:${
     config.services.anubis.instances.${itToolsUiAnubisInstance}.settings.BIND
   }";
@@ -377,6 +377,7 @@
     (mkTailnetService "filebrowser" config.my.services.filebrowser.port)
     # (mkTailnetService "glances" config.my.services.glances.port)
     (mkTailnetService "homepage" config.my.services.homepage.port)
+    (mkTailnetService "headplane" config.my.services.headplane.port)
   ];
 
   largeTransferProxyVhosts = mkSimpleProxyVhosts largeTransferVhostConfig [
@@ -388,6 +389,7 @@
     (mkTailnetService "lidarr" config.my.services.lidarr.port)
     (mkTailnetService "scrutiny" config.my.services.scrutiny.port)
     (mkTailnetService "pdf" config.my.services.stirling-pdf.port)
+    (mkTailnetService "it-tools" config.my.services.it-tools.port)
     (mkTailnetService "karakeep" config.my.services.karakeep.port)
     (mkTailnetService "prometheus" config.my.services.prometheus.port)
   ];
@@ -404,7 +406,7 @@
       serverAliases = ["it-tools.${domain}"];
       listen = [
         {
-          addr = "127.0.0.1";
+          addr = "0.0.0.0";
           port = config.my.services.it-tools.port;
         }
       ];
@@ -412,6 +414,11 @@
       extraConfig =
         defaultAppVhostConfig
         + ''
+          allow 100.64.0.0/10;
+          allow fd7a:115c:a1e0::/48;
+          allow 127.0.0.1;
+          allow ::1;
+          deny all;
           index index.html;
           location /fonts/ { alias ${figletFonts}/; }
         '';
@@ -645,6 +652,19 @@ in {
             accessPolicy = tailnetOnlyAccess;
             vhostConfig = largeTransferVhostConfig;
             locationExtraConfig = speedtrackerLocationConfig;
+          };
+
+          "headplane.pegasus.lan" = mkVhost {
+            accessPolicy = tailnetOnlyAccess;
+            extraConfig = defaultAppVhostConfig;
+            locations = {
+              "= /" = {
+                return = "302 /admin/";
+              };
+              "/" = mkProxyLocation {
+                upstream = "http://127.0.0.1:${toString config.my.services.headplane.port}/";
+              };
+            };
           };
         };
     };

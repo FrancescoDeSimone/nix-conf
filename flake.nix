@@ -14,6 +14,8 @@
     disko.inputs.nixpkgs.follows = "nixpkgs-unstable";
 
     # Aesthetics & Modules
+    headplane.url = "github:tale/headplane";
+    headplane.inputs.nixpkgs.follows = "nixpkgs";
     catppuccin.url = "github:catppuccin/nix/release-25.05";
     kickstart-nvim = {
       url = "github:FrancescoDeSimone/kickstart.nvim";
@@ -89,6 +91,7 @@
       outputs.overlays.modifications
       outputs.overlays.unstable-packages
       rust-overlay.overlays.default
+      inputs.headplane.overlays.default
     ];
 
     # Helper for creating NixOS configurations

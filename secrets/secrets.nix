@@ -15,5 +15,6 @@ in {
   "telegram.age".publicKeys = keys;
   "headscale-authkey.age".publicKeys = keys;
   "tailscale-exporter-api-key.age".publicKeys = keys;
+  "headplane-cookie-secret.age".publicKeys = keys;
   "gpg-key.age".publicKeys = keys;
 }

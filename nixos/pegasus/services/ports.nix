@@ -67,6 +67,8 @@ in {
     opencloud = mkService 8080;
     git = mkService 3001;
     headscale = mkService 8088;
+    headplane = mkService 3080;
+    tailscale-exporter = mkService 9250;
     ollama = mkService 11434;
     jelly-clipper = mkService 3333;
     bypass = mkService 5000;

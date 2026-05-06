@@ -12,6 +12,7 @@
 
     inputs.agenix.nixosModules.default
     inputs.home-manager.nixosModules.home-manager
+    (inputs.nixpkgs-unstable + "/nixos/modules/services/networking/headplane.nix")
   ];
 
   networking.hostName = "pegasus";
@@ -38,6 +39,18 @@
       file = ../../secrets/telegram.age;
       owner = "thinkcentre";
       group = "thinkcentre";
+    };
+    "tailscale-exporter-api-key" = {
+      file = ../../secrets/tailscale-exporter-api-key.age;
+      owner = "tailscale-exporter";
+      group = "tailscale-exporter";
+      mode = "0400";
+    };
+    "headplane-cookie-secret" = {
+      file = ../../secrets/headplane-cookie-secret.age;
+      owner = "headscale";
+      group = "headscale";
+      mode = "0400";
     };
   };
 
