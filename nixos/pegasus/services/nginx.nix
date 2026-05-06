@@ -191,6 +191,17 @@
     proxy_read_timeout 3600s;
     proxy_send_timeout 3600s;
   '';
+  mkHeadscaleVhost = {
+    public ? false,
+    accessPolicy ? null,
+  }:
+    mkProxyVhost {
+      inherit public accessPolicy;
+      upstream = "http://127.0.0.1:${toString config.my.services.headscale.port}";
+      vhostConfig = headscaleVhostConfig;
+      websockets = true;
+      locationExtraConfig = headscaleProxyConfig;
+    };
   gitUiAnubisInstance = "git-ui";
   gitUpstream = "http://192.168.200.11:${toString config.my.services.git.port}";
   gitUiAnubisUpstream = "http://unix:${
@@ -298,6 +309,14 @@
         };
       };
     };
+
+  mkTailnetProxyVhost = args:
+    mkProxyVhost (
+      {
+        accessPolicy = tailnetOnlyAccess;
+      }
+      // args
+    );
 
   mkStaticVhost = {
     public ? false,
@@ -579,30 +598,26 @@ in {
             locations = itToolsPublicLocations;
           };
 
-          "adguard.pegasus.lan" = mkProxyVhost {
+          "adguard.pegasus.lan" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.adguard.port}/";
-            accessPolicy = tailnetOnlyAccess;
             vhostConfig = largeTransferVhostConfig;
             websockets = true;
           };
 
-          "adguard-exporter.pegasus.lan" = mkProxyVhost {
+          "adguard-exporter.pegasus.lan" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:9618/metrics";
-            accessPolicy = tailnetOnlyAccess;
             vhostConfig = largeTransferVhostConfig;
           };
 
-          "jellyfin.pegasus.lan" = mkProxyVhost {
+          "jellyfin.pegasus.lan" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}/";
-            accessPolicy = tailnetOnlyAccess;
             vhostConfig = jellyfinVhostConfig;
             websockets = true;
             locationExtraConfig = jellyfinProxyConfig;
           };
 
-          "prowlarr.pegasus.lan" = mkProxyVhost {
+          "prowlarr.pegasus.lan" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.prowlarr.port}/";
-            accessPolicy = tailnetOnlyAccess;
             vhostConfig = largeTransferVhostConfig;
             websockets = true;
             locationExtraConfig = ''
@@ -610,16 +625,14 @@ in {
             '';
           };
 
-          "qbittorrent.pegasus.lan" = mkProxyVhost {
+          "qbittorrent.pegasus.lan" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.qui.port}/";
-            accessPolicy = tailnetOnlyAccess;
             vhostConfig = largeTransferVhostConfig;
             websockets = true;
           };
 
-          "grafana.pegasus.lan" = mkProxyVhost {
+          "grafana.pegasus.lan" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.grafana.port}/";
-            accessPolicy = tailnetOnlyAccess;
             vhostConfig = grafanaVhostConfig;
             websockets = true;
             locationExtraConfig = ''
@@ -627,25 +640,14 @@ in {
             '';
           };
 
-          "headscale.${domain}" = mkProxyVhost {
-            public = true;
-            upstream = "http://127.0.0.1:${toString config.my.services.headscale.port}";
-            vhostConfig = headscaleVhostConfig;
-            websockets = true;
-            locationExtraConfig = headscaleProxyConfig;
-          };
+          "headscale.${domain}" = mkHeadscaleVhost {public = true;};
 
-          "headscale.pegasus.lan" = mkProxyVhost {
-            upstream = "http://127.0.0.1:${toString config.my.services.headscale.port}";
+          "headscale.pegasus.lan" = mkHeadscaleVhost {
             accessPolicy = tailnetOnlyAccess;
-            vhostConfig = headscaleVhostConfig;
-            websockets = true;
-            locationExtraConfig = headscaleProxyConfig;
           };
 
-          "speedtracker.pegasus.lan" = mkProxyVhost {
+          "speedtracker.pegasus.lan" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.speedtest-tracker.port}/";
-            accessPolicy = tailnetOnlyAccess;
             vhostConfig = largeTransferVhostConfig;
             locationExtraConfig = speedtrackerLocationConfig;
           };
