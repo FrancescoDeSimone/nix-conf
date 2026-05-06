@@ -249,6 +249,12 @@ in {
           job_name = "adguard-exporter";
           static_configs = [{targets = ["localhost:9618"];}];
         }
+        {
+          job_name = "tailscale-exporter";
+          static_configs = [{targets = ["localhost:${toString config.my.services.tailscale-exporter.port}"];}];
+          scrape_interval = "30s";
+          metrics_path = "/metrics";
+        }
       ];
   };
 }

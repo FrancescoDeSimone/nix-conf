@@ -7,5 +7,5 @@
   "service-health.json" = import ./service-health.nix {inherit common;};
   "speedtest-tracker.json" = import ./speedtest.nix {inherit common;};
   "system.json" = import ./system.nix {inherit common;};
-  "tailnet-overview.json" = import ./tailnet.nix {inherit common;};
+  "headscale-overview.json" = import ./headscale-overview.nix {inherit common;};
 }

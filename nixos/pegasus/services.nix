@@ -25,6 +25,8 @@
     ./services/flaresolverr.nix
     ./services/speedtesttracker.nix
     ./services/headscale.nix
+    ./services/headplane.nix
+    ./services/tailscale-exporter.nix
     ./services/bypass.nix
     ./services/lidarr.nix
     ./services/adguard.nix

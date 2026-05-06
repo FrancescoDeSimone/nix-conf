@@ -49,6 +49,8 @@ in {
     port = config.my.services.headscale.port;
     settings = {
       server_url = "https://${headscaleHost}";
+      grpc_listen_addr = "127.0.0.1:50443";
+      grpc_allow_insecure = true;
       log = {
         level = "info";
         format = "text";
