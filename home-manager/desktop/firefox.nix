@@ -174,9 +174,6 @@ in {
         # Advertise GPC/DNT to sites that honor browser privacy signals
         "privacy.globalprivacycontrol.enabled" = lock true;
         "privacy.donottrackheader.enabled" = lock true;
-        # Enable HTTPS-Only mode
-        "dom.security.https_only_mode" = lock true;
-        "dom.security.https_only_mode_ever_enabled" = lock true;
         # Disable Activity Stream telemetry
         "browser.newtabpage.activity-stream.feeds.telemetry" = lock false;
         "browser.newtabpage.activity-stream.telemetry" = lock false;
