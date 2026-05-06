@@ -20,6 +20,7 @@
     unzip
     unstable.yt-dlp
     unstable.regex-tui
+    alejandra
   ];
   xdg.enable = true;
 
