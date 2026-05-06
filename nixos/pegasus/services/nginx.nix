@@ -414,11 +414,7 @@
       extraConfig =
         defaultAppVhostConfig
         + ''
-          allow 100.64.0.0/10;
-          allow fd7a:115c:a1e0::/48;
-          allow 127.0.0.1;
-          allow ::1;
-          deny all;
+          ${tailnetOnlyAccess}
           index index.html;
           location /fonts/ { alias ${figletFonts}/; }
         '';
