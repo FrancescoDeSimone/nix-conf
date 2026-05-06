@@ -147,8 +147,10 @@ in {
         "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock false;
 
         # --- Privacy hardening ---
-        # Disable WebRTC IP leak
+        # Keep WebRTC usable, but reduce local IP leakage.
         "media.peerconnection.ice.default_address_only" = lock true;
+        "media.peerconnection.enabled" = lock true;
+        "media.navigator.enabled" = lock true;
         # Disable speculative connections
         "network.http.speculative-parallel-limit" = {
           Value = 0;
@@ -158,22 +160,47 @@ in {
         "network.dns.disablePrefetch" = lock true;
         "network.prefetch-next" = lock false;
         "network.predictor.enabled" = lock false;
+        "network.connectivity-service.enabled" = lock false;
+        "network.captive-portal-service.enabled" = lock false;
+        "browser.send_pings" = lock false;
+        "browser.tabs.unloadOnLowMemory" = lock true;
         # Disable Safe Browsing telemetry (downloads still checked locally)
         "browser.safebrowsing.malware.enabled" = lock false;
         "browser.safebrowsing.phishing.enabled" = lock false;
         # Disable beacon/ping tracking
         "beacon.enabled" = lock false;
+        "dom.battery.enabled" = lock false;
+        "device.sensors.enabled" = lock false;
+        "geo.enabled" = lock false;
         # Isolate cookies to first-party (Total Cookie Protection)
         "network.cookie.cookieBehavior" = {
           Value = 5;
           Status = "locked";
         };
+        "privacy.partition.network_state" = lock true;
+        "privacy.firstparty.isolate" = lock true;
         # Strip common tracking params from URLs
         "privacy.query_stripping.enabled" = lock true;
         "privacy.query_stripping.enabled.pbmode" = lock true;
         # Advertise GPC/DNT to sites that honor browser privacy signals
         "privacy.globalprivacycontrol.enabled" = lock true;
         "privacy.donottrackheader.enabled" = lock true;
+        "privacy.trackingprotection.emailtracking.enabled" = lock true;
+        "privacy.trackingprotection.socialtracking.enabled" = lock true;
+        "signon.rememberSignons" = lock false;
+        "dom.disable_window_move_resize" = lock true;
+        "dom.disable_window_status_change" = lock true;
+        # Favor hardware acceleration where the platform supports it.
+        "gfx.webrender.all" = lock true;
+        "media.hardware-video-decoding.enabled" = lock true;
+        # Reduce sessionstore write frequency.
+        "browser.sessionstore.interval" = {
+          Value = 60000;
+          Status = "locked";
+        };
+        # Enable HTTPS-Only mode
+        "dom.security.https_only_mode" = lock true;
+        "dom.security.https_only_mode_ever_enabled" = lock true;
         # Disable Activity Stream telemetry
         "browser.newtabpage.activity-stream.feeds.telemetry" = lock false;
         "browser.newtabpage.activity-stream.telemetry" = lock false;
@@ -183,6 +210,7 @@ in {
           Status = "locked";
         };
         "browser.newtabpage.enabled" = lock false;
+        "pdfjs.enableScripting" = lock false;
       };
     };
   };
