@@ -36,6 +36,10 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Zig Overlay
+    zig-overlay.url = "github:mitchellh/zig-overlay";
+    zig-overlay.inputs.nixpkgs.follows = "nixpkgs";
+
     # additional packages
     clipvault = {
       url = "github:rolv-apneseth/clipvault";
@@ -73,6 +77,7 @@
     home-manager,
     catppuccin,
     rust-overlay,
+    zig-overlay,
     ...
   } @ inputs: let
     inherit (self) outputs;
@@ -93,6 +98,7 @@
       outputs.overlays.modifications
       outputs.overlays.unstable-packages
       rust-overlay.overlays.default
+      zig-overlay.overlays.default
       inputs.headplane.overlays.default
     ];
 

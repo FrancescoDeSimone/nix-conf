@@ -193,6 +193,7 @@ in {
         "dom.disable_window_status_change" = lock true;
         # Favor hardware acceleration where the platform supports it.
         "gfx.webrender.all" = lock true;
+        "widget.wayland.fractional-scale.enabled" = lock false;
         "media.hardware-video-decoding.enabled" = lock true;
         # Reduce sessionstore write frequency.
         "browser.sessionstore.interval" = {
