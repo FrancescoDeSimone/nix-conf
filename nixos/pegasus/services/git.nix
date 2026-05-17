@@ -1,10 +1,27 @@
-{
+{...}: {
+  catppuccin.gitea = {
+    enable = true;
+    flavor = "mocha";
+  };
+
   networking.nat = {
     enable = true;
     internalInterfaces = ["ve-git"];
     externalInterface = "eno1";
     enableIPv6 = true;
   };
+
+  # services.gitea-actions-runner = {
+  #   package = pkgs.gitea-actions-runner;
+  #   instances."pegasus-runner" = {
+  #     enable = true;
+  #     url = "http://192.168.200.10:3001";
+  #     name = "pegasus-runner";
+  #     labels = ["linux" "x64"];
+  #     # TODO: add agenix secret for token
+  #   };
+  # };
+
   containers.git = {
     autoStart = true;
     privateNetwork = true;

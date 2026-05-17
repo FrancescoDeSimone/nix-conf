@@ -16,7 +16,7 @@
     # Aesthetics & Modules
     headplane.url = "github:tale/headplane";
     headplane.inputs.nixpkgs.follows = "nixpkgs";
-    catppuccin.url = "github:catppuccin/nix/release-25.05";
+    catppuccin.url = "github:catppuccin/nix/release-25.11";
     kickstart-nvim = {
       url = "github:FrancescoDeSimone/kickstart.nvim";
       flake = false;
@@ -45,23 +45,25 @@
       url = "github:isamert/jaro";
       flake = false;
     };
+    thirteenft = {
+      url = "github:wasi-master/13ft?ref=main";
+      flake = false;
+    };
+    "adguard-exporter" = {
+      url = "github:znandev/adguardexporter";
+      flake = false;
+    };
+    "speedtest-tracker" = {
+      url = "github:alexjustesen/speedtest-tracker";
+      flake = false;
+    };
+    "lidarr-youtube-downloader" = {
+      url = "github:dmzoneill/lidarr-youtube-downloader";
+      flake = false;
+    };
     p5aint = {
       url = "git+ssh://git@github.com/FrancescoDeSimone/p5aint?ref=single-file-compressed";
       flake = false;
-    };
-    pyproject-nix = {
-      url = "github:pyproject-nix/pyproject.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    uv2nix = {
-      url = "github:pyproject-nix/uv2nix";
-      inputs.pyproject-nix.follows = "pyproject-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    pyproject-build-systems = {
-      url = "github:pyproject-nix/build-system-pkgs";
-      inputs.pyproject-nix.follows = "pyproject-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -140,7 +142,11 @@
     packages = forEachSystem (pkgs: import ./pkgs {inherit pkgs inputs;});
     formatter = forEachSystem (pkgs: pkgs.nixpkgs-fmt);
     overlays = import ./overlays {inherit inputs;};
-    nixosModules = import ./modules/nixos;
+    nixosModules =
+      import ./modules/nixos
+      // {
+        catppuccin = catppuccin.nixosModules.gitea;
+      };
     homeModules = import ./modules/home-manager;
 
     # --- NixOS Configurations ---
@@ -232,10 +238,6 @@
     nixOnDroidConfigurations.default = inputs.nix-on-droid.lib.nixOnDroidConfiguration {
       pkgs = import inputs.nixpkgs-android {system = "aarch64-linux";};
       modules = [./nixos/nix-on-droid.nix];
-    };
-
-    extraLib = {
-      inherit (inputs.flake-utils.lib) system allSystems;
     };
   };
 }
