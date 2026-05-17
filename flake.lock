@@ -686,11 +686,11 @@
         "password-store-repo": "password-store-repo"
       },
       "locked": {
-        "lastModified": 1770580485,
-        "narHash": "sha256-BASjLRrxiuaa8eDy7fCKR1srWw7ZkTy9aMjGIpLztsc=",
+        "lastModified": 1779015210,
+        "narHash": "sha256-r9whRkLlCA3O0QeEgO3cFxhpKNk/YxCe2k5pSaY7wxQ=",
         "ref": "refs/heads/master",
-        "rev": "fe4681a2ae8cb95a1cda2db6557a9a5a772d4335",
-        "revCount": 15,
+        "rev": "5ace8d8d6f5bb65a68b629f69a099cc00906d355",
+        "revCount": 16,
         "type": "git",
         "url": "ssh://git@github.com/FrancescoDeSimone/nix-conf-secrets"
       },

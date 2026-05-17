@@ -1,5 +1,6 @@
 {
   config,
+  private,
   pkgs,
   lib,
   ...
@@ -37,8 +38,8 @@ in {
       server = {
         http_addr = "0.0.0.0";
         http_port = config.my.services.grafana.port;
-        domain = "grafana.pegasus.lan";
-        root_url = "http://grafana.pegasus.lan/";
+        domain = "grafana.${private.nginx.internalDomain}";
+        root_url = "https://grafana.${private.nginx.internalDomain}/";
         serve_from_sub_path = false;
       };
       unified_alerting = {

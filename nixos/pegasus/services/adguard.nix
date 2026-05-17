@@ -115,6 +115,16 @@ in {
             answer = pegasusTailName;
             enabled = true;
           }
+          {
+            domain = private.nginx.internalDomain;
+            answer = pegasusTailName;
+            enabled = true;
+          }
+          {
+            domain = "*.${private.nginx.internalDomain}";
+            answer = pegasusTailName;
+            enabled = true;
+          }
         ];
       };
       querylog.enabled = true;

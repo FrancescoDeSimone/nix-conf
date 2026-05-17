@@ -6,7 +6,7 @@
   lib,
   ...
 }: let
-  inherit (private.nginx) email domain provider;
+  inherit (private.nginx) email domain provider internalDomain;
 
   publicVhostAttrs = {
     forceSSL = true;
@@ -36,7 +36,7 @@
     <body>
         <h1>404</h1>
         <p>This service does not exist on Pegasus.</p>
-        <a href="http://homepage.pegasus.lan">Return to Dashboard</a>
+        <a href="https://homepage.${internalDomain}">Return to Dashboard</a>
     </body>
     </html>
   '';
@@ -158,14 +158,19 @@
     '';
   };
 
-  jellyfinProxyConfig = ''
-    # Streaming-friendly proxy settings
-    proxy_buffering off;
-    proxy_request_buffering off;
-    proxy_read_timeout 3600s;
-    proxy_send_timeout 3600s;
-    proxy_connect_timeout 10s;
-  '';
+  mkStreamingProxyConfig = {connectTimeout ? null}:
+    ''
+      # Streaming-friendly proxy settings
+      proxy_buffering off;
+      proxy_request_buffering off;
+      proxy_read_timeout 3600s;
+      proxy_send_timeout 3600s;
+    ''
+    + lib.optionalString (connectTimeout != null) ''
+      proxy_connect_timeout ${connectTimeout};
+    '';
+
+  jellyfinProxyConfig = mkStreamingProxyConfig {connectTimeout = "10s";};
 
   nextcloudVhostConfig = mkVhostConfig {
     extraConfig =
@@ -185,18 +190,14 @@
   grafanaVhostConfig = mkVhostConfig {csp = defaultAppCsp;};
 
   headscaleVhostConfig = mkVhostConfig {rules = defaultAppRules;};
-  headscaleProxyConfig = ''
-    proxy_buffering off;
-    proxy_request_buffering off;
-    proxy_read_timeout 3600s;
-    proxy_send_timeout 3600s;
-  '';
+  headscaleProxyConfig = mkStreamingProxyConfig {};
   mkHeadscaleVhost = {
     public ? false,
     accessPolicy ? null,
+    tls ? null,
   }:
     mkProxyVhost {
-      inherit public accessPolicy;
+      inherit public accessPolicy tls;
       upstream = "http://127.0.0.1:${toString config.my.services.headscale.port}";
       vhostConfig = headscaleVhostConfig;
       websockets = true;
@@ -215,17 +216,11 @@
   bypassUiAnubisUpstream = "http://unix:${
     config.services.anubis.instances.${bypassUiAnubisInstance}.settings.BIND
   }";
-  itToolsUiAnubisInstance = "it-tools-ui";
   itToolsInternalHost = "it-tools.pegasus.lan";
-  itToolsUiAnubisUpstream = "http://unix:${
-    config.services.anubis.instances.${itToolsUiAnubisInstance}.settings.BIND
-  }";
   tailnetOnlyAccess = ''
-    allow 100.64.0.0/10;
-    allow fd7a:115c:a1e0::/48;
-    allow 127.0.0.1;
-    allow ::1;
-    deny all;
+    if ($tailnet_allowed = 0) {
+      return 444;
+    }
   '';
   gitPublicLocations = {
     # Keep Git smart HTTP, LFS and API traffic unchallenged so CLI clients keep working.
@@ -245,24 +240,27 @@
       upstream = anubisUpstream;
     };
 
-  pdfPublicLocations = {
-    "^~ /.within.website/" = anubisAssetLocation pdfUiAnubisUpstream;
+  mkAnubisUiLocations = {
+    anubisUpstream,
+    appUpstream ? anubisUpstream,
+    rootExtraConfig ? null,
+  }: {
+    "^~ /.within.website/" = anubisAssetLocation anubisUpstream;
     "/" = mkProxyLocation {
-      upstream = pdfUiAnubisUpstream;
-      extraConfig = ''
-        client_max_body_size 100M;
-      '';
+      upstream = appUpstream;
+      extraConfig = rootExtraConfig;
     };
   };
 
-  bypassPublicLocations = {
-    "^~ /.within.website/" = anubisAssetLocation bypassUiAnubisUpstream;
-    "/" = mkProxyLocation {upstream = bypassUiAnubisUpstream;};
+  pdfPublicLocations = mkAnubisUiLocations {
+    anubisUpstream = pdfUiAnubisUpstream;
+    rootExtraConfig = ''
+      client_max_body_size 100M;
+    '';
   };
 
-  itToolsPublicLocations = {
-    "^~ /.within.website/" = anubisAssetLocation itToolsUiAnubisUpstream;
-    "/" = mkProxyLocation {upstream = itToolsUiAnubisUpstream;};
+  bypassPublicLocations = mkAnubisUiLocations {
+    anubisUpstream = bypassUiAnubisUpstream;
   };
 
   mkVhost = {
@@ -271,8 +269,21 @@
     accessPolicy ? null,
     root ? null,
     locations ? null,
+    tls ? null,
   }:
-    lib.optionalAttrs public publicVhostAttrs
+    (
+      if public
+      then publicVhostAttrs
+      else {}
+    )
+    // (
+      if tls != null
+      then {
+        forceSSL = true;
+        useACMEHost = tls;
+      }
+      else {}
+    )
     // {
       extraConfig = extraConfig + lib.optionalString (accessPolicy != null) accessPolicy;
     }
@@ -297,10 +308,10 @@
     accessPolicy ? null,
     websockets ? false,
     locationExtraConfig ? null,
+    tls ? null,
   }:
     mkVhost {
-      inherit public;
-      inherit accessPolicy;
+      inherit public accessPolicy tls;
       extraConfig = vhostConfig;
       locations = {
         "/" = mkProxyLocation {
@@ -318,27 +329,15 @@
       // args
     );
 
-  mkStaticVhost = {
-    public ? false,
-    root,
-    vhostConfig,
-    accessPolicy ? null,
-  }:
-    mkVhost {
-      inherit public root;
-      inherit accessPolicy;
-      extraConfig = vhostConfig;
-    };
-
   mkSimpleProxyVhosts = vhostConfig: hosts:
     builtins.listToAttrs (
-      map
-      (
+      map (
         {
           name,
           public ? false,
           upstream,
           accessPolicy ? null,
+          tls ? null,
         }:
           lib.nameValuePair name (mkProxyVhost {
             inherit
@@ -346,16 +345,18 @@
               upstream
               vhostConfig
               accessPolicy
+              tls
               ;
           })
       )
       hosts
     );
 
-  mkCustomTailnetService = ip: subdomain: port: {
-    name = "${subdomain}.pegasus.lan";
+  mkCustomTailnetTlsService = ip: subdomain: port: {
+    name = "${subdomain}.${internalDomain}";
     upstream = "http://${ip}:${toString port}/";
     accessPolicy = tailnetOnlyAccess;
+    tls = internalDomain;
   };
 
   mkCustomPublicService = ip: subdomain: port: {
@@ -363,8 +364,7 @@
     public = true;
     upstream = "http://${ip}:${toString port}";
   };
-
-  mkTailnetService = mkCustomTailnetService "127.0.0.1";
+  mkTailnetTlsService = mkCustomTailnetTlsService "127.0.0.1";
   mkPublicService = mkCustomPublicService "127.0.0.1";
 
   figletFonts = pkgs.runCommand "figlet-fonts" {} ''
@@ -391,26 +391,31 @@
 
   defaultProxyVhosts = mkSimpleProxyVhosts defaultAppVhostConfig [
     (mkPublicService "bypass" config.my.services.bypass.port)
-    (mkCustomTailnetService "192.168.103.11" "opencloud" config.my.services.opencloud.port)
-    (mkTailnetService "bypass" config.my.services.bypass.port)
-    (mkTailnetService "filebrowser" config.my.services.filebrowser.port)
-    # (mkTailnetService "glances" config.my.services.glances.port)
-    (mkTailnetService "homepage" config.my.services.homepage.port)
-    (mkTailnetService "headplane" config.my.services.headplane.port)
+  ];
+
+  defaultInternalVhosts = mkSimpleProxyVhosts defaultAppVhostConfig [
+    (mkCustomTailnetTlsService "192.168.103.11" "opencloud" config.my.services.opencloud.port)
+    (mkTailnetTlsService "bypass" config.my.services.bypass.port)
+    (mkTailnetTlsService "filebrowser" config.my.services.filebrowser.port)
+    (mkTailnetTlsService "homepage" config.my.services.homepage.port)
+    (mkTailnetTlsService "headplane" config.my.services.headplane.port)
   ];
 
   largeTransferProxyVhosts = mkSimpleProxyVhosts largeTransferVhostConfig [
     (mkPublicService "jellyseer" config.my.services.jellyseerr.port)
     (mkCustomPublicService "192.168.200.11" "git" config.my.services.git.port)
-    (mkCustomTailnetService "192.168.200.11" "git" config.my.services.git.port)
-    (mkTailnetService "sonarr" config.my.services.sonarr.port)
-    (mkTailnetService "radarr" config.my.services.radarr.port)
-    (mkTailnetService "lidarr" config.my.services.lidarr.port)
-    (mkTailnetService "scrutiny" config.my.services.scrutiny.port)
-    (mkTailnetService "pdf" config.my.services.stirling-pdf.port)
-    (mkTailnetService "it-tools" config.my.services.it-tools.port)
-    (mkTailnetService "karakeep" config.my.services.karakeep.port)
-    (mkTailnetService "prometheus" config.my.services.prometheus.port)
+  ];
+
+  largeTransferInternalVhosts = mkSimpleProxyVhosts largeTransferVhostConfig [
+    (mkCustomTailnetTlsService "192.168.200.11" "git" config.my.services.git.port)
+    (mkTailnetTlsService "sonarr" config.my.services.sonarr.port)
+    (mkTailnetTlsService "radarr" config.my.services.radarr.port)
+    (mkTailnetTlsService "lidarr" config.my.services.lidarr.port)
+    (mkTailnetTlsService "scrutiny" config.my.services.scrutiny.port)
+    (mkTailnetTlsService "pdf" config.my.services.stirling-pdf.port)
+    (mkTailnetTlsService "it-tools" config.my.services.it-tools.port)
+    (mkTailnetTlsService "karakeep" config.my.services.karakeep.port)
+    (mkTailnetTlsService "prometheus" config.my.services.prometheus.port)
   ];
 
   speedtrackerLocationConfig = ''
@@ -438,10 +443,10 @@
           location /fonts/ { alias ${figletFonts}/; }
         '';
     };
-    "paint.${domain}" = mkStaticVhost {
+    "paint.${domain}" = mkVhost {
       public = true;
       root = "${inputs.p5aint}";
-      vhostConfig =
+      extraConfig =
         largeTransferVhostConfig
         + ''
           index index.html;
@@ -454,6 +459,14 @@ in {
     defaults.email = email;
     certs.${domain} = {
       domain = "*." + domain;
+      dnsProvider = provider;
+      group = "nginx";
+      dnsResolver = "1.1.1.1:53";
+      dnsPropagationCheck = false;
+      environmentFile = config.age.secrets.provider.path;
+    };
+    certs.${internalDomain} = {
+      domain = "*." + internalDomain;
       dnsProvider = provider;
       group = "nginx";
       dnsResolver = "1.1.1.1:53";
@@ -536,6 +549,14 @@ in {
                                   '"$host" $request_time';
         access_log /var/log/nginx/access.log vhost_combined;
 
+        geo $tailnet_allowed {
+          default 0;
+          100.64.0.0/10 1;
+          fd7a:115c:a1e0::/48 1;
+          127.0.0.1 1;
+          ::1 1;
+        }
+
         brotli on;
         brotli_static on;
         brotli_comp_level 6;
@@ -549,8 +570,19 @@ in {
       '';
 
       virtualHosts =
-        defaultProxyVhosts
+        {
+          # Wildcard redirect: .pegasus.lan → ${private.nginx.internalDomain}
+          "~^(?<sub>.+)\\.pegasus\\.lan$" = {
+            extraConfig = ''
+              access_log off;
+              return 301 https://$sub.${internalDomain}$request_uri;
+            '';
+          };
+        }
+        // defaultProxyVhosts
         // largeTransferProxyVhosts
+        // defaultInternalVhosts
+        // largeTransferInternalVhosts
         // staticVhosts
         // {
           "_" = {
@@ -592,69 +624,74 @@ in {
             };
             locations = pdfPublicLocations;
           };
-          "it-tools.${domain}" = mkVhost {
-            public = true;
-            extraConfig = defaultAppVhostConfig;
-            locations = itToolsPublicLocations;
-          };
 
-          "adguard.pegasus.lan" = mkTailnetProxyVhost {
+          "headscale.${domain}" = mkHeadscaleVhost {public = true;};
+
+          # --- Internal TLS vhosts ---
+          "adguard.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.adguard.port}/";
             vhostConfig = largeTransferVhostConfig;
             websockets = true;
+            tls = internalDomain;
           };
 
-          "adguard-exporter.pegasus.lan" = mkTailnetProxyVhost {
+          "adguard-exporter.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:9618/metrics";
             vhostConfig = largeTransferVhostConfig;
+            tls = internalDomain;
           };
 
-          "jellyfin.pegasus.lan" = mkTailnetProxyVhost {
+          "jellyfin.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}/";
             vhostConfig = jellyfinVhostConfig;
             websockets = true;
             locationExtraConfig = jellyfinProxyConfig;
+            tls = internalDomain;
           };
 
-          "prowlarr.pegasus.lan" = mkTailnetProxyVhost {
+          "prowlarr.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.prowlarr.port}/";
             vhostConfig = largeTransferVhostConfig;
             websockets = true;
             locationExtraConfig = ''
               proxy_read_timeout 300s;
             '';
+            tls = internalDomain;
           };
 
-          "qbittorrent.pegasus.lan" = mkTailnetProxyVhost {
+          "qbittorrent.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.qui.port}/";
             vhostConfig = largeTransferVhostConfig;
             websockets = true;
+            tls = internalDomain;
           };
 
-          "grafana.pegasus.lan" = mkTailnetProxyVhost {
+          "grafana.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.grafana.port}/";
             vhostConfig = grafanaVhostConfig;
             websockets = true;
             locationExtraConfig = ''
               proxy_intercept_errors off;
             '';
+            tls = internalDomain;
           };
 
-          "headscale.${domain}" = mkHeadscaleVhost {public = true;};
-
-          "headscale.pegasus.lan" = mkHeadscaleVhost {
+          "headscale.${internalDomain}" = mkHeadscaleVhost {
             accessPolicy = tailnetOnlyAccess;
+            tls = internalDomain;
           };
 
-          "speedtracker.pegasus.lan" = mkTailnetProxyVhost {
+          "speedtracker.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.speedtest-tracker.port}/";
             vhostConfig = largeTransferVhostConfig;
             locationExtraConfig = speedtrackerLocationConfig;
+            tls = internalDomain;
           };
 
-          "headplane.pegasus.lan" = mkVhost {
+          "headplane.${internalDomain}" = mkVhost {
             accessPolicy = tailnetOnlyAccess;
             extraConfig = defaultAppVhostConfig;
+            tls = internalDomain;
             locations = {
               "= /" = {
                 return = "302 /admin/";

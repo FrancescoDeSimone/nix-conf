@@ -1,4 +1,8 @@
-{config, ...}: let
+{
+  config,
+  private,
+  ...
+}: let
   opencloudPort = config.my.services.opencloud.port;
   hostAddress = "192.168.103.10";
   localAddress = "192.168.103.11";
@@ -36,14 +40,14 @@ in {
       adminPasswordFile = "${cfg.stateDir}/bootstrap-admin-password";
     in {
       networking.hosts = {
-        "${localAddress}" = ["opencloud.pegasus.lan"];
+        "${localAddress}" = ["opencloud.${private.nginx.internalDomain}"];
       };
 
       services.opencloud = {
         enable = true;
         address = "0.0.0.0";
         port = opencloudPort;
-        url = "http://opencloud.pegasus.lan";
+        url = "https://opencloud.${private.nginx.internalDomain}";
       };
 
       systemd.services.opencloud-init-config = lib.mkIf (cfg.enable && usesGeneratedConfig) {

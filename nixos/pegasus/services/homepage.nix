@@ -189,7 +189,7 @@
   serviceHostnames = lib.sort (a: b: a < b) (lib.attrNames lanHosts);
 
   serviceEntries = lib.sort (a: b: a.displayName < b.displayName) (map (host: let
-      name = lib.removeSuffix ".pegasus.lan" host;
+      name = lib.removeSuffix ".${private.nginx.internalDomain}" host;
       override = serviceOverrides.${name} or {};
       displayName = override.name or (titleCase name);
     in {
@@ -198,7 +198,7 @@
       item = {
         "${displayName}" = {
           id = name;
-          href = "http://${host}";
+          href = "https://${host}";
           description = override.description or "${displayName} service";
           icon = override.icon or "mdi-application-outline";
         };
@@ -229,13 +229,13 @@
   lanHosts =
     lib.filterAttrs
     (host: _: let
-      serviceName = lib.removeSuffix ".pegasus.lan" host;
+      serviceName = lib.removeSuffix ".${private.nginx.internalDomain}" host;
     in
-      lib.hasSuffix ".pegasus.lan" host && !(builtins.elem serviceName hiddenServices))
+      lib.hasSuffix ".${private.nginx.internalDomain}" host && !(builtins.elem serviceName hiddenServices))
     config.services.nginx.virtualHosts;
 in {
   systemd.services.homepage-dashboard.environment = {
-    HOMEPAGE_ALLOWED_HOSTS = lib.mkForce "homepage.pegasus.lan";
+    HOMEPAGE_ALLOWED_HOSTS = lib.mkForce "homepage.${private.nginx.internalDomain}";
   };
 
   services.homepage-dashboard = {

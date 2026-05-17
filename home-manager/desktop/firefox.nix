@@ -1,4 +1,5 @@
-{...}: let
+{private, ...}: let
+  inherit (private.nginx) internalDomain;
   lock = value: {
     Value = value;
     Status = "locked";
@@ -24,7 +25,7 @@ in {
       DisableAccounts = true;
       DisableFirefoxScreenshots = true;
       Homepage = {
-        URL = "http://homepage.pegasus.lan/";
+        URL = "https://homepage.${internalDomain}/";
         Locked = true;
         StartPage = "homepage";
       };
@@ -206,7 +207,7 @@ in {
         "browser.newtabpage.activity-stream.telemetry" = lock false;
         # Set homepage/newtab
         "browser.startup.homepage" = {
-          Value = "http://homepage.pegasus.lan/";
+          Value = "https://homepage.${internalDomain}/";
           Status = "locked";
         };
         "browser.newtabpage.enabled" = lock false;

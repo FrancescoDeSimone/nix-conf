@@ -1,10 +1,14 @@
-{...}: {
+{
+  config,
+  private,
+  ...
+}: {
   imports = [../../../modules/nixos/speedtest-tracker];
 
   my.services.speedtest-tracker = {
     enable = true;
     database = "sqlite";
-    appURL = "http://speedtracker.pegasus.lan";
+    appURL = "https://speedtracker.${private.nginx.internalDomain}";
     prometheus.enable = true;
     schedule = "0 * * * *";
   };
