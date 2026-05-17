@@ -413,7 +413,6 @@
     (mkTailnetTlsService "lidarr" config.my.services.lidarr.port)
     (mkTailnetTlsService "scrutiny" config.my.services.scrutiny.port)
     (mkTailnetTlsService "pdf" config.my.services.stirling-pdf.port)
-    (mkTailnetTlsService "it-tools" config.my.services.it-tools.port)
     (mkTailnetTlsService "karakeep" config.my.services.karakeep.port)
     (mkTailnetTlsService "prometheus" config.my.services.prometheus.port)
   ];
@@ -450,6 +449,18 @@
         largeTransferVhostConfig
         + ''
           index index.html;
+        '';
+    };
+    "it-tools.${internalDomain}" = {
+      forceSSL = true;
+      useACMEHost = internalDomain;
+      root = "${pkgs.it-tools}/lib";
+      extraConfig =
+        defaultAppVhostConfig
+        + ''
+          ${tailnetOnlyAccess}
+          index index.html;
+          location /fonts/ { alias ${figletFonts}/; }
         '';
     };
   };
@@ -663,6 +674,9 @@ in {
             upstream = "http://127.0.0.1:${toString config.my.services.qui.port}/";
             vhostConfig = largeTransferVhostConfig;
             websockets = true;
+            locationExtraConfig = ''
+              proxy_intercept_errors off;
+            '';
             tls = internalDomain;
           };
 
