@@ -255,6 +255,79 @@ in {
           scrape_interval = "30s";
           metrics_path = "/metrics";
         }
+        {
+          job_name = "scrutiny";
+          static_configs = [{targets = ["localhost:9900"];}];
+          scrape_interval = "1m";
+          scrape_timeout = "30s";
+        }
       ];
+
+    ruleFiles = [
+      (pkgs.writeText "scrutiny-alerts.rules" (
+        let
+          yamlContent = ''
+            groups:
+              - name: disk-health
+                interval: 1m
+                rules:
+                  - alert: DiskFailed
+                    expr: scrutiny_device_status == 1
+                    for: 5m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "Disk {{ $labels.device_name }} has failed"
+                      description: "Device {{ $labels.device_name }} ({{ $labels.model_name }}) has failed."
+
+                  - alert: DiskTemperatureCritical
+                    expr: scrutiny_smart_temperature_celsius > 60
+                    for: 10m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "Disk {{ $labels.device_name }} temperature critical"
+                      description: "Temperature is {{ $value }}°C."
+
+                  - alert: DiskTemperatureWarning
+                    expr: scrutiny_smart_temperature_celsius > 50
+                    for: 10m
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: "Disk {{ $labels.device_name }} temperature warning"
+                      description: "Temperature is {{ $value }}°C."
+
+                  - alert: DiskReallocatedSectors
+                    expr: scrutiny_smart_attr_5_raw_value > 0
+                    for: 1h
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: "Disk {{ $labels.device_name }} has reallocated sectors"
+                      description: "{{ $value }} reallocated sectors."
+
+                  - alert: DiskPendingSectors
+                    expr: scrutiny_smart_attr_197_raw_value > 0
+                    for: 1h
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: "Disk {{ $labels.device_name }} has pending sectors"
+                      description: "{{ $value }} pending sectors."
+
+                  - alert: DiskUncorrectableSectors
+                    expr: scrutiny_smart_attr_198_raw_value > 0
+                    for: 5m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "Disk {{ $labels.device_name }} has uncorrectable sectors"
+                      description: "{{ $value }} uncorrectable sectors."
+          '';
+        in
+          yamlContent
+      ))
+    ];
   };
 }

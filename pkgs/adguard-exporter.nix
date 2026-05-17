@@ -1,19 +1,14 @@
 {
   lib,
   buildGoModule,
-  fetchFromGitHub,
+  inputs,
   ...
 }:
 buildGoModule {
   pname = "adguard-exporter";
-  version = "unstable-2026-04-08";
+  version = "0-unstable-${inputs."adguard-exporter".shortRev}";
 
-  src = fetchFromGitHub {
-    owner = "znandev";
-    repo = "adguardexporter";
-    rev = "e462d07311afe1787fa244c67081c034f2e1134e";
-    hash = "sha256-Pvw7mcnBdtlCT3ioSAlM6EjfPNW490nK1Pu3LQ+1YUU=";
-  };
+  src = inputs."adguard-exporter";
 
   vendorHash = "sha256-TmEAaScJxj63r5bQH2dLiVbWQ7UUQBlG34evEdmYVMM=";
 
