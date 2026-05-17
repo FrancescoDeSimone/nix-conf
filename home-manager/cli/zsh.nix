@@ -79,13 +79,16 @@
       zstyle ':completion:*:approximate:*' max-errors 1 numeric
       zstyle ':completion:*' menu select
       zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
-      FNM_PATH="/home/fdesi/.local/share/fnm"
+      FNM_PATH="$HOME/.local/share/fnm"
       if [ -d "$FNM_PATH" ]; then
         export PATH="/home/fdesi/.local/share/fnm:$PATH"
         eval "`fnm env`"
       fi
       if [ -f "$HOME/.cargo/env" ]; then
       . "$HOME/.cargo/env"
+      fi
+      if [ -d "$HOME/.opencode/bin" ]; then
+        export PATH=/home/fdesi/.opencode/bin:$PATH
       fi
     '';
   };
