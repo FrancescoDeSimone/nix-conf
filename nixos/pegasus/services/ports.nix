@@ -19,58 +19,64 @@
     };
   };
 in {
-  options.my.services = {
-    # Proxies & Web
-    nginx = mkServiceWithExporter 80 9113;
-    homepage = mkService 8888;
+  options.my = {
+    internalDomain = mkOption {
+      type = types.str;
+      default = "internal.lan64.de";
+    };
+    services = {
+      # Proxies & Web
+      nginx = mkServiceWithExporter 80 9113;
+      homepage = mkService 8888;
 
-    # Security & DNS
-    adguard = mkService 3003;
+      # Security & DNS
+      adguard = mkService 3003;
 
-    # Monitoring & Observability
-    netdata = mkService 19999;
-    glances = mkService 61208;
-    grafana = mkService 3030;
-    prometheus = mkService 9090;
-    loki = mkService 3100;
-    promtail = mkService 9080;
-    node-exporter = mkService 9002;
-    blackbox-exporter = mkService 9115;
-    process-exporter = mkService 9005;
-    systemd-exporter = mkService 9006;
-    ntopng = mkService 7777;
-    # Media & Arr Stack
-    jellyfin = mkService 8096;
-    jellyseerr = mkService 5055;
-    sonarr = mkServiceWithExporter 8989 9898;
-    radarr = mkServiceWithExporter 7878 9707;
-    lidarr = mkServiceWithExporter 8686 8687;
-    prowlarr = mkServiceWithExporter 9696 9697;
-    readarr = mkServiceWithExporter 8787 8788;
-    bazarr = mkServiceWithExporter 6767 6768;
+      # Monitoring & Observability
+      netdata = mkService 19999;
+      glances = mkService 61208;
+      grafana = mkService 3030;
+      prometheus = mkService 9090;
+      loki = mkService 3100;
+      promtail = mkService 9080;
+      node-exporter = mkService 9002;
+      blackbox-exporter = mkService 9115;
+      process-exporter = mkService 9005;
+      systemd-exporter = mkService 9006;
+      ntopng = mkService 7777;
+      # Media & Arr Stack
+      jellyfin = mkService 8096;
+      jellyseerr = mkService 5055;
+      sonarr = mkServiceWithExporter 8989 9898;
+      radarr = mkServiceWithExporter 7878 9707;
+      lidarr = mkServiceWithExporter 8686 8687;
+      prowlarr = mkServiceWithExporter 9696 9697;
+      readarr = mkServiceWithExporter 8787 8788;
+      bazarr = mkServiceWithExporter 6767 6768;
 
-    # Downloading
-    transmission = mkService 9091;
-    qui = mkService 8091;
-    qbittorrent = mkServiceWithExporter 8090 9999;
-    slskd = mkService 5030;
-    flaresolverr = mkService 8191;
+      # Downloading
+      transmission = mkService 9091;
+      qui = mkService 8091;
+      qbittorrent = mkServiceWithExporter 8090 9999;
+      slskd = mkService 5030;
+      flaresolverr = mkService 8191;
 
-    # Tools & Productivity
-    stirling-pdf = mkService 8085;
-    filebrowser = mkService 8082;
-    it-tools = mkService 80;
-    scrutiny = mkService 8081;
-    nextcloud = mkService 8010;
-    karakeep = mkService 3002;
-    govd = mkService 8083;
-    opencloud = mkService 8080;
-    git = mkService 3001;
-    headscale = mkService 8088;
-    headplane = mkService 3080;
-    tailscale-exporter = mkService 9250;
-    ollama = mkService 11434;
-    jelly-clipper = mkService 3333;
-    bypass = mkService 5000;
+      # Tools & Productivity
+      stirling-pdf = mkService 8085;
+      filebrowser = mkService 8082;
+      it-tools = mkService 80;
+      scrutiny = mkService 8081;
+      nextcloud = mkService 8010;
+      karakeep = mkService 3002;
+      govd = mkService 8083;
+      opencloud = mkService 8080;
+      git = mkService 3001;
+      headscale = mkService 8088;
+      headplane = mkService 3080;
+      tailscale-exporter = mkService 9250;
+      ollama = mkService 11434;
+      jelly-clipper = mkService 3333;
+      bypass = mkService 5000;
+    };
   };
 }

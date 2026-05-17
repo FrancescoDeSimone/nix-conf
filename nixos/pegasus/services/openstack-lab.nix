@@ -14,7 +14,6 @@
     mkIf
     mkOption
     mkPackageOption
-    optionalString
     optionals
     types
     ;
