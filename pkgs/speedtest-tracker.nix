@@ -1,94 +1,64 @@
 {
   lib,
-  buildNpmPackage,
-  fetchFromGitHub,
-  makeWrapper,
+  stdenvNoCC,
+  fetchNpmDeps,
+  buildPackages,
+  inputs,
   nodejs,
-  php,
+  php84,
   dataDir ? "/var/lib/speedtest-tracker",
 }: let
   pname = "speedtest-tracker";
-  version = "1.14.0";
-
-  src = fetchFromGitHub {
-    owner = "alexjustesen";
-    repo = pname;
-    rev = "v${version}";
-    hash = "sha256-Jhd1P2i+WDwRiaIDy6rxkouHm/JJAtV6QciXZ/99b68=";
-  };
-
-  nodeModules = buildNpmPackage {
-    pname = "${pname}-node-modules";
-    inherit version src;
-
-    npmDepsHash = "sha256-fi3gbHwEHR04wGm9hlUUlM7SXcz6BLPJbmxfzYIVy+4=";
-    dontNpmBuild = true;
-
-    installPhase = ''
-      runHook preInstall
-      mkdir -p "$out"
-      cp -r node_modules "$out/"
-      runHook postInstall
-    '';
-  };
-
-  phpPackage = php.buildEnv {
-    extensions = {
-      enabled,
-      all,
-    }:
-      enabled
-      ++ (with all; [
-        bcmath
-        curl
-        dom
-        gd
-        intl
-        mbstring
-        mysqli
-        mysqlnd
-        opcache
-        pcntl
-        pdo
-        pdo_mysql
-        pdo_pgsql
-        pdo_sqlite
-        pgsql
-        posix
-        simplexml
-        soap
-        sqlite3
-        xml
-        xmlreader
-        xmlwriter
-        zip
-      ]);
-  };
+  version = "0-unstable-${inputs."speedtest-tracker".shortRev}";
+  composerVersion = "dev-main";
+  src = inputs."speedtest-tracker";
+  phpPackage = php84;
 in
-  php.buildComposerProject {
+  stdenvNoCC.mkDerivation {
     inherit pname version src;
 
-    php = phpPackage;
-    vendorHash = "sha256-ym+KKxt+cKUfOoJNzh7g5m2CWeCTCcrn5NwNAUU62oU=";
-
-    composerNoPlugins = false;
-    composerNoScripts = true;
+    buildInputs = [phpPackage];
 
     nativeBuildInputs = [
-      makeWrapper
       nodejs
+      buildPackages.npmHooks.npmConfigHook
+      phpPackage.packages.composer
+      phpPackage.composerHooks2.composerInstallHook
     ];
+
+    composerVendor = phpPackage.mkComposerVendor {
+      inherit pname src;
+      version = composerVersion;
+      composerNoScripts = true;
+      composerNoPlugins = false;
+      composerStrictValidation = false;
+      strictDeps = true;
+      vendorHash = "sha256-HRmuHr5CdNf5duwuDxXLzVcfVEZ+oBLVZUVKdNb2iUU=";
+    };
+
+    npmDeps = fetchNpmDeps {
+      inherit src;
+      name = "${pname}-npm-deps";
+      hash = "sha256-Ys3hCLLjoIrno9ztSh/m2xz1HiTn20g3Vu/Pnymy/Fc=";
+    };
+
+    composerNoScripts = true;
+
+    buildPhase = ''
+      runHook preBuild
+
+      rm -rf vendor
+      cp -r "$composerVendor/vendor" ./vendor
+      chmod -R +w vendor
+      npm run build
+
+      runHook postBuild
+    '';
 
     postInstall = ''
       appDir="$out/share/php/${pname}"
 
       chmod -R u+w "$appDir"
-      ln -s ${nodeModules}/node_modules "$appDir/node_modules"
-
-      export HOME="$TMPDIR"
-      (cd "$appDir" && npm run build)
-
-      rm "$appDir/node_modules"
       rm -rf "$appDir/storage" "$appDir/bootstrap/cache"
 
       mkdir -p "$appDir/database"
@@ -97,9 +67,6 @@ in
       ln -s ${dataDir}/storage "$appDir/storage"
       ln -s ${dataDir}/bootstrap/cache "$appDir/bootstrap/cache"
       ln -sfn ${dataDir}/database/database.sqlite "$appDir/database/database.sqlite"
-
-      makeWrapper ${lib.getExe phpPackage} "$out/bin/speedtest-tracker-artisan" \
-        --add-flags "$appDir/artisan"
     '';
 
     passthru = {
@@ -110,7 +77,6 @@ in
       description = "Self-hosted internet performance tracking application";
       homepage = "https://github.com/alexjustesen/speedtest-tracker";
       license = licenses.mit;
-      mainProgram = "speedtest-tracker-artisan";
       platforms = platforms.linux;
     };
   }

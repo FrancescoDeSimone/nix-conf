@@ -1,21 +1,18 @@
 {
   lib,
   python3Packages,
-  fetchFromGitHub,
+  inputs,
 }: let
   buildPythonPackage = python3Packages.buildPythonPackage;
+  version = "0-unstable-${inputs."lidarr-youtube-downloader".shortRev}";
+  pyprojectVersion = "0.dev0+${inputs."lidarr-youtube-downloader".shortRev}";
 in
   buildPythonPackage {
     pname = "lidarr-youtube-downloader";
-    version = "0.3.37";
+    inherit version;
     pyproject = true;
 
-    src = fetchFromGitHub {
-      owner = "dmzoneill";
-      repo = "lidarr-youtube-downloader";
-      rev = "v0.3.37";
-      sha256 = "sha256-Cje78NGx+R9ZQKu9h5OY2egfCgu1GAxYi6WP4uBDXHY=";
-    };
+    src = inputs."lidarr-youtube-downloader";
 
     build-system = with python3Packages; [setuptools];
 
@@ -23,14 +20,14 @@ in
       mv lidarr_youtube_downloader/lyd-unmapped.py lidarr_youtube_downloader/lyd_unmapped.py
       rm -f setup.py
 
-      cat > pyproject.toml << 'EOF'
+      cat > pyproject.toml <<EOF
       [build-system]
       requires = ["setuptools>=45"]
       build-backend = "setuptools.build_meta"
 
       [project]
       name = "lidarr-youtube-downloader"
-      version = "0.3.37"
+      version = "${pyprojectVersion}"
       requires-python = ">=3.10"
 
       [project.scripts]
