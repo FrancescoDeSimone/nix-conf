@@ -36,6 +36,12 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Microvm
+    microvm = {
+      url = "github:astro/microvm.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Zig Overlay
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zig-overlay.inputs.nixpkgs.follows = "nixpkgs";
@@ -78,6 +84,7 @@
     catppuccin,
     rust-overlay,
     zig-overlay,
+    microvm,
     ...
   } @ inputs: let
     inherit (self) outputs;
@@ -160,6 +167,7 @@
       pegasus = mkSystem "pegasus" [
         ./nixos/pegasus/default.nix
         inputs.agenix.nixosModules.default
+        microvm.nixosModules.host
         {environment.systemPackages = [inputs.agenix.packages.x86_64-linux.default];}
       ];
 
