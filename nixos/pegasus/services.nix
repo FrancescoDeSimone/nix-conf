@@ -14,6 +14,8 @@
     # ./services/openstack-lab.nix
     ./services/nginx.nix
     ./services/prowlarr.nix
+    ./services/olivetin.nix
+    ./services/kasm.nix
     ./services/govd.nix
     ./services/radarr.nix
     ./services/scrutiny.nix

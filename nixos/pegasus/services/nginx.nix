@@ -721,6 +721,21 @@ in {
               };
             };
           };
+
+          "kasm.${internalDomain}" = mkTailnetProxyVhost {
+            upstream = "https://192.168.120.11/";
+            vhostConfig = largeTransferVhostConfig;
+            websockets = true;
+            locationExtraConfig = ''
+              proxy_ssl_server_name on;
+              proxy_ssl_verify off;
+              proxy_buffering off;
+              proxy_request_buffering off;
+              proxy_read_timeout 3600s;
+              proxy_send_timeout 3600s;
+            '';
+            tls = internalDomain;
+          };
         };
     };
   };
