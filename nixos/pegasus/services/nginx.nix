@@ -645,6 +645,12 @@ in {
             websockets = true;
             tls = internalDomain;
           };
+          "olivetin.${internalDomain}" = mkTailnetProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services.olivetin.port}/";
+            vhostConfig = defaultAppVhostConfig;
+            websockets = true;
+            tls = internalDomain;
+          };
 
           "adguard-exporter.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:9618/metrics";
