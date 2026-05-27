@@ -35,6 +35,12 @@ in {
   services.grafana = {
     enable = true;
     settings = {
+      analytics = {
+        reporting_enabled = false;
+        feedback_links_enabled = true;
+        check_for_updates = false;
+        check_for_plugin_updates = false;
+      };
       server = {
         http_addr = "0.0.0.0";
         http_port = config.my.services.grafana.port;
