@@ -487,6 +487,9 @@ in {
       script = ''
         set -euo pipefail
 
+        rm -f ${lib.escapeShellArg "${toString cfg.dataDir}/bootstrap/cache/packages.php"}
+        rm -f ${lib.escapeShellArg "${toString cfg.dataDir}/bootstrap/cache/services.php"}
+
         configured_app_key=${lib.escapeShellArg cfg.appKey}
 
         if [ -n "$configured_app_key" ]; then
