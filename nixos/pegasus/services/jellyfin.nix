@@ -3,6 +3,7 @@
     enable = true;
     openFirewall = false;
     user = "thinkcentre";
+    dataDir = "/data/jellyfin";
     package = pkgs.jellyfin.override {
       jellyfin-web = pkgs.jellyfin-web.overrideAttrs (_: _: {
         installPhase = ''
