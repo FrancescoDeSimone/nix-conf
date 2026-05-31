@@ -12,7 +12,6 @@
 
     inputs.agenix.nixosModules.default
     inputs.home-manager.nixosModules.home-manager
-    (inputs.nixpkgs-unstable + "/nixos/modules/services/networking/headplane.nix")
     inputs.catppuccin.nixosModules.default
   ];
 

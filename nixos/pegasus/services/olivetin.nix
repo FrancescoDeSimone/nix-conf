@@ -1,7 +1,4 @@
-{
-  config,
-  ...
-}: {
+{config, ...}: {
   nixpkgs.config.permittedInsecurePackages = [
     "olivetin-2025.11.25"
   ];

@@ -11,19 +11,23 @@
   exporterPort = 9618;
   exporterUserCleanup = pkgs.writeShellScript "adguard-exporter-user-cleanup" ''
     set -eu
-
     config_file="/var/lib/AdGuardHome/AdGuardHome.yaml"
     if [ ! -f "$config_file" ]; then
       exit 0
     fi
 
-    # Keep the AdGuard UI passwordless by removing the injected exporter user.
-    ${pkgs.yq-go}/bin/yq -i 'del(.users[] | select(.name == "exporter"))' "$config_file"
+    temp_file=$(${pkgs.coreutils}/bin/mktemp)
+
+    ${pkgs.yq-go}/bin/yq 'del(.users[] | select(.name == "exporter"))' "$config_file" > "$temp_file"
+    ${pkgs.coreutils}/bin/cat "$temp_file" > "$config_file"
 
     users_len="$(${pkgs.yq-go}/bin/yq '.users | length // 0' "$config_file")"
     if [ "$users_len" -eq 0 ]; then
-      ${pkgs.yq-go}/bin/yq -i 'del(.users)' "$config_file"
+      ${pkgs.yq-go}/bin/yq 'del(.users)' "$config_file" > "$temp_file"
+      ${pkgs.coreutils}/bin/cat "$temp_file" > "$config_file"
     fi
+
+    rm -f "$temp_file"
   '';
   upstreamResolvers = [
     "1.1.1.1"
@@ -135,7 +139,7 @@ in {
   systemd.services.adguardhome = {
     after = ["tailscaled.service"];
     wants = ["tailscaled.service"];
-    serviceConfig.PermissionsStartOnly = true;
+    # serviceConfig.PermissionsStartOnly = true;
     preStart = ''
       ${exporterUserCleanup}
     '';

@@ -23,7 +23,6 @@ in {
       user = "anubis";
       group = "anubis";
       extraFlags = [];
-      botPolicy = null;
       settings = {
         BIND_NETWORK = "unix";
         METRICS_BIND_NETWORK = "unix";

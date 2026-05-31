@@ -87,6 +87,7 @@
         allowedTCPPorts = [3001];
       };
 
+      networking.resolvconf.enable = false;
       environment.etc."resolv.conf".text = "nameserver 8.8.8.8";
     };
   };

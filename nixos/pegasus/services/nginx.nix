@@ -413,7 +413,6 @@
     (mkTailnetTlsService "lidarr" config.my.services.lidarr.port)
     (mkTailnetTlsService "scrutiny" config.my.services.scrutiny.port)
     (mkTailnetTlsService "pdf" config.my.services.stirling-pdf.port)
-    (mkTailnetTlsService "karakeep" config.my.services.karakeep.port)
     (mkTailnetTlsService "prometheus" config.my.services.prometheus.port)
   ];
 
@@ -705,6 +704,17 @@ in {
             upstream = "http://127.0.0.1:${toString config.my.services.speedtest-tracker.port}/";
             vhostConfig = largeTransferVhostConfig;
             locationExtraConfig = speedtrackerLocationConfig;
+            tls = internalDomain;
+          };
+
+          "karakeep.${internalDomain}" = mkTailnetProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services.karakeep.port}/";
+            vhostConfig = largeTransferVhostConfig;
+            locationExtraConfig = ''
+              proxy_intercept_errors off;
+              proxy_buffering off;
+              proxy_set_header Accept-Encoding "";
+            '';
             tls = internalDomain;
           };
 

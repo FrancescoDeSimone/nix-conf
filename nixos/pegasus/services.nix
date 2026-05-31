@@ -11,7 +11,6 @@
     ./services/jellyseer.nix
     ./services/nextcloud.nix
     # ./services/opencloud.nix
-    # ./services/openstack-lab.nix
     ./services/nginx.nix
     ./services/prowlarr.nix
     ./services/olivetin.nix
@@ -42,6 +41,4 @@
     journald.forwardToSyslog = false;
   };
 
-  # my.services.openstack-lab.enable = true;
-  # my.services.openstack-lab.project = "default";
 }
