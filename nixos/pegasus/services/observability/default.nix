@@ -5,6 +5,6 @@
     ./grafana.nix
     ./grafana-dashboards.nix
     ./loki.nix
-    ./promtail.nix
+    ./fluent-bit.nix
   ];
 }

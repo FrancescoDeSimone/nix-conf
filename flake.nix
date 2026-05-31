@@ -1,9 +1,9 @@
 {
   inputs = {
     # Core
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    home-manager.url = "github:nix-community/home-manager/release-25.11";
+    home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     # Secrets & Hardware
@@ -16,7 +16,7 @@
     # Aesthetics & Modules
     headplane.url = "github:tale/headplane";
     headplane.inputs.nixpkgs.follows = "nixpkgs";
-    catppuccin.url = "github:catppuccin/nix/release-25.11";
+    catppuccin.url = "github:catppuccin/nix/release-26.05";
     kickstart-nvim = {
       url = "github:FrancescoDeSimone/kickstart.nvim";
       flake = false;
