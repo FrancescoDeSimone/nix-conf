@@ -78,29 +78,29 @@ in {
         enable = true;
         https = true;
         home = "/nextcloud";
-        package = pkgs.nextcloud32;
+        package = pkgs.nextcloud33;
         hostName = "nextcloud." + domain;
         extraAppsEnable = true;
         configureRedis = true;
         extraApps = {
           deck = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/deck/releases/download/v1.13.0/deck-v1.13.0.tar.gz";
-            sha256 = "sha256-Gyfyq4rJv4alLhdIW8S8wCUAOdxp6UG7UgUWH0CkVR4=";
+            url = "https://github.com/nextcloud-releases/deck/releases/download/v1.17.1/deck-v1.17.1.tar.gz";
+            sha256 = "sha256-5ayXPoq2E8eIQqL74p/dytqmjAN3vkAZvrgQIqxf7Zo=";
             license = "agpl3Only";
           };
           memories = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/pulsejet/memories/releases/download/v7.7.0/memories.tar.gz";
-            sha256 = "sha256-ORv+6XkN+qTk5bXMFKv2Mv/jU+7F12IbWE9JjV2ot9o=";
+            url = "https://github.com/pulsejet/memories/releases/download/v8.0.1/memories.tar.gz";
+            sha256 = "sha256-B+O78qjBQbmMnFAvH/5a+YBive+rkBG9AKTX7G3qNR0=";
             license = "agpl3Only";
           };
           mail = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/mail/releases/download/v3.7.1/mail-v3.7.1.tar.gz";
-            sha256 = "sha256-hmIWE1Z8NqTAqnNPryGf6r0tL+XA4wARil5rCOglEuI=";
+            url = "https://github.com/nextcloud-releases/mail/releases/download/v5.8.1/mail-v5.8.1.tar.gz";
+            sha256 = "sha256-0IBTi0JVBBCTLEcSDiB1eMj2B31qeT4Yn9+ogY9iAs0=";
             license = "agpl3Only";
           };
           contacts = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/contacts/releases/download/v8.1.0/contacts-v8.1.0.tar.gz";
-            sha256 = "sha256-kQ6OunNZbj0UjDinkDhj2ZYDeoEWqvAvgpHDDTFdlW8=";
+            url = "https://github.com/nextcloud-releases/contacts/releases/download/v8.5.1/contacts-v8.5.1.tar.gz";
+            sha256 = "sha256-SyBJBSxNe1JM8l9AHgYy8AQ3v3hlZhEgUiiTb6xCk70=";
             license = "agpl3Only";
           };
           extract = pkgs.fetchNextcloudApp rec {
@@ -109,23 +109,23 @@ in {
             license = "agpl3Only";
           };
           news = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud/news/releases/download/28.0.0-beta.1/news.tar.gz";
-            sha256 = "sha256-52P1o2b5RIuSXaCMl6Fk6336J8zNtEd6JivGnQbGZc4=";
+            url = "https://github.com/nextcloud/news/releases/download/28.4.1/news.tar.gz";
+            sha256 = "sha256-e2lledOH4LzB+/nWjL+wsCuJJTi50yNgPDnGVkl7FNk=";
             license = "agpl3Only";
           };
           notes = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/notes/releases/download/v4.12.4/notes-v4.12.4.tar.gz";
-            sha256 = "sha256-iiNXIvq+rUbbecU646pyRpHP0EjUdQT1ybKMS2JQbwc=";
+            url = "https://github.com/nextcloud-releases/notes/releases/download/v5.0.0/notes-v5.0.0.tar.gz";
+            sha256 = "sha256-NCBDtNO6jsqws4BE8sGOnox2xUuODleYodQ5vv6jqEs=";
             license = "agpl3Only";
           };
           epubview = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/devnoname120/epubviewer/releases/download/1.8.1/epubviewer-1.8.1.tar.gz";
-            sha256 = "sha256-0AYCutDNvCfwul+VIh+g7FkD8LJVmd0ZNSZHDcpdU3I=";
+            url = "https://github.com/devnoname120/epubviewer/releases/download/1.9.2/epubviewer-1.9.2.tar.gz";
+            sha256 = "sha256-HQpC0D+Dj5gojIzz+CHUKmUIkxF2qyqoWI787OFbMF8=";
             license = "agpl3Only";
           };
           phonetrack = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/julien-nc/phonetrack/releases/download/v0.9.1/phonetrack-0.9.1.tar.gz";
-            sha256 = "sha256-Le3yvewei8vty8frz66X7ij2H9ju2h4JWdGNf46L9MY=";
+            url = "https://github.com/julien-nc/phonetrack/releases/download/v1.2.0/phonetrack-1.2.0.tar.gz";
+            sha256 = "sha256-d6vPKCJ1Us0zQIFkIlSQ5cmEgO1zXGtdDniIjfqGh28=";
             license = "agpl3Only";
           };
         };
@@ -151,6 +151,7 @@ in {
         allowedTCPPorts = [80 443 8200 28981];
       };
 
+      networking.resolvconf.enable = false;
       environment.etc."resolv.conf".text = "nameserver 8.8.8.8";
     };
   };
