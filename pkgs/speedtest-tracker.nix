@@ -9,7 +9,7 @@
   dataDir ? "/var/lib/speedtest-tracker",
 }: let
   pname = "speedtest-tracker";
-  version = "0-unstable-${inputs."speedtest-tracker".shortRev}";
+  version = "0.0.0";
   composerVersion = "dev-main";
   src = inputs."speedtest-tracker";
   phpPackage = php84;
@@ -26,6 +26,10 @@ in
       phpPackage.composerHooks2.composerInstallHook
     ];
 
+    preConfigure = ''
+      export COMPOSER_ROOT_VERSION="${composerVersion}"
+    '';
+
     composerVendor = phpPackage.mkComposerVendor {
       inherit pname src;
       version = composerVersion;
@@ -33,7 +37,7 @@ in
       composerNoPlugins = false;
       composerStrictValidation = false;
       strictDeps = true;
-      vendorHash = "sha256-Y04M8FBGjkkhKcY2DrKQQopyoXnR6eS5ZmCZrhkWHgI=";
+      vendorHash = "sha256-yQJLfDgjINtBvBzOB8irOa4RzDatpZwBuJ3VMXWvxJM=";
     };
 
     npmDeps = fetchNpmDeps {
@@ -50,6 +54,7 @@ in
       rm -rf vendor
       cp -r "$composerVendor/vendor" ./vendor
       chmod -R +w vendor
+      composer dump-autoload --no-scripts --working-dir="$PWD"
       npm run build
 
       runHook postBuild
