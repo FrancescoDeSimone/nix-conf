@@ -402,7 +402,7 @@
   ];
 
   largeTransferProxyVhosts = mkSimpleProxyVhosts largeTransferVhostConfig [
-    (mkPublicService "jellyseer" config.my.services.jellyseerr.port)
+    (mkPublicService "seerr" config.my.services.seerr.port)
     (mkCustomPublicService "192.168.200.11" "git" config.my.services.git.port)
   ];
 

@@ -41,7 +41,7 @@ in {
     ntopng = mkService 7777;
     # Media & Arr Stack
     jellyfin = mkService 8096;
-    jellyseerr = mkService 5055;
+    seerr = mkService 5055;
     sonarr = mkServiceWithExporter 8989 9898;
     radarr = mkServiceWithExporter 7878 9707;
     lidarr = mkServiceWithExporter 8686 8687;

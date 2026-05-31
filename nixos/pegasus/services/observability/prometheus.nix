@@ -21,8 +21,8 @@
       url = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
     }
     {
-      name = "jellyseerr";
-      url = "http://127.0.0.1:${toString config.my.services.jellyseerr.port}";
+      name = "seerr";
+      url = "http://127.0.0.1:${toString config.my.services.seerr.port}";
     }
     {
       name = "sonarr";
