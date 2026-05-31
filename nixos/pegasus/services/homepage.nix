@@ -28,6 +28,12 @@
       group = "Network";
       description = "DNS filtering and local resolver";
       icon = "mdi-shield-check-outline";
+      widget = {
+        type = "adguard";
+        url = "http://127.0.0.1:${toString config.my.services.adguard.port}";
+        username = "admin";
+        password = "";
+      };
     };
     bypass = {
       name = "Bypass";
@@ -53,11 +59,23 @@
       description = "Dashboards and alerts";
       icon = "mdi-chart-donut-variant";
     };
-    headscale = {
-      name = "Headscale";
+    headplane = {
+      name = "Headplane";
       group = "Network";
-      description = "Tailnet control plane";
-      icon = "mdi-vpn";
+      description = "Headscale admin panel";
+      icon = "mdi-cog-outline";
+    };
+    it-tools = {
+      name = "IT Tools";
+      group = "Utilities";
+      description = "Developer and IT toolkit";
+      icon = "mdi-tools";
+    };
+    kasm = {
+      name = "Kasm";
+      group = "Daily";
+      description = "Containerized workspaces";
+      icon = "mdi-desktop-classic";
     };
     jellyfin = {
       name = "Jellyfin";
@@ -89,6 +107,12 @@
       description = "Remote cloud workspace";
       icon = "mdi-cloud-outline";
     };
+    olivetin = {
+      name = "OliveTin";
+      group = "Utilities";
+      description = "Self-service server actions";
+      icon = "mdi-console";
+    };
     pdf = {
       name = "Stirling PDF";
       group = "Utilities";
@@ -100,6 +124,10 @@
       group = "Observability";
       description = "Metrics collection";
       icon = "mdi-fire-circle";
+      widget = {
+        type = "prometheus";
+        url = "http://127.0.0.1:${toString config.my.services.prometheus.port}";
+      };
     };
     prowlarr = {
       name = "Prowlarr";
@@ -124,6 +152,10 @@
       group = "Observability";
       description = "Disk health monitoring";
       icon = "mdi-harddisk";
+      widget = {
+        type = "scrutiny";
+        url = "http://127.0.0.1:${toString config.my.services.scrutiny.port}";
+      };
     };
     sonarr = {
       name = "Sonarr";
@@ -192,16 +224,21 @@
       name = lib.removeSuffix ".${private.nginx.internalDomain}" host;
       override = serviceOverrides.${name} or {};
       displayName = override.name or (titleCase name);
+      widgetConfig = override.widget or {};
     in {
       inherit displayName;
       group = override.group or "Other";
       item = {
-        "${displayName}" = {
-          id = name;
-          href = "https://${host}";
-          description = override.description or "${displayName} service";
-          icon = override.icon or "mdi-application-outline";
-        };
+        "${displayName}" =
+          {
+            id = name;
+            href = "https://${host}";
+            description = override.description or "${displayName} service";
+            icon = override.icon or "mdi-application-outline";
+          }
+          // lib.optionalAttrs (widgetConfig != {}) {
+            widget = widgetConfig;
+          };
       };
     })
     serviceHostnames);
@@ -218,10 +255,28 @@
       }
     ];
 
+  manualItems = {
+    Network = [
+      {
+        "FRITZ!Box" = {
+          href = "http://192.168.188.1";
+          description = "Router and network gateway";
+          icon = "mdi-router-network";
+          widget = {
+            type = "fritzbox";
+            url = "http://192.168.188.1";
+          };
+        };
+      }
+    ];
+  };
+
   serviceGroups =
     lib.concatMap
     (group: let
-      items = map (entry: entry.item) (lib.filter (entry: entry.group == group) serviceEntries);
+      autoItems = map (entry: entry.item) (lib.filter (entry: entry.group == group) serviceEntries);
+      extra = manualItems.${group} or [];
+      items = autoItems ++ extra;
     in
       lib.optional (items != []) {"${group}" = items;})
     groupOrder;
