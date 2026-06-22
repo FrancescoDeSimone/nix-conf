@@ -17,36 +17,46 @@
       from i3ipc.aio import Connection
       from i3ipc import Event
       import asyncio
+      STACK_LAYOUTS = ("tabbed", "stacked")
+      MAINTAIN_DELAY = 0.05
       maintain_task = None
+      def get_focused_workspace(tree):
+          focused = tree.find_focused()
+          if not focused:
+              return None, None
+          ws = focused.workspace()
+          if not ws:
+              return None, None
+          return focused, ws
+      def first_leaf_or_self(node):
+          leaves = node.leaves()
+          return leaves[0] if leaves else node
       async def maintain_layout(ipc):
           tree = await ipc.get_tree()
-          focused = tree.find_focused()
-          if not focused: return
-          ws = focused.workspace()
+          focused, ws = get_focused_workspace(tree)
           if not ws: return
-          if ws.layout in ("tabbed", "stacked"):
+          if ws.layout in STACK_LAYOUTS:
               await ipc.command(
                   f"[con_id={focused.id}] focus; focus parent; layout splith; focus child"
               )
               tree = await ipc.get_tree()
-              focused = tree.find_focused()
-              if not focused: return
-              ws = focused.workspace()
+              focused, ws = get_focused_workspace(tree)
               if not ws: return
           nodes = ws.nodes
           count = len(nodes)
           if count < 1: return
           commands = []
-          if count == 1 and nodes[0].nodes:
-              if len(nodes[0].nodes) == 1 and nodes[0].layout == "tabbed":
-                  head = ws.nodes[0].nodes[0]
+          first = nodes[0]
+          if count == 1 and first.nodes:
+              if len(first.nodes) == 1 and first.layout == "tabbed":
+                  head = first.nodes[0]
                   commands = [
                       f"[con_id={head.id}] move left",
                       f"[con_id={head.id}] move up",
                       f"[con_id={head.id}] layout splith",
                   ]
               else:
-                  head = nodes[0].nodes[0]
+                  head = first.nodes[0]
                   commands.extend(
                       [
                           f"[con_id={head.id}] move to workspace current",
@@ -56,9 +66,9 @@
                   )
           elif count >= 2:
               stack = nodes[1]
-              if stack.layout not in ("tabbed", "stacked"):
-                  master_leaf = ws.nodes[0].leaves()[0] if ws.nodes[0].leaves() else ws.nodes[0]
-                  if nodes[-1].layout in ("tabbed", "stacked"):
+              if stack.layout not in STACK_LAYOUTS:
+                  master_leaf = first_leaf_or_self(first)
+                  if nodes[-1].layout in STACK_LAYOUTS:
                       commands.append(f"[con_id={stack.id}] swap container with con_id {master_leaf.id}")
                       commands.append(f"[con_id={master_leaf.id}] move right")
                   else:
@@ -68,18 +78,17 @@
               await ipc.command("; ".join(commands))
       async def trigger_maintain(ipc):
           global maintain_task
-          if maintain_task:
+          if maintain_task and not maintain_task.done():
               maintain_task.cancel()
 
           async def delayed_maintain():
               try:
-                  await asyncio.sleep(0.05)
+                  await asyncio.sleep(MAINTAIN_DELAY)
                   await maintain_layout(ipc)
               except asyncio.CancelledError:
                   pass
-
           maintain_task = asyncio.create_task(delayed_maintain())
-      async def on_window_change(ipc, event):
+      async def on_window_change(ipc, _event):
           await trigger_maintain(ipc)
       async def on_window_new(ipc, event):
           new_win_id = event.container.id
@@ -87,7 +96,7 @@
           new_win = tree.find_by_id(new_win_id)
           if not new_win or "on" in (new_win.floating or ""): return
           ws = new_win.workspace()
-          if not ws or ws.layout in ("tabbed", "stacked"): return
+          if not ws or ws.layout in STACK_LAYOUTS: return
           target_tab = next(
               (n for n in ws.nodes if n.layout == "tabbed" and n.id != new_win_id), None
           )
@@ -157,6 +166,13 @@
               if child:
                   return get_active_leaf(child)
           return node
+      def is_descendant_of(node, ancestor):
+          current = node
+          while current:
+              if current.id == ancestor.id:
+                  return True
+              current = current.parent
+          return False
       ipc = Connection()
       tree = ipc.get_tree()
       focused = tree.find_focused()
@@ -167,7 +183,7 @@
       stack_node = ws.nodes[1]
       master_leaf = get_active_leaf(master_node)
       stack_leaf = get_active_leaf(stack_node)
-      is_master_focused = focused.id == master_leaf.id or any(n.id == focused.id for n in master_node.descendants())
+      is_master_focused = is_descendant_of(focused, master_node)
       if is_master_focused:
           ipc.command(f"[con_id={master_leaf.id}] swap container with con_id {stack_leaf.id}")
           ipc.command(f"[con_id={stack_leaf.id}] focus")
