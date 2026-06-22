@@ -12,117 +12,131 @@
     pkgs.writers.writePython3Bin "sway-master-layout"
     {
       libraries = [pkgs.python3Packages.i3ipc];
-      flakeIgnore = ["E302" "E305" "E501" "W391" "E261" "F841" "E701"];
+      flakeIgnore = ["E302" "E305" "E501" "W391" "E261" "F841" "E701" "E301" "E306" "E741"];
     } ''
+      import asyncio
       from i3ipc.aio import Connection
       from i3ipc import Event
-      import asyncio
       STACK_LAYOUTS = ("tabbed", "stacked")
-      MAINTAIN_DELAY = 0.05
-      maintain_task = None
-      def get_focused_workspace(tree):
-          focused = tree.find_focused()
-          if not focused:
-              return None, None
-          ws = focused.workspace()
-          if not ws:
-              return None, None
-          return focused, ws
-      def first_leaf_or_self(node):
-          leaves = node.leaves()
-          return leaves[0] if leaves else node
-      async def maintain_layout(ipc):
-          tree = await ipc.get_tree()
-          focused, ws = get_focused_workspace(tree)
-          if not ws: return
-          if ws.layout in STACK_LAYOUTS:
-              await ipc.command(
-                  f"[con_id={focused.id}] focus; focus parent; layout splith; focus child"
-              )
-              tree = await ipc.get_tree()
-              focused, ws = get_focused_workspace(tree)
-              if not ws: return
-          nodes = ws.nodes
-          count = len(nodes)
-          if count < 1: return
-          commands = []
-          first = nodes[0]
-          if count == 1 and first.nodes:
-              if len(first.nodes) == 1 and first.layout == "tabbed":
-                  head = first.nodes[0]
-                  commands = [
-                      f"[con_id={head.id}] move left",
-                      f"[con_id={head.id}] move up",
-                      f"[con_id={head.id}] layout splith",
-                  ]
-              else:
-                  head = first.nodes[0]
-                  commands.extend(
-                      [
-                          f"[con_id={head.id}] move to workspace current",
-                          f"[con_id={head.id}] move left",
-                          f"[con_id={head.id}] focus",
-                      ]
-                  )
-          elif count >= 2:
-              stack = nodes[1]
-              if stack.layout not in STACK_LAYOUTS:
-                  master_leaf = first_leaf_or_self(first)
-                  if nodes[-1].layout in STACK_LAYOUTS:
-                      commands.append(f"[con_id={stack.id}] swap container with con_id {master_leaf.id}")
-                      commands.append(f"[con_id={master_leaf.id}] move right")
-                  else:
-                      commands.append(f"[con_id={master_leaf.id}] move right")
-                      commands.append(f"[con_id={master_leaf.id}] focus; splitv; layout tabbed")
-          if commands:
-              await ipc.command("; ".join(commands))
-      async def trigger_maintain(ipc):
-          global maintain_task
-          if maintain_task and not maintain_task.done():
-              maintain_task.cancel()
-
-          async def delayed_maintain():
+      MAINTAIN_DELAY = 0.03
+      class SwayLayoutManager:
+          def __init__(self):
+              self.ipc = None
+              self.lock = asyncio.Lock()
+              self.maintain_task = None
+              self.event_hint = None
+          async def start(self):
+              self.ipc = await Connection(auto_reconnect=True).connect()
+              self.ipc.on(Event.WINDOW_NEW, self.on_window_new)
+              self.ipc.on(Event.WINDOW_CLOSE, self.on_event)
+              self.ipc.on(Event.WINDOW_MOVE, self.on_event)
+              self.ipc.on(Event.WORKSPACE_FOCUS, self.on_event)
+              await self.ipc.main()
+          def trigger_maintain(self, hint=None):
+              if hint:
+                  self.event_hint = hint
+              if self.maintain_task and not self.maintain_task.done():
+                  self.maintain_task.cancel()
+              async def delayed_maintain():
+                  try:
+                      await asyncio.sleep(MAINTAIN_DELAY)
+                      async with self.lock:
+                          await self.maintain_layout()
+                  except asyncio.CancelledError:
+                      pass
+              self.maintain_task = asyncio.create_task(delayed_maintain())
+          def is_floating(self, container):
+              return container and container.floating and "on" in container.floating
+          async def on_window_new(self, ipc, event):
+              container = getattr(event, "container", None)
+              if not container or self.is_floating(container):
+                  return
+              self.trigger_maintain(hint="new")
+          async def on_event(self, ipc, event):
+              container = getattr(event, "container", None)
+              if container and self.is_floating(container):
+                  return
+              self.trigger_maintain()
+          async def maintain_layout(self):
               try:
-                  await asyncio.sleep(MAINTAIN_DELAY)
-                  await maintain_layout(ipc)
-              except asyncio.CancelledError:
+                  tree = await self.ipc.get_tree()
+                  focused = tree.find_focused()
+                  if not focused:
+                      return
+                  ws = focused.workspace()
+                  if not ws or ws.name.startswith("__"):
+                      return
+                  if ws.layout in STACK_LAYOUTS:
+                      await self.ipc.command("layout splith")
+                      return
+                  nodes = [n for n in ws.nodes if not (n.floating and "on" in n.floating)]
+                  if not nodes:
+                      return
+                  all_leaves = [l for l in ws.leaves() if not (l.floating and "on" in l.floating)]
+                  total_windows = len(all_leaves)
+                  if total_windows == 0: return
+                  if total_windows == 1:
+                      leaf = all_leaves[0]
+                      if len(nodes) == 1 and nodes[0].id != leaf.id:
+                          await self.ipc.command(f"[con_id={leaf.id}] focus; move left; [con_id={focused.id}] focus")
+                      return
+                  stack = next((n for n in nodes if n.layout in STACK_LAYOUTS), None)
+                  if len(nodes) == 1:
+                      leaf_to_pop = all_leaves[1] if (all_leaves[0].focused and len(all_leaves) > 1) else all_leaves[0]
+                      await self.ipc.command(
+                          f"[con_id={nodes[0].id}] layout splith; [con_id={leaf_to_pop.id}] focus; move left; [con_id={focused.id}] focus"
+                      )
+                      return
+                  loose_nodes = [n for n in nodes if n.id != (stack.id if stack else None)]
+                  focused_loose = None
+                  curr = focused
+                  loose_ids = {n.id for n in loose_nodes}
+                  while curr:
+                      if curr.id in loose_ids:
+                          focused_loose = curr
+                          break
+                      curr = curr.parent
+                  if self.event_hint == "new":
+                      master_node = next((n for n in loose_nodes if n.id != (focused_loose.id if focused_loose else None)), loose_nodes[0])
+                  else:
+                      master_node = focused_loose if focused_loose else loose_nodes[0]
+                  commands = []
+                  if not stack:
+                      stack_target = next((n for n in loose_nodes if n.id != master_node.id), None)
+                      if stack_target:
+                          if nodes[0].id == stack_target.id:
+                              commands.append(f"[con_id={master_node.id}] swap container with con_id {stack_target.id}")
+                          commands.append(f"[con_id={stack_target.id}] focus; splitv; layout tabbed")
+                          if len(loose_nodes) > 2:
+                              commands.append(f'[con_id={stack_target.id}] mark --replace "_stack_init"')
+                              for loose_node in loose_nodes:
+                                  if loose_node.id != master_node.id and loose_node.id != stack_target.id:
+                                      commands.append(f'[con_id={loose_node.id}] move window to mark "_stack_init"')
+                              commands.append(f'[con_id={stack_target.id}] unmark "_stack_init"')
+                  else:
+                      if stack.layout not in STACK_LAYOUTS:
+                          commands.append(f"[con_id={stack.id}] layout tabbed")
+                      has_moves = False
+                      for n in loose_nodes:
+                          if n.id != master_node.id:
+                              if not has_moves:
+                                  commands.append(f'[con_id={stack.id}] mark --replace "_stack_sweep"')
+                                  has_moves = True
+                              commands.append(f'[con_id={n.id}] move window to mark "_stack_sweep"')
+                      if has_moves:
+                          commands.append(f'[con_id={stack.id}] unmark "_stack_sweep"')
+                  if stack and ws.nodes and len(ws.nodes) > 0 and ws.nodes[0].id == stack.id:
+                      commands.append(f"[con_id={stack.id}] swap container with con_id {master_node.id}")
+                  if commands:
+                      commands.append(f"[con_id={focused.id}] focus")
+                      await self.ipc.command("; ".join(commands))
+              except Exception:
                   pass
-          maintain_task = asyncio.create_task(delayed_maintain())
-      async def on_window_change(ipc, _event):
-          await trigger_maintain(ipc)
-      async def on_window_new(ipc, event):
-          new_win_id = event.container.id
-          tree = await ipc.get_tree()
-          new_win = tree.find_by_id(new_win_id)
-          if not new_win or "on" in (new_win.floating or ""): return
-          ws = new_win.workspace()
-          if not ws or ws.layout in STACK_LAYOUTS: return
-          target_tab = next(
-              (n for n in ws.nodes if n.layout == "tabbed" and n.id != new_win_id), None
-          )
-          if target_tab:
-              mark = "_autotile_target"
-              commands = [
-                  f'[con_id={target_tab.id}] mark --replace "{mark}"',
-                  f'[con_id={new_win_id}] move window to mark "{mark}"',
-                  f'[con_id={target_tab.id}] unmark "{mark}"',
-                  f"[con_id={new_win_id}] focus",
-              ]
-              await ipc.command("; ".join(commands))
-          else:
-              count = len(ws.nodes)
-              if count >= 2:
-                  await ipc.command(f"[con_id={new_win_id}] focus; splitv; layout tabbed")
-              await trigger_maintain(ipc)
-      async def main():
-          ipc = await Connection(auto_reconnect=True).connect()
-          ipc.on(Event.WINDOW_NEW, on_window_new)
-          ipc.on(Event.WINDOW_CLOSE, on_window_change)
-          ipc.on(Event.WINDOW_MOVE, on_window_change)
-          ipc.on(Event.WORKSPACE_FOCUS, on_window_change)
-          await ipc.main()
+              finally:
+                  self.event_hint = None
       if __name__ == "__main__":
-          asyncio.run(main())
+          manager = SwayLayoutManager()
+          asyncio.run(manager.start())
     '';
   focus-master =
     pkgs.writers.writePython3Bin "sway-focus-master"
@@ -199,6 +213,7 @@ in {
       description = "Path to the wallpaper image used by Sway";
     };
   };
+
   config = {
     catppuccin = {
       enable = true;
@@ -421,16 +436,12 @@ in {
             "l" = "resize grow width 10 px";
           };
         };
-
         keybindings = lib.mkOptionDefault {
-          # --- Plugins ---
           "Mod4+r" = "exec ${focus-master}/bin/sway-focus-master";
           "Mod4+Shift+r" = "exec ${swap-master}/bin/sway-swap-master";
           "Mod4+Alt_L+r" = "mode resize";
           "Mod4+Escape" = "exec ${config.programs.sway-easyfocus.package}/bin/sway-easyfocus";
           "Mod4+Tab" = "exec ${config.programs.swayr.package}/bin/swayr switch-window";
-
-          # --- SwayOSD ---
           "--release XF86AudioRaiseVolume" = "exec ${config.services.swayosd.package}/bin/swayosd-client --output-volume raise --max-volume 120";
           "--release XF86AudioLowerVolume" = "exec ${config.services.swayosd.package}/bin/swayosd-client --output-volume lower --max-volume 120";
           "--release XF86AudioMute" = "exec ${config.services.swayosd.package}/bin/swayosd-client --output-volume mute-toggle";
@@ -444,8 +455,6 @@ in {
           "Control+KP_End" = "exec ${config.services.swayosd.package}/bin/swayosd-client --playerctl previous";
           "Control+KP_Down" = "exec ${config.services.swayosd.package}/bin/swayosd-client --playerctl play-pause";
           "Control+KP_Next" = "exec ${config.services.swayosd.package}/bin/swayosd-client --playerctl next";
-
-          # --- Applications ---
           "Mod4+Control+Shift+f" = "exec ${pkgs.foot}/bin/foot -- ${pkgs.yazi}/bin/yazi";
           "Control+Shift+Escape" = "exec ${pkgs.foot}/bin/foot -- ${pkgs.htop}/bin/htop";
           "Mod4+Return" = "exec ${pkgs.foot}/bin/foot";
@@ -462,11 +471,7 @@ in {
           "Mod4+KP_Delete" = "exec ${pkgs.grim}/bin/grim -g \"$(${pkgs.slurp}/bin/slurp)\" - | ${pkgs.wl-clipboard}/bin/wl-copy";
           "Shift+Print" = "mode screenshot";
           "Mod4+Shift+KP_Delete" = "mode screenshot";
-
-          # --- Window Management ---
-          # USES THE SMART COMMAND
           "Mod4+l" = "exec ${swaylockCmd} -f";
-
           "Mod4+f" = "fullscreen toggle";
           "Mod4+Shift+space" = "floating toggle";
           "Mod4+w" = "layout toggle tabbed split";
@@ -532,12 +537,9 @@ in {
           resumeCommand = "swaymsg \"output * dpms on\"";
         }
       ];
-      events = [
-        {
-          event = "before-sleep";
-          command = "${swaylockCmd} -f";
-        }
-      ];
+      events = {
+        before-sleep = "${swaylockCmd} -f";
+      };
     };
   };
 }
