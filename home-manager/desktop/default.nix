@@ -1,5 +1,6 @@
-{pkgs, ...}: {
+{pkgs, lib, host ? null, ...}: {
   imports = [./dunst.nix ./firefox.nix ./mpv.nix ./rofi/rofi.nix ./pass.nix ./script.nix];
+
   modules.desktop.wayland.clipboard.manager = "cliphist";
   home.packages = with pkgs;
     [
@@ -11,9 +12,9 @@
       pavucontrol
       oculante
       blueman
-      obsidian
       unstable.finamp
     ]
+    ++ lib.optional (host != "phoenix") obsidian
     ++ builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
   fonts.fontconfig.enable = true;
   catppuccin.enable = true;

@@ -137,7 +137,7 @@
     mkHome = _user: _host: module:
       lib.homeManagerConfiguration {
         pkgs = pkgsFor "x86_64-linux";
-        extraSpecialArgs = sharedArgs;
+        extraSpecialArgs = sharedArgs // {host = _host;};
         modules = [
           module
           catppuccin.homeModules.catppuccin
