@@ -37,13 +37,13 @@ in
       composerNoPlugins = false;
       composerStrictValidation = false;
       strictDeps = true;
-      vendorHash = "sha256-yQJLfDgjINtBvBzOB8irOa4RzDatpZwBuJ3VMXWvxJM=";
+      vendorHash = "sha256-j7VDPNTR5LrYIGfT2AFUn9tYKg0pKa2wTUmFr3srStI=";
     };
 
     npmDeps = fetchNpmDeps {
       inherit src;
       name = "${pname}-npm-deps";
-      hash = "sha256-uhmvr21gCdzs1V/rhfwlpIOR/GSoWI+cnCGAxPa0ye8=";
+      hash = "sha256-gQlZuvtQ1QkzMcl2RpbuClvRLd3zSn0pK91SwUfU7wc=";
     };
 
     composerNoScripts = true;
