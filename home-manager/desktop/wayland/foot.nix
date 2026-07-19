@@ -26,7 +26,7 @@
       };
       scrollback = {lines = 10000;};
 
-      colors = {
+      colors-dark = {
         alpha = "1.0";
         background = "1e1e2e";
         foreground = "cdd6f4";

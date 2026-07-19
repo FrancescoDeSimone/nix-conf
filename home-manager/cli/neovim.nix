@@ -38,6 +38,8 @@ in {
         deadnix
         alejandra
         nil
+        lua-language-server
+        marksman
       ]
       ++ lib.optionals cfg.extras [
         unstable.neovim

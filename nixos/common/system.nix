@@ -2,6 +2,7 @@
   lib,
   config,
   inputs,
+  pkgs,
   ...
 }: {
   nix = {
@@ -34,5 +35,14 @@
     };
   };
   networking.networkmanager.enable = lib.mkDefault true;
+
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      icu
+      stdenv.cc.cc.lib
+      zlib
+    ];
+  };
   system.stateVersion = lib.mkDefault "25.11";
 }

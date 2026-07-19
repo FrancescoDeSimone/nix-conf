@@ -45,7 +45,7 @@
   };
 
   home-manager = {
-    extraSpecialArgs = {inherit inputs outputs;};
+    extraSpecialArgs = {inherit inputs outputs; inherit (inputs) private; host = "gemini";};
     useGlobalPkgs = true;
     useUserPackages = false;
     users.fdesi = {

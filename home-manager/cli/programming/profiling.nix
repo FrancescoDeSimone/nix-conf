@@ -2,7 +2,6 @@
   home.packages = with pkgs; [
     valgrind
     gdb
-    massif-visualizer
     heaptrack
     hotspot
     samply
