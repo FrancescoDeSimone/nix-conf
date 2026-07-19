@@ -42,10 +42,24 @@
       path = "/etc/NetworkManager/system-connections/wifi.nmconnection";
       mode = "600";
     };
+    "syncthing-gemini-cert" = {
+      file = ../../secrets/syncthing-gemini-cert.age;
+      owner = "fdesi";
+    };
+    "syncthing-gemini-key" = {
+      file = ../../secrets/syncthing-gemini-key.age;
+      owner = "fdesi";
+    };
   };
 
   home-manager = {
-    extraSpecialArgs = {inherit inputs outputs; inherit (inputs) private; host = "gemini";};
+    extraSpecialArgs = {
+      inherit inputs outputs;
+      inherit (inputs) private;
+      host = "gemini";
+      syncthingCert = config.age.secrets."syncthing-gemini-cert".path;
+      syncthingKey = config.age.secrets."syncthing-gemini-key".path;
+    };
     useGlobalPkgs = true;
     useUserPackages = false;
     users.fdesi = {

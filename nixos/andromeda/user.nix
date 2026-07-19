@@ -49,10 +49,23 @@
       path = "/etc/NetworkManager/system-connections/d08af413-f939-4010-8303-6d234fb224e4.nmconnection";
       mode = "600";
     };
+    "syncthing-andromeda-cert" = {
+      file = ../../secrets/syncthing-andromeda-cert.age;
+      owner = "fdesi";
+    };
+    "syncthing-andromeda-key" = {
+      file = ../../secrets/syncthing-andromeda-key.age;
+      owner = "fdesi";
+    };
   };
 
   home-manager = {
-    extraSpecialArgs = {inherit inputs outputs; host = "andromeda";};
+    extraSpecialArgs = {
+      inherit inputs outputs;
+      host = "andromeda";
+      syncthingCert = config.age.secrets."syncthing-andromeda-cert".path;
+      syncthingKey = config.age.secrets."syncthing-andromeda-key".path;
+    };
     useGlobalPkgs = true;
     useUserPackages = false;
     users.fdesi = {

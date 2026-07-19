@@ -8,6 +8,7 @@
     ./cli/default.nix
     ./desktop/wayland/default.nix
     ./cli/programming/default.nix
+    ../modules/home-manager/syncthing.nix
   ];
 
   home.packages = with pkgs; [

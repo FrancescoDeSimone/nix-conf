@@ -46,6 +46,14 @@
       group = "tailscale-exporter";
       mode = "0400";
     };
+    "syncthing-pegasus-cert" = {
+      file = ../../secrets/syncthing-pegasus-cert.age;
+      owner = "thinkcentre";
+    };
+    "syncthing-pegasus-key" = {
+      file = ../../secrets/syncthing-pegasus-key.age;
+      owner = "thinkcentre";
+    };
     "headplane-cookie-secret" = {
       file = ../../secrets/headplane-cookie-secret.age;
       owner = "headscale";

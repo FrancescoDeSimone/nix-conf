@@ -52,6 +52,7 @@ in {
     ./desktop/gaming/retroarch.nix
     ./desktop/wayland/default.nix
     ./cli/programming/default.nix
+    ../modules/home-manager/syncthing.nix
   ];
   home.packages = with pkgs; [
     jellyfin-tui

@@ -16,6 +16,13 @@ in {
   imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
 
   home.packages = with pkgs; [jellyfin-tui yq jq ayugram-desktop uv git];
+
+  services.syncthing = {
+    enable = true;
+    tray.enable = true;
+    overrideDevices = false;
+    overrideFolders = false;
+  };
   modules.editors.neovim.extras = false;
 
 
