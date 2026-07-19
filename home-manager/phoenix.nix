@@ -1,18 +1,7 @@
 {
-  config,
   pkgs,
   ...
-}: let
-  tabbyPort = 5050;
-  tabbyModelName = "qwen2.5-coder-3b";
-  tabbyPromptTemplate = "qwen2.5";
-  tabbyModelDir = "${config.home.homeDirectory}/.local/share/tabbyapi/models";
-  tabbyDataDir = "${config.home.homeDirectory}/.local/share/tabbyapi";
-  tabbySrcDir = "${tabbyDataDir}/src";
-  tabbyVenvDir = "${tabbyDataDir}/venv";
-  tabbyMain = "${tabbySrcDir}/main.py";
-  tabbyPython = "${tabbyVenvDir}/bin/python";
-in {
+}: {
   imports = [./desktop/default.nix ./cli/default.nix ./desktop/wayland/default.nix];
 
   home.packages = with pkgs; [jellyfin-tui yq jq ayugram-desktop uv git];
