@@ -24,6 +24,7 @@ in
 
       mkdir -p "$out/bin" "$out/share/13ft"
       cp -r app "$out/share/13ft/"
+      cp ${./patches/13ft/portable.py} "$out/share/13ft/app/portable.py"
 
       substituteInPlace "$out/share/13ft/app/portable.py" \
         --replace-fail 'app.run(host="0.0.0.0", port=os.getenv("PORT") or 5000, debug=False)' 'app.run(host=os.environ.get("THIRTEENFT_HOST", "0.0.0.0"), port=int(os.environ.get("THIRTEENFT_PORT", "5000")), debug=False)'
