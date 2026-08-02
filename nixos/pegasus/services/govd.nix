@@ -128,6 +128,37 @@
         wantedBy = ["docker-compose-govd-root.target"];
       };
 
+      virtualisation.oci-containers.containers."watchtower" = {
+        image = "nickfedor/watchtower";
+        environment = {
+          "WATCHTOWER_CLEANUP" = "true";
+          "WATCHTOWER_POLL_INTERVAL" = "86400";
+          "WATCHTOWER_LABEL_ENABLE" = "false";
+        };
+        volumes = [
+          "/var/run/docker.sock:/var/run/docker.sock"
+        ];
+        dependsOn = ["bot"];
+        log-driver = "journald";
+        extraOptions = [
+          "--network-alias=watchtower"
+          "--network=govd-network"
+        ];
+      };
+
+      systemd.services."docker-watchtower" = {
+        serviceConfig = {
+          Restart = lib.mkOverride 90 "always";
+          RestartMaxDelaySec = lib.mkOverride 90 "1m";
+          RestartSec = lib.mkOverride 90 "100ms";
+          RestartSteps = lib.mkOverride 90 9;
+        };
+        after = ["docker-network-govd.service" "docker-bot.service"];
+        requires = ["docker-network-govd.service" "docker-bot.service"];
+        partOf = ["docker-compose-govd-root.target"];
+        wantedBy = ["docker-compose-govd-root.target"];
+      };
+
       systemd.services."docker-volume-govd_db" = {
         path = [pkgs.docker];
         serviceConfig = {
