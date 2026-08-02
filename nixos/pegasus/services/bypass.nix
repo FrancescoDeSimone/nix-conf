@@ -14,6 +14,7 @@
       Environment = [
         "THIRTEENFT_HOST=127.0.0.1"
         "THIRTEENFT_PORT=${toString config.my.services.bypass.port}"
+        "FLARESOLVERR_URL=http://127.0.0.1:${toString config.my.services.flaresolverr.port}/v1"
       ];
       DynamicUser = true;
       Restart = "on-failure";
