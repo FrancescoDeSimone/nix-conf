@@ -52,6 +52,10 @@
       group = "headscale";
       mode = "0400";
     };
+    "chatto-admin" = {
+      file = ../../secrets/chatto-admin.age;
+      mode = "0400";
+    };
   };
 
   systemd = {

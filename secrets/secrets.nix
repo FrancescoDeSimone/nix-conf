@@ -16,5 +16,6 @@ in {
   "headscale-authkey.age".publicKeys = keys;
   "tailscale-exporter-api-key.age".publicKeys = keys;
   "headplane-cookie-secret.age".publicKeys = keys;
+  "chatto-admin.age".publicKeys = keys;
   "gpg-key.age".publicKeys = keys;
 }

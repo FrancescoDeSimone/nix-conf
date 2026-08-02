@@ -71,6 +71,10 @@
       url = "github:dmzoneill/lidarr-youtube-downloader";
       flake = false;
     };
+    chatto = {
+      url = "github:chattocorp/chatto";
+      flake = false;
+    };
     p5aint = {
       url = "git+ssh://git@github.com/FrancescoDeSimone/p5aint?ref=single-file-compressed";
       flake = false;
@@ -120,6 +124,10 @@
               nixpkgs.hostPlatform = "x86_64-linux";
               nixpkgs.overlays = allOverlays;
               nixpkgs.config.allowUnfree = true;
+              nixpkgs.config.permittedInsecurePackages = [
+                "olivetin-2025.11.25"
+                "pnpm-9.15.9"
+              ];
             }
           ]
           ++ modules;

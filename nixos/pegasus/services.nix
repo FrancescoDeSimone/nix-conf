@@ -31,6 +31,7 @@
     ./services/bypass.nix
     ./services/lidarr.nix
     ./services/adguard.nix
+    ./services/chatto.nix
   ];
 
   services = {

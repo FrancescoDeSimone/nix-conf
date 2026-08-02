@@ -718,6 +718,16 @@ in {
             tls = internalDomain;
           };
 
+          "chatto.${internalDomain}" = mkTailnetProxyVhost {
+            upstream = "http://${config.my.services.chatto.localAddress}:${toString config.my.services.chatto.port}/";
+            vhostConfig = defaultAppVhostConfig;
+            websockets = true;
+            locationExtraConfig = ''
+              proxy_intercept_errors off;
+            '';
+            tls = internalDomain;
+          };
+
           "headplane.${internalDomain}" = mkVhost {
             accessPolicy = tailnetOnlyAccess;
             extraConfig = defaultAppVhostConfig;
