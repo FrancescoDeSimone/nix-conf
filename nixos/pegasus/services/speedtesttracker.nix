@@ -1,7 +1,4 @@
-{
-  private,
-  ...
-}: {
+{private, ...}: {
   imports = [../../../modules/nixos/speedtest-tracker];
 
   my.services.speedtest-tracker = {

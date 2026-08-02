@@ -11,5 +11,4 @@
     savestate_directory = "~/.local/share/retroarch/states"
     content_directory = "/home/fdesi/Games/Retro"
   '';
-
 }

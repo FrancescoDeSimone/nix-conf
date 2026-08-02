@@ -5,7 +5,8 @@
   ...
 }: let
   cfg = config.my.services.chatto;
-  inherit (lib)
+  inherit
+    (lib)
     mkEnableOption
     mkIf
     mkOption
@@ -22,18 +23,28 @@
     mapAttrs
     unique
     types
-    escapeShellArg;
+    escapeShellArg
+    ;
 
   dataDir = toString cfg.dataDir;
 
   passwordFiles = unique (filter (p: p != null) (map (u: u.passwordFile) cfg.bootstrapUsers));
 
-  bootstrapUsersIndexed = imap0 (i: u: {
-    inherit i u;
-  }) cfg.bootstrapUsers;
+  bootstrapUsersIndexed =
+    imap0 (i: u: {
+      inherit i u;
+    })
+    cfg.bootstrapUsers;
 
-  bootstrapUserEnvAttrs = listToAttrs (concatLists (map ({i, u}: [
-      {name = "CHATTO_BOOTSTRAP_USERS_${toString i}_LOGIN"; value = u.login;}
+  bootstrapUserEnvAttrs = listToAttrs (concatLists (map ({
+    i,
+    u,
+  }:
+    [
+      {
+        name = "CHATTO_BOOTSTRAP_USERS_${toString i}_LOGIN";
+        value = u.login;
+      }
     ]
     ++ optional (u.email != null) {
       name = "CHATTO_BOOTSTRAP_USERS_${toString i}_EMAIL";
@@ -46,7 +57,8 @@
     ++ optional (u.serverRole != null) {
       name = "CHATTO_BOOTSTRAP_USERS_${toString i}_SERVER_ROLE";
       value = u.serverRole;
-    }) bootstrapUsersIndexed));
+    })
+  bootstrapUsersIndexed));
 
   envAttrs =
     {CHATTO_WEBSERVER_PORT = toString cfg.port;}
@@ -74,9 +86,14 @@
     // bootstrapUserEnvAttrs
     // mapAttrs (_: v: toString v) cfg.settings;
 
-  bootstrapEnvScript = concatStringsSep "\n" (concatMap ({i, u}: optional (u.passwordFile != null) ''
-    printf 'CHATTO_BOOTSTRAP_USERS_${toString i}_PASSWORD=%s\n' "$(${pkgs.coreutils}/bin/cat ${escapeShellArg (toString u.passwordFile)})"
-  '') bootstrapUsersIndexed);
+  bootstrapEnvScript = concatStringsSep "\n" (concatMap ({
+    i,
+    u,
+  }:
+    optional (u.passwordFile != null) ''
+      printf 'CHATTO_BOOTSTRAP_USERS_${toString i}_PASSWORD=%s\n' "$(${pkgs.coreutils}/bin/cat ${escapeShellArg (toString u.passwordFile)})"
+    '')
+  bootstrapUsersIndexed);
 in {
   options.my.services.chatto = {
     enable = mkEnableOption "Chatto service";
@@ -237,7 +254,8 @@ in {
         message = "my.services.chatto.port and my.services.chatto.metrics.port must differ when metrics are enabled.";
       }
       {
-        assertion = lib.all (u: !lib.elem (lib.toLower u.login) [
+        assertion = lib.all (u:
+          !lib.elem (lib.toLower u.login) [
             "root"
             "admin"
             "superuser"
@@ -245,7 +263,7 @@ in {
             "operator"
             "support"
           ])
-          cfg.bootstrapUsers;
+        cfg.bootstrapUsers;
         message = "my.services.chatto.bootstrapUsers logins must not be reserved usernames (root, admin, superuser, op, operator, support).";
       }
     ];
@@ -260,20 +278,21 @@ in {
       hostAddress = cfg.hostAddress;
       localAddress = cfg.localAddress;
 
-      bindMounts = {
-        "${dataDir}" = {
-          hostPath = dataDir;
-          isReadOnly = false;
-        };
-      }
-      // listToAttrs (map (f: {
-          name = toString f;
-          value = {
-            hostPath = toString f;
-            isReadOnly = true;
+      bindMounts =
+        {
+          "${dataDir}" = {
+            hostPath = dataDir;
+            isReadOnly = false;
           };
-        })
-        passwordFiles);
+        }
+        // listToAttrs (map (f: {
+            name = toString f;
+            value = {
+              hostPath = toString f;
+              isReadOnly = true;
+            };
+          })
+          passwordFiles);
 
       config = {pkgs, ...}: {
         system.stateVersion = config.system.stateVersion;
@@ -329,19 +348,21 @@ in {
           wants = ["network-online.target"];
           path = optional cfg.video.enable pkgs.ffmpeg;
           environment = envAttrs;
-          serviceConfig = {
-            ExecStart = "${cfg.package}/bin/chatto start -c ${dataDir}/chatto.toml";
-            User = "chatto";
-            Group = "chatto";
-            Restart = "always";
-            RestartSec = 5;
-            WorkingDirectory = dataDir;
-            StateDirectory = "chatto";
-            StateDirectoryMode = "0750";
-            LimitNOFILE = 65536;
-          } // optionalAttrs (passwordFiles != []) {
-            EnvironmentFile = ["${dataDir}/bootstrap.env"];
-          };
+          serviceConfig =
+            {
+              ExecStart = "${cfg.package}/bin/chatto start -c ${dataDir}/chatto.toml";
+              User = "chatto";
+              Group = "chatto";
+              Restart = "always";
+              RestartSec = 5;
+              WorkingDirectory = dataDir;
+              StateDirectory = "chatto";
+              StateDirectoryMode = "0750";
+              LimitNOFILE = 65536;
+            }
+            // optionalAttrs (passwordFiles != []) {
+              EnvironmentFile = ["${dataDir}/bootstrap.env"];
+            };
         };
 
         networking.firewall = {

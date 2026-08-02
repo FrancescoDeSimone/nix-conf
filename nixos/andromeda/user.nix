@@ -52,7 +52,10 @@
   };
 
   home-manager = {
-    extraSpecialArgs = {inherit inputs outputs; host = "andromeda";};
+    extraSpecialArgs = {
+      inherit inputs outputs;
+      host = "andromeda";
+    };
     useGlobalPkgs = true;
     useUserPackages = false;
     users.fdesi = {

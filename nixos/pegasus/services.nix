@@ -41,5 +41,4 @@
     journald.extraConfig = "Storage=volatile";
     journald.forwardToSyslog = false;
   };
-
 }

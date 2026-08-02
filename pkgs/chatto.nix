@@ -32,7 +32,7 @@ buildGoModule rec {
   env.CGO_ENABLED = 0;
   env.GOWORK = "off";
 
-  passthru.overrideModAttrs = _: prev: {
+  passthru.overrideModAttrs = _: _prev: {
     preBuild = "";
   };
 
