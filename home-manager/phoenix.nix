@@ -21,23 +21,23 @@
         workspaceOutputAssign = [
           {
             workspace = "1";
-            output = "DP-2";
+            output = "DP-1";
           }
           {
             workspace = "2";
-            output = "DP-2";
+            output = "DP-1";
           }
           {
             workspace = "3";
-            output = "DP-2";
+            output = "DP-1";
           }
           {
             workspace = "4";
-            output = "DP-2";
+            output = "DP-1";
           }
           {
             workspace = "5";
-            output = "DP-2";
+            output = "DP-1";
           }
           {
             workspace = "6";
