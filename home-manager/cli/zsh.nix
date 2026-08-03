@@ -90,6 +90,10 @@
       if [ -d "$HOME/.opencode/bin" ]; then
         export PATH=/home/fdesi/.opencode/bin:$PATH
       fi
+      if [ -x "$HOME/.local/bin/llama" ]; then
+          export LLAMA_CACHE="$HOME/models"
+          export HF_HOME="$HOME/models"
+      fi
     '';
   };
 }
