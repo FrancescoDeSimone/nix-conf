@@ -2,6 +2,9 @@ let
   keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEBOniBU67Ms4nRqq/iF+OVLM5Oj9nGNz5GamFfrQbIz root@nixos"
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJC595GzeQlQEx/GA4i10xY3VTjegjCVyHQ9Zz2xvPPx"
+    # TODO(capricorn): add the capricorn recipient pubkey here once the machine
+    # generates an age identity during install, then run `agenix rekey` (or the
+    # repo's rekey step) so the .age files also carry capricorn's key.
   ];
 in {
   "provider.age".publicKeys = keys;

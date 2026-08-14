@@ -1,0 +1,151 @@
+{
+  pkgs,
+  lib,
+  ...
+}: let
+  freedoom = pkgs.fetchurl {
+    url = "https://github.com/freedoom/freedoom/releases/download/v0.13.0/freedoom-0.13.0.zip";
+    sha256 = "0ncgd2wqv1yxfklg6kbgaixkrn8ryjqxqsvzzfs07r9w7r7jd6rz";
+  };
+
+  brutaldoom = pkgs.fetchurl {
+    url = "https://github.com/BLOODWOLF333/Brutal-Doom-Community-Expansion/releases/download/v21.50.0/brutalv21.50.0.pk3";
+    sha256 = "1dv9wgjqy7cam1hmq6kz66dxnkwbzymx1ql13dpd1mbvivxmgnmb";
+  };
+
+  brutaldoom-launcher = pkgs.writeShellScriptBin "brutaldoom" ''
+    mkdir -p ~/.local/share/games/doom
+    if [ ! -f ~/.local/share/games/doom/freedoom2.wad ]; then
+      TEMP_DIR=$(mktemp -d)
+      unzip -o "${freedoom}" -d "$TEMP_DIR"
+      cp "$TEMP_DIR"/freedoom-0.13.0/*.wad ~/.local/share/games/doom/
+      rm -rf "$TEMP_DIR"
+    fi
+    if [ ! -f ~/.local/share/games/doom/brutalv21.50.0.pk3 ]; then
+      cp "${brutaldoom}" ~/.local/share/games/doom/brutalv21.50.0.pk3
+    fi
+    ${pkgs.gzdoom}/bin/gzdoom -IWAD ~/.local/share/games/doom/freedoom2.wad -file ~/.local/share/games/doom/brutalv21.50.0.pk3
+  '';
+
+  kbd-backlight = pkgs.writeShellScriptBin "kbd-backlight" ''
+    DEV="rgb:kbd_backlight"
+    STEP=10
+    case "$1" in
+      up)   brightnessctl -d "$DEV" s "$STEP%+" ;;
+      down) brightnessctl -d "$DEV" s "$STEP%-" ;;
+      toggle)
+        CUR=$(brightnessctl -d "$DEV" g)
+        if [ "$CUR" -eq 0 ]; then
+          brightnessctl -d "$DEV" s 50%
+        else
+          brightnessctl -d "$DEV" s 0
+        fi
+        ;;
+    esac
+    ${pkgs.swayosd}/bin/swayosd-client --kbd-brightness raise
+  '';
+
+  # Lemonade model + recipe seeds. lemond reads these on first run (via
+  # LEMONADE_DEFAULTS_PATH / reconcile), so the three GPU models and their
+  # backend choice are present before any user interaction.
+  user_models = builtins.toJSON {
+    "Qwen3.8-27B" = {
+      source = "huggingface";
+      checkpoint = "unsloth/Qwen3.8-27B-GGUF:Qwen3.8-27B-Q4_K_M.gguf";
+      mmproj = "mmproj-BF16.gguf";
+      recipe = "llamacpp";
+      size = 17;
+      labels = ["vision" "reasoning" "tool-calling"];
+    };
+    "Nemotron-3.5-Lightning" = {
+      source = "huggingface";
+      checkpoint = "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF:NVIDIA-Nemotron-3.5-Lightning-30B-A3B-UD-Q4_K_XL.gguf";
+      recipe = "llamacpp";
+      size = 20;
+      labels = ["tool-calling" "reasoning"];
+    };
+    "Muse-Glimmer-30B" = {
+      source = "huggingface";
+      checkpoint = "unsloth/Muse-Glimmer-30B-GGUF:Muse-Glimmer-30B-UD-Q4_K_XL.gguf";
+      mmproj = "mmproj-Muse-Glimmer-30B-BF16.gguf";
+      recipe = "llamacpp";
+      size = 18;
+      labels = ["vision" "tool-calling"];
+    };
+  };
+
+  recipe_options = builtins.toJSON {
+    "user.Qwen3.8-27B" = {ctx_size = 32768; llamacpp_backend = "vulkan";};
+    "user.Nemotron-3.5-Lightning" = {ctx_size = 32768; llamacpp_backend = "vulkan";};
+    "user.Muse-Glimmer-30B" = {ctx_size = 32768; llamacpp_backend = "vulkan";};
+  };
+in {
+  imports = [
+    ./desktop/default.nix
+    ./cli/default.nix
+    ./desktop/gaming/gamescope.nix
+    ./desktop/gaming/retroarch.nix
+    ./desktop/wayland/default.nix
+    ./cli/programming/default.nix
+  ];
+  home.packages = with pkgs; [
+    jellyfin-tui
+    unstable.freetube
+    ayugram-desktop
+    opencode
+    gzdoom
+    brutaldoom-launcher
+  ];
+  home = {
+    username = "fdesi";
+    homeDirectory = "/home/fdesi";
+    stateVersion = "25.11";
+  };
+  wayland.windowManager.sway.config.keybindings = lib.mkOptionDefault {
+    "--release XF86KbdBrightnessUp" = "exec ${kbd-backlight}/bin/kbd-backlight up";
+    "--release XF86KbdBrightnessDown" = "exec ${kbd-backlight}/bin/kbd-backlight down";
+    "--release XF86KbdLightOnOff" = "exec ${kbd-backlight}/bin/kbd-backlight toggle";
+    "--release XF86LightsToggle" = "exec ${kbd-backlight}/bin/kbd-backlight toggle";
+  };
+
+  home.file.".cache/lemonade/user_models.json" = {
+    text = user_models;
+  };
+  home.file.".cache/lemonade/recipe_options.json" = {
+    text = recipe_options;
+  };
+  programs.waybar.settings.mainBar."custom/temperature" =
+    lib.mkOptionDefault {
+      "return-type" = "json";
+      "exec" = "${pkgs.python3}/bin/python3 -c '
+import re
+import subprocess
+import sys
+
+out = subprocess.check_output([\"sensors\"], text=True)
+lines = out.splitlines()
+
+cpu = gpu = nvme = \"N/A\"
+for i, line in enumerate(lines):
+    if line.startswith(\"zenpower\"):
+        for j in range(i+1, min(i+3, len(lines))):
+            if \"Tdie\" in lines[j]:
+                m = re.search(r\"([0-9.]+)\", lines[j])
+                if m: cpu = m.group(1); break
+    elif line.startswith(\"amdgpu\"):
+        for j in range(i+1, min(i+11, len(lines))):
+            if \"edge\" in lines[j]:
+                m = re.search(r\"([0-9.]+)\", lines[j])
+                if m: gpu = m.group(1); break
+    elif line.startswith(\"nvme\"):
+        for j in range(i+1, min(i+3, len(lines))):
+            if \"Composite\" in lines[j]:
+                m = re.search(r\"([0-9.]+)\", lines[j])
+                if m: nvme = m.group(1); break
+
+print(f\"{{\\\"text\\\": \\\"{cpu}°C\\\", \\\"tooltip\\\": \\\"CPU: {cpu}°C\\\\namdgpu: {gpu}°C\\\\nnvme: {nvme}°C\\\"}}\")
+'";
+      "tooltip" = true;
+      "interval" = 30;
+    };
+}

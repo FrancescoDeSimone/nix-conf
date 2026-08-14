@@ -24,6 +24,11 @@
     tuxedo-rs.url = "github:AaronErhardt/tuxedo-rs";
     tuxedo-rs.inputs.nixpkgs.follows = "nixpkgs";
 
+    # AMD AI inference stack (XRT/amd-xdna, FastFlowLM, Lemonade)
+    # NOTE: do NOT add `nix-amd-ai.inputs.nixpkgs.follows = "nixpkgs"` — the
+    # README warns it re-hashes every backend and loses Cachix substitution.
+    nix-amd-ai.url = "github:noamsto/nix-amd-ai";
+
     # Mobile & Utils
     nix-on-droid = {
       url = "github:nix-community/nix-on-droid/release-24.05";
@@ -79,6 +84,12 @@
       url = "git+ssh://git@github.com/FrancescoDeSimone/p5aint?ref=single-file-compressed";
       flake = false;
     };
+
+    # Local pass extension for RSA SecurID tokens (no remote yet).
+    pass-securid = {
+      url = "path:/home/fdesi/git/personal/pass-securid";
+      flake = false;
+    };
   };
 
   outputs = {
@@ -111,6 +122,13 @@
       rust-overlay.overlays.default
       zig-overlay.overlays.default
       inputs.headplane.overlays.default
+      inputs.nix-amd-ai.overlays.default
+      # MUST be last: carries arch support for Qwen3.8/qwen35, Muse Glimmer and
+      # Nemotron (Mamba-2 hybrid) that neither nixos-26.05 nixpkgs nor the
+      # nix-amd-ai pin provide. The nix-amd-ai module also self-injects its own
+      # overlay through `nixpkgs.overlays` (appended after this list), so
+      # capricorn/ai.nix re-applies this one after that too.
+      outputs.overlays.llama-cpp-master
     ];
 
     # Helper for creating NixOS configurations
@@ -245,6 +263,50 @@
           ];
         })
       ];
+
+      capricorn = mkSystem "capricorn" [
+        ./nixos/capricorn/default.nix
+        inputs.disko.nixosModules.disko
+        inputs.agenix.nixosModules.default
+        {environment.systemPackages = [inputs.agenix.packages.x86_64-linux.default];}
+      ];
+
+      capricorn-iso = mkSystem "capricorn-iso" [
+        "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix"
+        ./nixos/capricorn/default.nix
+        inputs.disko.nixosModules.disko
+        inputs.agenix.nixosModules.default
+        ({pkgs, ...}: {
+          system.extraDependencies = [
+            self.nixosConfigurations.capricorn.config.system.build.toplevel
+          ];
+          environment.etc."nixos".source = ./.;
+          networking.hostName = lib.mkForce "capricorn-iso";
+          # Plain priority (not mkDefault): installation-cd-base.nix also sets
+          # stateVersion via mkDefault (26.05), and the repo's common sets it via
+          # mkDefault too (25.11) — equal priorities would conflict. Match the
+          # andromeda-iso pattern.
+          system.stateVersion = "25.11";
+          boot.supportedFilesystems = lib.mkForce ["vfat" "ext4" "ntfs" "cifs"];
+          environment.systemPackages = [
+            (pkgs.writeShellScriptBin "install-capricorn" ''
+              set -e
+              echo "⚠ WARNING: This will WIPE /dev/nvme0n1 on Capricorn! ⚠"
+              sleep 5
+              echo ">>> Partitioning..."
+              sudo nix --experimental-features "nix-command flakes" run github:nix-community/disko -- --mode disko --flake /etc/nixos#capricorn
+              echo ">>> Installing..."
+              sudo nixos-install --flake /etc/nixos#capricorn --no-root-passwd
+              echo ">>> Done. Reboot now."
+            '')
+          ];
+          services.openssh.enable = true;
+          services.openssh.settings.PermitRootLogin = "yes";
+          users.users.root.openssh.authorizedKeys.keys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDM/Ia8zA09Ak7M7QCDrlBXVxuSnSDilhlp73vPjRGTq fds@fds"
+          ];
+        })
+      ];
     };
 
     # --- Home Manager Configurations ---
@@ -254,6 +316,7 @@
       "fdesi@phoenix" = mkHome "fdesi" "phoenix" ./home-manager/phoenix.nix;
       "fdesi@gemini" = mkHome "fdesi" "gemini" ./home-manager/gemini.nix;
       "fdesi@andromeda" = mkHome "fdesi" "andromeda" ./home-manager/andromeda.nix;
+      "fdesi@capricorn" = mkHome "fdesi" "capricorn" ./home-manager/capricorn.nix;
     };
 
     # --- Android ---
