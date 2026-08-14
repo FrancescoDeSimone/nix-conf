@@ -56,6 +56,15 @@ in {
           rev = masterRev;
           hash = masterHash;
         };
+        # Master's tools/ui/package-lock.json differs from the release's, so
+        # the inherited npmDepsHash is stale. Value taken from the failed
+        # fixed-output build. Re-derive (nix-build error prints it) if the pin
+        # is bumped.
+        npmDepsHash = "sha256-2Q7XhaLAArmviOLdQsNbYTfdyDE5pW9lR26cRHEVl9k=";
+        # nixpkgs injects -DLLAMA_BUILD_NUMBER=<version>; build-info.cpp needs
+        # an integer, but our version is master-<rev>. Append the actual commit
+        # count (git rev-list --count HEAD at the pin = 10434) — CMake last-wins.
+        cmakeFlags = (old.cmakeFlags or []) ++ ["-DLLAMA_BUILD_NUMBER=10434"];
       });
   };
 }
