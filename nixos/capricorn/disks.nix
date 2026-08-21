@@ -16,7 +16,9 @@
             };
           };
           luks = {
-            size = "100%";
+            # 2 TiB for NixOS (LUKS+LVM below); trailing space left
+            # unallocated for a second installation (e.g. Windows).
+            size = "2T";
             content = {
               type = "luks";
               name = "crypted";
