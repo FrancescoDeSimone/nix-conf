@@ -129,5 +129,20 @@
       color: #fab387; /* Catppuccin Peach */
     }
 
+    tooltip {
+      background-color: #1e1e2e; /* Catppuccin Base */
+      color: #cdd6f4; /* Catppuccin Text */
+      border: 1px solid #45475a; /* Catppuccin Surface1 */
+      border-radius: 6px;
+      padding: 6px 8px;
+      margin: 8px;
+    }
+    tooltip label {
+      color: #cdd6f4; /* Catppuccin Text */
+    }
+    tooltip * {
+      color: #cdd6f4; /* Catppuccin Text */
+    }
+
   '';
 }

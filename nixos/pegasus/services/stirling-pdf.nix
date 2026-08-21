@@ -2,7 +2,8 @@
   services.stirling-pdf = {
     enable = true;
     environment = {
-      INSTALL_BOOK_AND_ADVANCED_HTML_OPS = "true";
+      # Advanced HTML ops pull in heavy/abuse-prone processing; disable for public exposure
+      INSTALL_BOOK_AND_ADVANCED_HTML_OPS = "false";
       SERVER_PORT = toString config.my.services.stirling-pdf.port;
     };
   };

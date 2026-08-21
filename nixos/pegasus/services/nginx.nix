@@ -55,6 +55,13 @@
     client_header_timeout 30s;
     send_timeout 60s;
   '';
+  # Verify the Kasm VM's TLS certificate once its CA is dropped in secrets/kasm-ca.pem
+  kasmTlsVerifyConfig =
+    lib.optionalString (builtins.pathExists ../../../secrets/kasm-ca.pem) ''
+      proxy_ssl_verify on;
+      proxy_ssl_trusted_certificate ${../../../secrets/kasm-ca.pem};
+      proxy_ssl_verify_depth 2;
+    '';
   errorPageRules = ''
     # Custom error page
     error_page 404 /404.html;
@@ -176,7 +183,7 @@
     extraConfig =
       largeTransferTimeouts
       + ''
-        client_max_body_size 0;
+        client_max_body_size 10G;
         proxy_request_buffering off;
       '';
     rules =
@@ -228,6 +235,15 @@
     "^~ /.well-known/" = mkProxyLocation {upstream = gitUpstream;};
     "^~ /api/" = mkProxyLocation {upstream = gitUpstream;};
     "^~ /v2/" = mkProxyLocation {upstream = gitUpstream;};
+    # Login endpoints: throttle credential stuffing (exact match beats ^~ /api/ and /)
+    "= /api/v1/users/signin" = mkProxyLocation {
+      upstream = gitUpstream;
+      extraConfig = "limit_req zone=login burst=10 nodelay;";
+    };
+    "= /user/login" = mkProxyLocation {
+      upstream = gitUiAnubisUpstream;
+      extraConfig = "limit_req zone=login burst=10 nodelay;";
+    };
     "~ \\.git/(info/refs|git-upload-pack|git-receive-pack)$" = mkProxyLocation {
       upstream = gitUpstream;
     };
@@ -402,7 +418,6 @@
   ];
 
   largeTransferProxyVhosts = mkSimpleProxyVhosts largeTransferVhostConfig [
-    (mkPublicService "seerr" config.my.services.seerr.port)
     (mkCustomPublicService "192.168.200.11" "git" config.my.services.git.port)
   ];
 
@@ -425,7 +440,6 @@
   staticVhosts = {
     "${itToolsInternalHost}" = {
       serverName = itToolsInternalHost;
-      serverAliases = ["it-tools.${domain}"];
       listen = [
         {
           addr = "0.0.0.0";
@@ -501,6 +515,8 @@ in {
         "172.16.0.0/12"
         "192.168.0.0/16"
         "127.0.0.0/8"
+        "100.64.0.0/10"
+        "fd7a:115c:a1e0::/48"
         "::1"
       ];
       jails = {
@@ -525,6 +541,17 @@ in {
             bantime = "1h";
           };
         };
+
+        nginx-auth = {
+          settings = {
+            enabled = true;
+            filter = "nginx-auth";
+            logpath = "/var/log/nginx/access.log";
+            maxretry = 5;
+            findtime = "10m";
+            bantime = "1h";
+          };
+        };
       };
     };
 
@@ -539,7 +566,8 @@ in {
       commonHttpConfig = ''
         # Rate limiting
         limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-        limit_req_zone $binary_remote_addr zone=general:10m rate=30r/s;
+        limit_req_zone $binary_remote_addr zone=general:30r/s rate=30r/s;
+        limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
         limit_conn_zone $binary_remote_addr zone=addr:10m;
 
         # Limit request size
@@ -601,10 +629,34 @@ in {
             extraConfig = "return 444;";
           };
 
-          "nextcloud.${domain}" = mkProxyVhost {
+          "nextcloud.${domain}" = mkVhost {
             public = true;
-            upstream = "http://192.168.100.10:${toString config.my.services.nextcloud.port}";
-            vhostConfig = nextcloudVhostConfig;
+            extraConfig = nextcloudVhostConfig;
+            locations = let
+              nextcloudUpstream = "http://192.168.100.10:${toString config.my.services.nextcloud.port}";
+            in {
+              # Throttle the web login endpoint (Nextcloud adds its own bruteforce protection too)
+              "= /login" = mkProxyLocation {
+                upstream = nextcloudUpstream;
+                extraConfig = "limit_req zone=login burst=10 nodelay;";
+              };
+              "/" = mkProxyLocation {upstream = nextcloudUpstream;};
+            };
+          };
+
+          "seerr.${domain}" = mkVhost {
+            public = true;
+            extraConfig = largeTransferVhostConfig;
+            locations = let
+              seerrUpstream = "http://127.0.0.1:${toString config.my.services.seerr.port}";
+            in {
+              # Throttle Jellyseerr local login endpoint
+              "= /api/v1/auth/local" = mkProxyLocation {
+                upstream = seerrUpstream;
+                extraConfig = "limit_req zone=login burst=10 nodelay;";
+              };
+              "/" = mkProxyLocation {upstream = seerrUpstream;};
+            };
           };
 
           "git.${domain}" = mkVhost {
@@ -641,6 +693,12 @@ in {
           "adguard.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:${toString config.my.services.adguard.port}/";
             vhostConfig = largeTransferVhostConfig;
+            websockets = true;
+            tls = internalDomain;
+          };
+          "duplicati.${internalDomain}" = mkTailnetProxyVhost {
+            upstream = "http://192.168.100.11:${toString config.my.services.duplicati.port}/";
+            vhostConfig = defaultAppVhostConfig;
             websockets = true;
             tls = internalDomain;
           };
@@ -748,7 +806,8 @@ in {
             websockets = true;
             locationExtraConfig = ''
               proxy_ssl_server_name on;
-              proxy_ssl_verify off;
+              proxy_ssl_name 192.168.120.11;
+              ${kasmTlsVerifyConfig}
               proxy_buffering off;
               proxy_request_buffering off;
               proxy_read_timeout 3600s;
@@ -764,6 +823,11 @@ in {
     "fail2ban/filter.d/nginx-url-probe.conf".text = ''
       [Definition]
       failregex = ^<HOST> \- \S+ \[.*?\] "\S+ \S*(/wp-admin|/phpmyadmin|/\.env|/\.git|/\.htaccess|/\.svn|/\.hg)
+      ignoreregex =
+    '';
+    "fail2ban/filter.d/nginx-auth.conf".text = ''
+      [Definition]
+      failregex = ^<HOST> .*"(?:POST|GET) (?:/user/login|/api/v1/users/signin|/api/v1/auth/local|/login)(?:\?[^"]*)? HTTP/[^"]*" (?:401|403)
       ignoreregex =
     '';
   };

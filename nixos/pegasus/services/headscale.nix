@@ -89,11 +89,22 @@ in {
       "groups": {},
       "tagOwners": {},
       "acls": [
+        // Pegasus (control node) may reach every tailnet node on every port (admin).
+        {
+          "action": "accept",
+          "src": ["100.64.0.1"],
+          "dst": ["*:*"],
+        },
+        // Everything else gets default-deny: only pegasus's DNS, web front, and SSH.
         {
           "action": "accept",
           "src": ["*"],
-          "dst": ["*:*"],
-        }
+          "dst": [
+            "100.64.0.1:53",
+            "100.64.0.1:80,443",
+            "100.64.0.1:22",
+          ],
+        },
       ],
     }
   '';

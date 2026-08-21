@@ -474,6 +474,7 @@ in {
           "Mod4+l" = "exec ${swaylockCmd} -f";
           "Mod4+f" = "fullscreen toggle";
           "Mod4+Shift+space" = "floating toggle";
+          "--whole-window Mod4+button2" = "sticky toggle";
           "Mod4+w" = "layout toggle tabbed split";
           "Mod4+e" = "layout toggle split";
           "Mod4+h" = "exec splith";

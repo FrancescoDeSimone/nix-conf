@@ -18,13 +18,6 @@
     internalInterfaces = ["tap-kasmweb"];
     externalInterface = "eno1";
     enableIPv6 = true;
-    forwardPorts = [
-      {
-        proto = "tcp";
-        sourcePort = 8443;
-        destination = "192.168.120.11:443";
-      }
-    ];
   };
 
   microvm.vms.kasmweb = {

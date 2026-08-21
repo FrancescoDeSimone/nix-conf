@@ -79,13 +79,14 @@ in {
       "exec" = "${pomodoro}/bin/waybar-module-pomodoro";
       "on-click" = "${pomodoro}/bin/waybar-module-pomodoro toggle";
       "on-click-right" = "${pomodoro}/bin/waybar-module-pomodoro reset";
-      "tooltip" = true;
+      "tooltip" = false;
     };
     "cpu" = {
       "interval" = 1;
       "format" = "  {icon0}{icon1}{icon2}{icon3} {usage:>2}% ";
       "format-icons" = ["▁" "▂" "▃" "▄" "▅" "▆" "▇" "█"];
       "tooltip" = true;
+      "tooltip-format" = "CPU: {usage:>3}%\nLoad 1/5/15: {load_1} {load_5} {load_15}";
     };
 
     "battery" = {
@@ -179,7 +180,7 @@ in {
     "disk" = {
       "format" = "  {percentage_used}% ";
       "interval" = 30;
-      "tooltip-format" = "{path}: {used} used / {total} total ({percentage_used}%)";
+      "tooltip-format" = "{path}\nUsed: {used}\nFree: {free}\nTotal: {total} ({percentage_used}% used)";
     };
 
     "network#speed" = {
@@ -221,7 +222,7 @@ in {
       "interval" = 60;
       "format-icons" = {"default" = [""];};
       "on-click" = "${pkgs.pavucontrol}/bin/pavucontrol";
-      "tooltip-format" = "{desc} ({volume}%)";
+      "tooltip-format" = "{desc} ({volume}%)\nMuted: {muted}";
     };
 
     "custom/audio_idle_inhibitor" = {

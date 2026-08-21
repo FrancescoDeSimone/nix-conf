@@ -27,13 +27,6 @@
     privateNetwork = true;
     hostAddress = "192.168.200.10";
     localAddress = "192.168.200.11";
-    forwardPorts = [
-      {
-        protocol = "tcp";
-        hostPort = 3001;
-        containerPort = 3001;
-      }
-    ];
 
     config = {pkgs, ...}: {
       services.postgresql = {
@@ -63,9 +56,12 @@
             REPO_INDEXER_EXCLUDE = "resources/bin/**";
           };
           migrations = {
-            ALLOWED_DOMAINS = "*";
-            ALLOW_LOCALNETWORKS = true;
-            SKIP_TLS_VERIFY = true;
+            ALLOWED_DOMAINS = "github.com,gitlab.com,codeberg.org,git.sr.ht,bitbucket.org";
+            ALLOW_LOCALNETWORKS = false;
+            SKIP_TLS_VERIFY = false;
+          };
+          webhook = {
+            ALLOWED_HOST_LIST = "github.com,gitlab.com,codeberg.org,git.sr.ht,bitbucket.org";
           };
           service.DISABLE_REGISTRATION = true;
           server = {

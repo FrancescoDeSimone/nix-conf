@@ -1,10 +1,22 @@
 {
+  config,
   private,
   lib,
   ...
 }: let
   domain = private.nginx.domain;
+  duplicatiPort = config.my.services.duplicati.port;
+  duplicatiPasswordExists = builtins.pathExists ../../../secrets/duplicati-password.age;
 in {
+  age.secrets = lib.optionalAttrs duplicatiPasswordExists {
+    "duplicati-password" = {
+      file = ../../../secrets/duplicati-password.age;
+      owner = "root";
+      group = "root";
+      mode = "0400";
+    };
+  };
+
   networking.nat = {
     enable = true;
     internalInterfaces = ["ve-nextcloud"];
@@ -13,12 +25,19 @@ in {
   };
 
   containers.nextcloud = {
-    bindMounts = {
-      "/nextcloud" = {
-        hostPath = "/nextcloud";
-        isReadOnly = false;
+    bindMounts =
+      {
+        "/nextcloud" = {
+          hostPath = "/nextcloud";
+          isReadOnly = false;
+        };
+      }
+      // lib.optionalAttrs duplicatiPasswordExists {
+        "/run/duplicati-password" = {
+          hostPath = config.age.secrets."duplicati-password".path;
+          isReadOnly = true;
+        };
       };
-    };
     autoStart = true;
     privateNetwork = true;
     hostAddress = "192.168.100.10";
@@ -30,16 +49,6 @@ in {
         protocol = "tcp";
         hostPort = 8010;
         containerPort = 80;
-      }
-      {
-        protocol = "tcp";
-        hostPort = 8200;
-        containerPort = 8200;
-      }
-      {
-        protocol = "tcp";
-        hostPort = 28981;
-        containerPort = 28981;
       }
     ];
     config = {pkgs, ...}: {
@@ -60,11 +69,16 @@ in {
         ];
       };
 
-      services.duplicati = {
-        enable = true;
-        interface = "any";
-        user = "root";
-      };
+      services.duplicati =
+        {
+          enable = true;
+          interface = "any";
+          user = "root";
+          port = duplicatiPort;
+        }
+        // lib.optionalAttrs duplicatiPasswordExists {
+          serverPasswordFile = "/run/duplicati-password";
+        };
 
       # services.paperless = {
       #   enable = true;
@@ -148,7 +162,7 @@ in {
 
       networking.firewall = {
         enable = true;
-        allowedTCPPorts = [80 443 8200 28981];
+        allowedTCPPorts = [80 443 duplicatiPort];
       };
 
       networking.resolvconf.enable = false;

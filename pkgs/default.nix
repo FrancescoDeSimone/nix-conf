@@ -13,4 +13,5 @@
   adguard-exporter = pkgs.callPackage ./adguard-exporter.nix {inherit inputs;};
   lidarr-youtube-downloader = pkgs.callPackage ./lidarr-youtube-downloader.nix {inherit inputs;};
   chatto = pkgs.callPackage ./chatto.nix {inherit inputs;};
+  pass-securid = pkgs.callPackage ./pass-securid.nix {inherit inputs;};
 }
