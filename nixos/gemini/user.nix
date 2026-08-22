@@ -24,7 +24,7 @@
 
   users.users.fdesi = {
     isNormalUser = true;
-    extraGroups = ["networkmanager" "wheel" "video" "audio"];
+    extraGroups = ["networkmanager" "wheel" "video" "audio" "incus-admin"];
     shell = pkgs.zsh;
     hashedPasswordFile = config.age.secrets.user-password.path;
   };
