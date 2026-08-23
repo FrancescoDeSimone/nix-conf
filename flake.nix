@@ -85,9 +85,8 @@
       flake = false;
     };
 
-    # Local pass extension for RSA SecurID tokens (no remote yet).
     pass-securid = {
-      url = "path:/home/fdesi/git/personal/pass-securid";
+      url = "github:FrancescoDeSimone/pass-securid";
       flake = false;
     };
   };
