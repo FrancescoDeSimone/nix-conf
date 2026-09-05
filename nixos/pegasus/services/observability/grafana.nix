@@ -41,6 +41,9 @@ in {
         check_for_updates = false;
         check_for_plugin_updates = false;
       };
+      metrics = {
+        disable_total_stats = true;
+      };
       server = {
         http_addr = "0.0.0.0";
         http_port = config.my.services.grafana.port;

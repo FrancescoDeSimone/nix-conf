@@ -160,6 +160,9 @@
     extraConfig = ''
       client_max_body_size 20M;
 
+      # Long timeout for streaming responses to slow-but-alive clients
+      send_timeout 3600s;
+
       # Disable error interception so Jellyfin controls its own responses
       proxy_intercept_errors off;
     '';
@@ -286,6 +289,7 @@
     root ? null,
     locations ? null,
     tls ? null,
+    http2 ? null,
   }:
     (
       if public
@@ -304,7 +308,8 @@
       extraConfig = extraConfig + lib.optionalString (accessPolicy != null) accessPolicy;
     }
     // lib.optionalAttrs (root != null) {inherit root;}
-    // lib.optionalAttrs (locations != null) {inherit locations;};
+    // lib.optionalAttrs (locations != null) {inherit locations;}
+    // lib.optionalAttrs (http2 != null) {inherit http2;};
 
   mkProxyLocation = {
     upstream,
@@ -325,9 +330,10 @@
     websockets ? false,
     locationExtraConfig ? null,
     tls ? null,
+    http2 ? null,
   }:
     mkVhost {
-      inherit public accessPolicy tls;
+      inherit public accessPolicy tls http2;
       extraConfig = vhostConfig;
       locations = {
         "/" = mkProxyLocation {
@@ -675,6 +681,7 @@ in {
             vhostConfig = jellyfinVhostConfig;
             websockets = true;
             locationExtraConfig = jellyfinProxyConfig;
+            http2 = false;
           };
 
           "pdf.${domain}" = mkVhost {
@@ -721,6 +728,7 @@ in {
             websockets = true;
             locationExtraConfig = jellyfinProxyConfig;
             tls = internalDomain;
+            http2 = false;
           };
 
           "prowlarr.${internalDomain}" = mkTailnetProxyVhost {
@@ -776,15 +784,15 @@ in {
             tls = internalDomain;
           };
 
-          "chatto.${internalDomain}" = mkTailnetProxyVhost {
-            upstream = "http://${config.my.services.chatto.localAddress}:${toString config.my.services.chatto.port}/";
-            vhostConfig = defaultAppVhostConfig;
-            websockets = true;
-            locationExtraConfig = ''
-              proxy_intercept_errors off;
-            '';
-            tls = internalDomain;
-          };
+          # "chatto.${internalDomain}" = mkTailnetProxyVhost {
+          #   upstream = "http://${config.my.services.chatto.localAddress}:${toString config.my.services.chatto.port}/";
+          #   vhostConfig = defaultAppVhostConfig;
+          #   websockets = true;
+          #   locationExtraConfig = ''
+          #     proxy_intercept_errors off;
+          #   '';
+          #   tls = internalDomain;
+          # };
 
           "headplane.${internalDomain}" = mkVhost {
             accessPolicy = tailnetOnlyAccess;

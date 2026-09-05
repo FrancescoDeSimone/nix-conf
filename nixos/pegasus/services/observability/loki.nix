@@ -2,6 +2,9 @@
   services.loki = {
     enable = true;
     configuration = {
+      analytics = {
+        reporting_enabled = false;
+      };
       server.http_listen_port = config.my.services.loki.port;
       auth_enabled = false;
       limits_config = {
