@@ -80,14 +80,12 @@ in {
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
       environment = {
-        DEEMIX_SERVER_PORT = "6595";
-        DEEMIX_DATA_DIR = "/config";
-        DEEMIX_MUSIC_DIR = "/downloads";
+        DEEMIX_SERVER_PORT = toString config.my.services.deemix.port;
+        DEEMIX_DATA_DIR = cfg.dataDir;
+        DEEMIX_MUSIC_DIR = cfg.musicDir;
         DEEMIX_HOST = cfg.host;
         DEEMIX_SINGLE_USER = if cfg.singleUser then "true" else "false";
-        PUID = "1000";
-        PGID = "976";
-        UMASK_SET = "022";
+        NODE_ENV = "production";
       };
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/deemix-webui";
