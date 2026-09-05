@@ -439,8 +439,12 @@
     (mkTailnetTlsService "scrutiny" config.my.services.scrutiny.port)
     (mkTailnetTlsService "pdf" config.my.services.stirling-pdf.port)
     (mkTailnetTlsService "prometheus" config.my.services.prometheus.port)
-    (mkTailnetTlsService "deemix" config.my.services.deemix.port)
   ];
+
+  deemixVhostConfig = mkVhostConfig {
+    csp = null;
+    rules = defaultAppRules;
+  };
 
   speedtrackerLocationConfig = ''
     proxy_buffer_size 16k;
@@ -795,6 +799,13 @@ in {
               proxy_buffering off;
               proxy_set_header Accept-Encoding "";
             '';
+            tls = internalDomain;
+          };
+
+          "deemix.${internalDomain}" = mkTailnetProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services.deemix.port}/";
+            vhostConfig = deemixVhostConfig;
+            websockets = true;
             tls = internalDomain;
           };
 

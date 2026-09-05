@@ -7,5 +7,6 @@
     musicDir = "/data/Media/Music";
     host = "127.0.0.1";
     singleUser = true;
+    arlFile = config.age.secrets."deemix-arl".path;
   };
 }

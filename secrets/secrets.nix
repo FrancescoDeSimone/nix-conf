@@ -22,4 +22,5 @@ in {
   "chatto-admin.age".publicKeys = keys;
   "gpg-key.age".publicKeys = keys;
   "ytdl-bot.age".publicKeys = keys;
+  "deemix-arl.age".publicKeys = keys;
 }

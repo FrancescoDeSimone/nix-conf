@@ -47,6 +47,12 @@ in {
       default = false;
       description = "Open firewall for deemix port.";
     };
+
+    arlFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      description = "File containing Deezer ARL (e.g. /run/agenix/deemix-arl). If set, login.json will be populated declaratively.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -61,7 +67,9 @@ in {
 
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0750 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.musicDir} 0750 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.dataDir}/logs 0750 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.dataDir}/config 0750 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.musicDir} 0755 thinkcentre thinkcentre -"
     ];
 
     systemd.services.deemix = {
@@ -82,7 +90,29 @@ in {
         Group = cfg.group;
         Restart = "always";
         RestartSec = 5;
+        StateDirectory = "deemix";
+        StateDirectoryMode = "0750";
+        ReadWritePaths = [cfg.dataDir cfg.musicDir];
+      } // lib.optionalAttrs (cfg.arlFile != null) {
+        LoadCredential = "deemix-arl:${cfg.arlFile}";
       };
+      preStart = lib.optionalString (cfg.arlFile != null) ''
+        set -euo pipefail
+        credFile="''${CREDENTIALS_DIRECTORY:-/run/credentials/deemix.service}/deemix-arl"
+        if [[ ! -f "$credFile" ]]; then
+          credFile="${cfg.arlFile}"
+        fi
+        if [[ -f "$credFile" ]]; then
+          arl="$(tr -d '\r\n' < "$credFile" | xargs)"
+          if [[ -n "$arl" ]]; then
+            umask 077
+            printf '{"arl":"%s"}\n' "$arl" > "${cfg.dataDir}/login.json.tmp"
+            mv "${cfg.dataDir}/login.json.tmp" "${cfg.dataDir}/login.json"
+            chown ${cfg.user}:${cfg.group} "${cfg.dataDir}/login.json"
+            chmod 600 "${cfg.dataDir}/login.json"
+          fi
+        fi
+      '';
     };
 
     networking.firewall.allowedTCPPorts = lib.optionals cfg.openFirewall [config.my.services.deemix.port];
