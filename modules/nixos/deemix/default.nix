@@ -72,7 +72,7 @@ in {
       "d ${cfg.dataDir}/config 0750 ${cfg.user} ${cfg.group} -"
       "d ${cfg.dataDir}/queue 0750 ${cfg.user} ${cfg.group} -"
       "d ${cfg.dataDir}/data 0750 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.musicDir} 0775 thinkcentre ${cfg.group} -"
+      "d ${cfg.musicDir} 0775 thinkcentre thinkcentre -"
     ];
 
     systemd.services.deemix = {
@@ -80,12 +80,14 @@ in {
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
       environment = {
-        DEEMIX_SERVER_PORT = toString config.my.services.deemix.port;
-        DEEMIX_DATA_DIR = cfg.dataDir;
-        DEEMIX_MUSIC_DIR = cfg.musicDir;
+        DEEMIX_SERVER_PORT = "6595";
+        DEEMIX_DATA_DIR = "/config";
+        DEEMIX_MUSIC_DIR = "/downloads";
         DEEMIX_HOST = cfg.host;
         DEEMIX_SINGLE_USER = if cfg.singleUser then "true" else "false";
-        NODE_ENV = "production";
+        PUID = "1000";
+        PGID = "976";
+        UMASK_SET = "022";
       };
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/deemix-webui";
