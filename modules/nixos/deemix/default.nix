@@ -99,8 +99,16 @@ in {
       } // lib.optionalAttrs (cfg.arlFile != null) {
         LoadCredential = "deemix-arl:${cfg.arlFile}";
       };
-      preStart = lib.optionalString (cfg.arlFile != null) ''
+      preStart = ''
         set -euo pipefail
+        if [[ -f "${cfg.dataDir}/config.json" ]]; then
+          if grep -q '"/downloads' "${cfg.dataDir}/config.json" 2>/dev/null; then
+            ${pkgs.jq}/bin/jq --arg dir "${cfg.musicDir}" '.downloadLocation = $dir' "${cfg.dataDir}/config.json" > "${cfg.dataDir}/config.json.tmp" && mv "${cfg.dataDir}/config.json.tmp" "${cfg.dataDir}/config.json"
+            chown ${cfg.user}:${cfg.group} "${cfg.dataDir}/config.json"
+            chmod 640 "${cfg.dataDir}/config.json"
+          fi
+        fi
+      '' + lib.optionalString (cfg.arlFile != null) ''
         credFile="''${CREDENTIALS_DIRECTORY:-/run/credentials/deemix.service}/deemix-arl"
         if [[ ! -f "$credFile" ]]; then
           credFile="${cfg.arlFile}"
