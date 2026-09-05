@@ -76,7 +76,6 @@
     # Block all hidden files and directories (dotfiles)
     location ~ /\. {
       deny all;
-      access_log off;
       log_not_found off;
     }
   '';
@@ -85,7 +84,6 @@
     # Block dangerous/probing file extensions
     location ~* \.(git|log|sql|env|yml|yaml|bak|php|asp|aspx|jsp|cgi|sh|py|pl|conf)$ {
       deny all;
-      access_log off;
     }
   '';
 
@@ -166,6 +164,7 @@
       # Disable error interception so Jellyfin controls its own responses
       proxy_intercept_errors off;
     '';
+    rules = defaultAppRules;
   };
 
   mkStreamingProxyConfig = {connectTimeout ? null}:
@@ -197,7 +196,10 @@
       + nextcloudWellKnownRules;
   };
 
-  grafanaVhostConfig = mkVhostConfig {csp = defaultAppCsp;};
+  grafanaVhostConfig = mkVhostConfig {
+    csp = defaultAppCsp;
+    rules = defaultAppRules;
+  };
 
   headscaleVhostConfig = mkVhostConfig {rules = defaultAppRules;};
   headscaleProxyConfig = mkStreamingProxyConfig {};
@@ -228,9 +230,11 @@
   }";
   itToolsInternalHost = "it-tools.pegasus.lan";
   tailnetOnlyAccess = ''
-    if ($tailnet_allowed = 0) {
-      return 444;
-    }
+    allow 100.64.0.0/10;
+    allow fd7a:115c:a1e0::/48;
+    allow 127.0.0.1;
+    allow ::1;
+    deny all;
   '';
   gitPublicLocations = {
     # Keep Git smart HTTP, LFS and API traffic unchallenged so CLI clients keep working.
@@ -492,7 +496,7 @@ in {
       dnsProvider = provider;
       group = "nginx";
       dnsResolver = "1.1.1.1:53";
-      dnsPropagationCheck = false;
+      dnsPropagationCheck = true;
       environmentFile = config.age.secrets.provider.path;
     };
     certs.${internalDomain} = {
@@ -500,7 +504,7 @@ in {
       dnsProvider = provider;
       group = "nginx";
       dnsResolver = "1.1.1.1:53";
-      dnsPropagationCheck = false;
+      dnsPropagationCheck = true;
       environmentFile = config.age.secrets.provider.path;
     };
   };
@@ -569,6 +573,7 @@ in {
       recommendedProxySettings = true;
       recommendedTlsSettings = true;
       statusPage = true;
+      logError = "/var/log/nginx/error.log warn";
       commonHttpConfig = ''
         # Rate limiting
         limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
@@ -600,6 +605,14 @@ in {
           127.0.0.1 1;
           ::1 1;
         }
+
+        ssl_stapling on;
+        ssl_stapling_verify on;
+        resolver 1.1.1.1 valid=300s;
+        resolver_timeout 5s;
+
+        limit_req_status 429;
+        limit_conn_status 429;
 
         brotli on;
         brotli_static on;
@@ -689,7 +702,7 @@ in {
             extraConfig = mkVhostConfig {
               csp = defaultAppCsp;
               extraConfig = largeTransferTimeouts;
-              rules = sharedAppRules;
+              rules = defaultAppRules;
             };
             locations = pdfPublicLocations;
           };
