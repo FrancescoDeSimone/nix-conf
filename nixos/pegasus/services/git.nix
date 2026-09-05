@@ -1,4 +1,4 @@
-{...}: {
+{config, ...}: {
   catppuccin.gitea = {
     enable = true;
     flavor = "mocha";
@@ -27,6 +27,13 @@
     privateNetwork = true;
     hostAddress = "192.168.200.10";
     localAddress = "192.168.200.11";
+    forwardPorts = [
+      {
+        protocol = "tcp";
+        hostPort = config.my.services.git.port;
+        containerPort = config.my.services.git.port;
+      }
+    ];
 
     config = {pkgs, ...}: {
       services.postgresql = {

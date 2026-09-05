@@ -4,7 +4,7 @@
   ...
 }: let
   scrutinyApi = "http://127.0.0.1:${toString config.my.services.scrutiny.port}";
-  exporterPort = 9900;
+  exporterPort = config.my.services.scrutiny.exporter;
 in {
   services.scrutiny = {
     enable = true;

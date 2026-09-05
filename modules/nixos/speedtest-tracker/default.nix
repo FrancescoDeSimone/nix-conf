@@ -163,12 +163,6 @@ in {
       description = "Group the service runs as.";
     };
 
-    port = lib.mkOption {
-      type = lib.types.port;
-      default = 8787;
-      description = "Local port for the Speedtest Tracker web interface.";
-    };
-
     dataDir = lib.mkOption {
       type = types.path;
       default = "/var/lib/speedtest-tracker";

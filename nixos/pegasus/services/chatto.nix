@@ -7,6 +7,7 @@
 
   my.services.chatto = {
     enable = true;
+    metrics.port = config.my.services.chatto.exporter;
     url = "https://chatto.${private.nginx.internalDomain}";
     serverName = "Chatto";
     owners = ["admin@lan64.de"];

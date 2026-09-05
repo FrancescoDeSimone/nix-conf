@@ -8,7 +8,7 @@
   pegasusTailIp = "100.64.0.1";
   tailDomain = "tail.${private.nginx.domain}";
   pegasusTailName = "pegasus.${tailDomain}";
-  exporterPort = 9618;
+  exporterPort = config.my.services.adguard.exporter;
   exporterUserCleanup = pkgs.writeShellScript "adguard-exporter-user-cleanup" ''
     set -eu
     config_file="/var/lib/AdGuardHome/AdGuardHome.yaml"

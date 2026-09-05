@@ -1,4 +1,4 @@
-{lib, ...}: {
+{config, lib, ...}: {
   systemd.services.transmission.serviceConfig.Restart = lib.mkForce "always";
   services.transmission = {
     enable = true;
@@ -7,6 +7,7 @@
     user = "thinkcentre";
     settings = {
       rpc-bind-address = "127.0.0.1";
+      rpc-port = config.my.services.transmission.port;
       rpc-whitelist-enabled = true;
       rpc-whitelist = ["127.0.0.1"];
       home = "/data/transmission";

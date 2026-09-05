@@ -118,12 +118,6 @@ in {
       description = "Address of the Chatto container inside its network.";
     };
 
-    port = mkOption {
-      type = types.port;
-      default = 4000;
-      description = "Port the Chatto webserver listens on.";
-    };
-
     url = mkOption {
       type = types.nullOr types.str;
       default = null;
@@ -209,12 +203,6 @@ in {
         type = types.str;
         default = "127.0.0.1";
         description = "Address to bind the metrics listener to.";
-      };
-
-      port = mkOption {
-        type = types.port;
-        default = 9090;
-        description = "Port for the metrics listener.";
       };
     };
 

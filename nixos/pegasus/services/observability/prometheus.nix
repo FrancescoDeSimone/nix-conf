@@ -247,7 +247,7 @@ in {
         }
         {
           job_name = "adguard-exporter";
-          static_configs = [{targets = ["localhost:9618"];}];
+          static_configs = [{targets = ["localhost:${toString config.my.services.adguard.exporter}"];}];
         }
         {
           job_name = "tailscale-exporter";
@@ -257,7 +257,7 @@ in {
         }
         {
           job_name = "scrutiny";
-          static_configs = [{targets = ["localhost:9900"];}];
+          static_configs = [{targets = ["localhost:${toString config.my.services.scrutiny.exporter}"];}];
           scrape_interval = "1m";
           scrape_timeout = "30s";
         }

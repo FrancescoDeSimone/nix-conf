@@ -68,6 +68,7 @@ in {
     group = "thinkcentre";
     profileDir = "/data/qbittorrent";
     openFirewall = false;
+    webuiPort = config.my.services.qbittorrent.port;
 
     serverConfig = {
       AutoRun = {

@@ -47,7 +47,7 @@ in {
     forwardPorts = [
       {
         protocol = "tcp";
-        hostPort = 8010;
+        hostPort = config.my.services.nextcloud.port;
         containerPort = 80;
       }
     ];

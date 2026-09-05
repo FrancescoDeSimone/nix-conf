@@ -25,7 +25,7 @@ in {
     homepage = mkService 8888;
 
     # Security & DNS
-    adguard = mkService 3003;
+    adguard = mkServiceWithExporter 3003 9618;
 
     # Monitoring & Observability
     netdata = mkService 19999;
@@ -39,6 +39,8 @@ in {
     process-exporter = mkService 9005;
     systemd-exporter = mkService 9006;
     ntopng = mkService 7777;
+    speedtest-tracker = mkService 8789;
+    chatto = mkServiceWithExporter 4000 4001;
     # Media & Arr Stack
     jellyfin = mkService 8096;
     seerr = mkService 5055;
@@ -60,7 +62,7 @@ in {
     stirling-pdf = mkService 8085;
     filebrowser = mkService 8082;
     it-tools = mkService 80;
-    scrutiny = mkService 8081;
+    scrutiny = mkServiceWithExporter 8081 9900;
     nextcloud = mkService 8010;
     duplicati = mkService 8200;
     karakeep = mkService 3002;
