@@ -61,6 +61,7 @@ in {
       group = cfg.group;
       home = cfg.dataDir;
       createHome = true;
+      extraGroups = ["thinkcentre"];
     };
 
     users.groups.${cfg.group} = {};
@@ -69,7 +70,9 @@ in {
       "d ${cfg.dataDir} 0750 ${cfg.user} ${cfg.group} -"
       "d ${cfg.dataDir}/logs 0750 ${cfg.user} ${cfg.group} -"
       "d ${cfg.dataDir}/config 0750 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.musicDir} 0755 thinkcentre thinkcentre -"
+      "d ${cfg.dataDir}/queue 0750 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.dataDir}/data 0750 ${cfg.user} ${cfg.group} -"
+      "d ${cfg.musicDir} 0775 thinkcentre ${cfg.group} -"
     ];
 
     systemd.services.deemix = {
