@@ -25,7 +25,7 @@ buildGoModule rec {
     inherit pname version;
     pnpm = pnpm_10;
     fetcherVersion = 4;
-    hash = "sha256-SSfX1YWcm/lqfDlOu2H6VS5WcLso1npMZrXuM0EFj1U=";
+    hash = "sha256-Qm7Mw47CdJ/v4LkWJW6bsjBqjdziv30uu2z14X5PP+8=";
   };
 
   tags = ["bootstrap"];

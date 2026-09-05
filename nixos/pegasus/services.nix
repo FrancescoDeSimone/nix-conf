@@ -15,7 +15,7 @@
     ./services/prowlarr.nix
     ./services/olivetin.nix
     ./services/kasm.nix
-    ./services/govd.nix
+    # ./services/govd.nix
     ./services/radarr.nix
     ./services/scrutiny.nix
     ./services/sonarr.nix
@@ -31,7 +31,8 @@
     ./services/bypass.nix
     ./services/lidarr.nix
     ./services/adguard.nix
-    ./services/chatto.nix
+    # ./services/chatto.nix
+    ./services/ytdl-bot.nix
   ];
 
   services = {

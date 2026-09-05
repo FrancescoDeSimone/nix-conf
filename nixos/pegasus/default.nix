@@ -56,6 +56,10 @@
       file = ../../secrets/chatto-admin.age;
       mode = "0400";
     };
+    "ytdl-bot" = {
+      file = ../../secrets/ytdl-bot.age;
+      mode = "0400";
+    };
   };
 
   systemd = {

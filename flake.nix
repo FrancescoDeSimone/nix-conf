@@ -84,9 +84,12 @@
       url = "git+ssh://git@github.com/FrancescoDeSimone/p5aint?ref=single-file-compressed";
       flake = false;
     };
-
     pass-securid = {
       url = "github:FrancescoDeSimone/pass-securid";
+      flake = false;
+    };
+    ytdl_bot = {
+      url = "path:../ytdl_bot";
       flake = false;
     };
   };
@@ -142,7 +145,6 @@
               nixpkgs.overlays = allOverlays;
               nixpkgs.config.allowUnfree = true;
               nixpkgs.config.permittedInsecurePackages = [
-                "olivetin-2025.11.25"
                 "pnpm-9.15.9"
               ];
             }

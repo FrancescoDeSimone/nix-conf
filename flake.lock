@@ -800,14 +800,17 @@
     "pass-securid": {
       "flake": false,
       "locked": {
-        "lastModified": 1786468858,
-        "narHash": "sha256-4g7ndkvxQcjBKI3miq4TPFxMjeNyQ3KD+Rv5YwuroJ0=",
-        "path": "/home/fdesi/git/personal/pass-securid",
-        "type": "path"
+        "lastModified": 1788250774,
+        "narHash": "sha256-D/8UA0wMvaKSSXEjAAGq+CPv+SebAMOnkCKUNhQOF8w=",
+        "owner": "FrancescoDeSimone",
+        "repo": "pass-securid",
+        "rev": "ba88d616671fbc10b4bb0fb8c58d2e9f10952582",
+        "type": "github"
       },
       "original": {
-        "path": "/home/fdesi/git/personal/pass-securid",
-        "type": "path"
+        "owner": "FrancescoDeSimone",
+        "repo": "pass-securid",
+        "type": "github"
       }
     },
     "password-store-repo": {
@@ -896,6 +899,7 @@
         "speedtest-tracker": "speedtest-tracker",
         "thirteenft": "thirteenft",
         "tuxedo-rs": "tuxedo-rs",
+        "ytdl_bot": "ytdl_bot",
         "zig-overlay": "zig-overlay"
       }
     },
@@ -1081,6 +1085,18 @@
         "repo": "tuxedo-rs",
         "type": "github"
       }
+    },
+    "ytdl_bot": {
+      "flake": false,
+      "locked": {
+        "path": "../ytdl_bot",
+        "type": "path"
+      },
+      "original": {
+        "path": "../ytdl_bot",
+        "type": "path"
+      },
+      "parent": []
     },
     "zig-overlay": {
       "inputs": {

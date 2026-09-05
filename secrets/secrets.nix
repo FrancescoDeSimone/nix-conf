@@ -21,4 +21,5 @@ in {
   "headplane-cookie-secret.age".publicKeys = keys;
   "chatto-admin.age".publicKeys = keys;
   "gpg-key.age".publicKeys = keys;
+  "ytdl-bot.age".publicKeys = keys;
 }
