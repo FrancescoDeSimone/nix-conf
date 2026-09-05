@@ -164,7 +164,7 @@
       # Disable error interception so Jellyfin controls its own responses
       proxy_intercept_errors off;
     '';
-    rules = defaultAppRules;
+    rules = hiddenPathRules + probeExtensionRules + defaultRobotsRules + scannerBlockRules + rateLimitRules;
   };
 
   mkStreamingProxyConfig = {connectTimeout ? null}:
@@ -439,6 +439,7 @@
     (mkTailnetTlsService "scrutiny" config.my.services.scrutiny.port)
     (mkTailnetTlsService "pdf" config.my.services.stirling-pdf.port)
     (mkTailnetTlsService "prometheus" config.my.services.prometheus.port)
+    (mkTailnetTlsService "deemix" config.my.services.deemix.port)
   ];
 
   speedtrackerLocationConfig = ''
