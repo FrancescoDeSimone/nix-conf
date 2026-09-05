@@ -4,7 +4,7 @@
   pkgs,
   inputs,
   ...
-}: rec {
+}: {
   # example = pkgs.callPackage ./example { };
   "13ft" = pkgs.callPackage ./13ft.nix {inherit inputs;};
   clipvault = pkgs.callPackage ./clipvault.nix {inherit inputs;};
@@ -16,5 +16,5 @@
   pass-securid = pkgs.callPackage ./pass-securid.nix {inherit inputs;};
   ytdl-bot = pkgs.callPackage ./ytdl_bot.nix {inherit inputs;};
   deemix = pkgs.callPackage ./deemix.nix {inherit inputs;};
-  deemix-cli = deemix;
+  deemix-cli = inputs.deemix.packages.${pkgs.stdenv.hostPlatform.system}.cli;
 }
