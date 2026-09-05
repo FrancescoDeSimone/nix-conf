@@ -4,6 +4,17 @@
   inputs,
   ...
 }: let
+  pass-audit = pkgs.pass.extensions.pass-audit.overrideAttrs (_: {
+    version = "unstable-2025-05-14";
+    doCheck = false;
+    src = pkgs.fetchFromGitHub {
+      owner = "roddhjav";
+      repo = "pass-audit";
+      rev = "92b8fe5709bfbaaadf4c2f1db2ff0c7c1d014503";
+      hash = "sha256-iZJkem3kUUJb8sGcLCaQMvmq9705UDwMYG+R6s9Db0w=";
+    };
+  });
+
   # git textconv driver: decrypts a *.gpg file to stdout so `git diff`
   # shows plaintext diffs. Git invokes it as: gpg-diff <path-to-encrypted-file>
   gpg-diff = pkgs.writeShellScriptBin "gpg-diff" ''
@@ -15,7 +26,7 @@ in {
     package = pkgs.pass.withExtensions (exts: [
       exts.pass-otp
       exts.pass-update
-      exts.pass-audit
+      pass-audit
       pkgs.pass-securid
     ]);
     settings = {
