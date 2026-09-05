@@ -92,6 +92,10 @@
       url = "git+file:///home/thinkcentre/ytdl_bot";
       flake = false;
     };
+    deemix = {
+      url = "github:bambanah/deemix";
+      flake = true;
+    };
   };
 
   outputs = {

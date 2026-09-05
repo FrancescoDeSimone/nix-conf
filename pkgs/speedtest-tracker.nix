@@ -37,7 +37,7 @@ in
       composerNoPlugins = false;
       composerStrictValidation = false;
       strictDeps = true;
-      vendorHash = "sha256-YevX7FazqP4ccjo6pmNSDGc/o3+pHjW7mC6QvCrp6Oc=";
+      vendorHash = "sha256-gFCK0oGAVhM1twq7ZmfEo1VY5jYANRtwa2d9XpSeuhI=";
     };
 
     npmDeps = fetchNpmDeps {

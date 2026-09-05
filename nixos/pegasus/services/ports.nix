@@ -76,5 +76,6 @@ in {
     jelly-clipper = mkService 3333;
     bypass = mkService 5000;
     olivetin = mkService 1337;
+    deemix = mkService 6595;
   };
 }

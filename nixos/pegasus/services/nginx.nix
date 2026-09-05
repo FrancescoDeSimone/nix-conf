@@ -572,7 +572,7 @@ in {
       commonHttpConfig = ''
         # Rate limiting
         limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-        limit_req_zone $binary_remote_addr zone=general:30r/s rate=30r/s;
+        limit_req_zone $binary_remote_addr zone=general:10m rate=30r/s;
         limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
         limit_conn_zone $binary_remote_addr zone=addr:10m;
 

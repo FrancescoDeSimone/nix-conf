@@ -33,6 +33,7 @@
     ./services/adguard.nix
     # ./services/chatto.nix
     ./services/ytdl-bot.nix
+    ./services/deemix.nix
   ];
 
   services = {

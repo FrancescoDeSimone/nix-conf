@@ -15,4 +15,6 @@
   chatto = pkgs.callPackage ./chatto.nix {inherit inputs;};
   pass-securid = pkgs.callPackage ./pass-securid.nix {inherit inputs;};
   ytdl-bot = pkgs.callPackage ./ytdl_bot.nix {inherit inputs;};
+  deemix = pkgs.callPackage ./deemix.nix {inherit inputs;};
+  deemix-cli = inputs.deemix.packages.${pkgs.stdenv.hostPlatform.system}.cli;
 }
