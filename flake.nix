@@ -89,7 +89,7 @@
       flake = false;
     };
     ytdl_bot = {
-      url = "path:../ytdl_bot";
+      url = "git+file:///home/thinkcentre/ytdl_bot";
       flake = false;
     };
   };
