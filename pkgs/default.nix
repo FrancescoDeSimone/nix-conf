@@ -1,20 +1,20 @@
 # Custom packages, that can be defined similarly to ones from nixpkgs
 # You can build them using 'nix build .#example'
-{
-  pkgs,
-  inputs,
-  ...
-}: {
-  # example = pkgs.callPackage ./example { };
-  "13ft" = pkgs.callPackage ./13ft.nix {inherit inputs;};
-  clipvault = pkgs.callPackage ./clipvault.nix {inherit inputs;};
-  jaro = pkgs.callPackage ./jaro.nix {inherit inputs;};
-  speedtest-tracker = pkgs.callPackage ./speedtest-tracker.nix {inherit inputs;};
-  adguard-exporter = pkgs.callPackage ./adguard-exporter.nix {inherit inputs;};
-  lidarr-youtube-downloader = pkgs.callPackage ./lidarr-youtube-downloader.nix {inherit inputs;};
-  chatto = pkgs.callPackage ./chatto.nix {inherit inputs;};
-  pass-securid = pkgs.callPackage ./pass-securid.nix {inherit inputs;};
-  ytdl-bot = pkgs.callPackage ./ytdl_bot.nix {inherit inputs;};
-  deemix = pkgs.callPackage ./deemix.nix {inherit inputs;};
-  deemix-cli = inputs.deemix.packages.${pkgs.stdenv.hostPlatform.system}.cli;
+{ pkgs, inputs, ... }:
+let
+  basePackages = {
+    "13ft" = pkgs.callPackage ./13ft.nix {inherit inputs;};
+    clipvault = pkgs.callPackage ./clipvault.nix {inherit inputs;};
+    jaro = pkgs.callPackage ./jaro.nix {inherit inputs;};
+    speedtest-tracker = pkgs.callPackage ./speedtest-tracker.nix {inherit inputs;};
+    adguard-exporter = pkgs.callPackage ./adguard-exporter.nix {inherit inputs;};
+    lidarr-youtube-downloader = pkgs.callPackage ./lidarr-youtube-downloader.nix {inherit inputs;};
+    chatto = pkgs.callPackage ./chatto.nix {inherit inputs;};
+    pass-securid = pkgs.callPackage ./pass-securid.nix {inherit inputs;};
+    deemix = pkgs.callPackage ./deemix.nix {inherit inputs;};
+    deemix-cli = inputs.deemix.packages.${pkgs.stdenv.hostPlatform.system}.cli;
+  };
+in
+basePackages // {
+  ytdl-bot = pkgs.callPackage ./ytdl_bot.nix {};
 }

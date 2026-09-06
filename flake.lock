@@ -949,7 +949,6 @@
         "speedtest-tracker": "speedtest-tracker",
         "thirteenft": "thirteenft",
         "tuxedo-rs": "tuxedo-rs",
-        "ytdl_bot": "ytdl_bot",
         "zig-overlay": "zig-overlay"
       }
     },
@@ -1150,18 +1149,6 @@
         "repo": "tuxedo-rs",
         "type": "github"
       }
-    },
-    "ytdl_bot": {
-      "flake": false,
-      "locked": {
-        "path": "./pkgs",
-        "type": "path"
-      },
-      "original": {
-        "path": "./pkgs",
-        "type": "path"
-      },
-      "parent": []
     },
     "zig-overlay": {
       "inputs": {

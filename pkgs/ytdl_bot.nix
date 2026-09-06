@@ -3,21 +3,15 @@
   rustPlatform,
   pkg-config,
   openssl,
-  inputs,
 }: let
-  src =
-    if builtins.pathExists /home/thinkcentre/ytdl_bot
-    then /home/thinkcentre/ytdl_bot
-    else inputs.ytdl_bot;
+  src = /home/thinkcentre/ytdl_bot;
 in
   rustPlatform.buildRustPackage {
     pname = "ytdl_bot";
     version = "0.1.0";
 
     inherit src;
-
     cargoLock.lockFile = src + "/Cargo.lock";
-
     nativeBuildInputs = [pkg-config];
     buildInputs = [openssl];
 

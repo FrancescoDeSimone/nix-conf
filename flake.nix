@@ -88,10 +88,7 @@
       url = "github:FrancescoDeSimone/pass-securid";
       flake = false;
     };
-    ytdl_bot = {
-      url = "path:./pkgs";
-      flake = false;
-    };
+    
     deemix = {
       url = "github:bambanah/deemix";
       flake = true;
