@@ -949,6 +949,7 @@
         "speedtest-tracker": "speedtest-tracker",
         "thirteenft": "thirteenft",
         "tuxedo-rs": "tuxedo-rs",
+        "ytdl_bot": "ytdl_bot",
         "zig-overlay": "zig-overlay"
       }
     },
@@ -1148,6 +1149,22 @@
         "owner": "AaronErhardt",
         "repo": "tuxedo-rs",
         "type": "github"
+      }
+    },
+    "ytdl_bot": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788710127,
+        "narHash": "sha256-Y0n37wNbyNUBnc8YKUCz9CVboZ6j/TEsJJIBVRw2ptA=",
+        "ref": "refs/heads/master",
+        "rev": "a358c4c840642a9d6440b390c3080f36626d5fb2",
+        "revCount": 2,
+        "type": "git",
+        "url": "https://git.fdesi.ipv64.net/desi/ytdl_bot.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.fdesi.ipv64.net/desi/ytdl_bot.git"
       }
     },
     "zig-overlay": {

@@ -16,5 +16,5 @@ let
   };
 in
 basePackages // {
-  ytdl-bot = pkgs.callPackage ./ytdl_bot.nix {};
+  ytdl-bot = pkgs.callPackage ./ytdl_bot.nix {inherit inputs;};
 }

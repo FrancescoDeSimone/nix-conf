@@ -88,6 +88,10 @@
       url = "github:FrancescoDeSimone/pass-securid";
       flake = false;
     };
+    ytdl_bot = {
+      url = "git+https://git.fdesi.ipv64.net/desi/ytdl_bot.git";
+      flake = false;
+    };
     
     deemix = {
       url = "github:bambanah/deemix";

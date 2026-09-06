@@ -3,8 +3,9 @@
   rustPlatform,
   pkg-config,
   openssl,
+  inputs,
 }: let
-  src = /home/thinkcentre/ytdl_bot;
+  src = inputs.ytdl_bot;
 in
   rustPlatform.buildRustPackage {
     pname = "ytdl_bot";
