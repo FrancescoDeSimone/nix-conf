@@ -75,6 +75,9 @@ in {
           interface = "any";
           user = "root";
           port = duplicatiPort;
+          parameters = ''
+            --webservice-allowedhostnames=duplicati.${private.nginx.internalDomain}
+          '';
         }
         // lib.optionalAttrs duplicatiPasswordExists {
           serverPasswordFile = "/run/duplicati-password";
