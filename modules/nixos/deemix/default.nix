@@ -72,7 +72,7 @@ in {
       "d ${cfg.dataDir}/config 0750 ${cfg.user} ${cfg.group} -"
       "d ${cfg.dataDir}/queue 0750 ${cfg.user} ${cfg.group} -"
       "d ${cfg.dataDir}/data 0750 ${cfg.user} ${cfg.group} -"
-      "d ${cfg.musicDir} 0775 thinkcentre thinkcentre -"
+      "d ${cfg.musicDir} 0775 thinkcentre deemix -"
     ];
 
     systemd.services.deemix = {
