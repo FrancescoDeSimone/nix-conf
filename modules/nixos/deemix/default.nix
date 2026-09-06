@@ -93,6 +93,7 @@ in {
         Group = cfg.group;
         Restart = "always";
         RestartSec = 5;
+        UMask = "0002";
         StateDirectory = "deemix";
         StateDirectoryMode = "0750";
         ReadWritePaths = [cfg.dataDir cfg.musicDir];
