@@ -16,6 +16,13 @@ rustPlatform.buildRustPackage {
 
   cargoLock = {
     lockFile = "${inputs.clipvault}/Cargo.lock";
+    outputHashes = {
+      "wayrs-client-1.3.1" = "sha256-KAgnYuBXSJev3esCaK+FtOjdi23j/OwaY0ymo2egvO0=";
+      "wayrs-core-1.0.5" = "sha256-KAgnYuBXSJev3esCaK+FtOjdi23j/OwaY0ymo2egvO0=";
+      "wayrs-proto-parser-3.0.1" = "sha256-KAgnYuBXSJev3esCaK+FtOjdi23j/OwaY0ymo2egvO0=";
+      "wayrs-protocols-0.14.11+1.45" = "sha256-KAgnYuBXSJev3esCaK+FtOjdi23j/OwaY0ymo2egvO0=";
+      "wayrs-scanner-0.15.4" = "sha256-KAgnYuBXSJev3esCaK+FtOjdi23j/OwaY0ymo2egvO0=";
+    };
   };
 
   nativeBuildInputs = [pkg-config];
