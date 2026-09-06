@@ -3,7 +3,7 @@
     ./services/ports.nix
     ./services/observability
     ./services/anubis.nix
-    ./services/docker.nix
+    # ./services/docker.nix
     ./services/filebrowser.nix
     ./services/git.nix
     ./services/homepage.nix
