@@ -37,8 +37,7 @@ in {
           echo "Fetching Lidarr.Plugin.Deemix..."
           tmp=$(mktemp -d)
           trap 'rm -rf "$tmp"' EXIT
-          ${pkgs.curl}/bin/curl -L -o "$tmp/deemix.zip" "https://github.com/ta264/Lidarr.Plugin.Deemix/releases/latest/download/Lidarr.Plugin.Deemix.zip" || \
-          ${pkgs.curl}/bin/curl -L -o "$tmp/deemix.zip" "https://github.com/youegraillot/lidarr-on-steroids/releases/latest/download/lidarr-deemix.zip" || true
+          ${pkgs.curl}/bin/curl -L -o "$tmp/deemix.zip" "https://github.com/ta264/Lidarr.Plugin.Deemix/releases/download/v1.3.0.65/Lidarr.Plugin.Deemix.net8.0.zip" || true
           if [[ -s "$tmp/deemix.zip" ]]; then
             ${pkgs.unzip}/bin/unzip -o "$tmp/deemix.zip" -d "$pluginDir"
             chown -R thinkcentre:lidarr "$pluginDir"

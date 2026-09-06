@@ -1154,17 +1154,14 @@
     "ytdl_bot": {
       "flake": false,
       "locked": {
-        "dirtyRev": "4a1d69af909559194d3a9d88628d4a104246458d-dirty",
-        "dirtyShortRev": "4a1d69a-dirty",
-        "lastModified": 1786531047,
-        "narHash": "sha256-Y0n37wNbyNUBnc8YKUCz9CVboZ6j/TEsJJIBVRw2ptA=",
-        "type": "git",
-        "url": "file:///home/thinkcentre/ytdl_bot"
+        "path": "./pkgs",
+        "type": "path"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/thinkcentre/ytdl_bot"
-      }
+        "path": "./pkgs",
+        "type": "path"
+      },
+      "parent": []
     },
     "zig-overlay": {
       "inputs": {

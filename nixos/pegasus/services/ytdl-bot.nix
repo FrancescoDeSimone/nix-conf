@@ -5,6 +5,7 @@
   ...
 }: let
   hostPkgs = pkgs;
+  ytdl_bot = hostPkgs.ytdl-bot;
 in {
   networking.nat = {
     enable = true;
@@ -89,7 +90,7 @@ in {
         ];
         serviceConfig = {
           EnvironmentFile = "/run/agenix/ytdl-bot";
-          ExecStart = "${hostPkgs.ytdl-bot}/bin/ytdl_bot";
+          ExecStart = "${ytdl_bot}/bin/ytdl_bot";
           Restart = "always";
           RestartSec = 5;
         };

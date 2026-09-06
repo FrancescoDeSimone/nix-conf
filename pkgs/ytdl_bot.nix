@@ -5,7 +5,10 @@
   openssl,
   inputs,
 }: let
-  src = inputs.ytdl_bot;
+  src =
+    if builtins.pathExists /home/thinkcentre/ytdl_bot
+    then /home/thinkcentre/ytdl_bot
+    else inputs.ytdl_bot;
 in
   rustPlatform.buildRustPackage {
     pname = "ytdl_bot";

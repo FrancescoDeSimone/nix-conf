@@ -38,6 +38,7 @@ stdenv.mkDerivation (finalAttrs: {
     runHook preBuild
     ${pkgs.jq}/bin/jq '.packageManager = "pnpm@11.8.0"' package.json > package.json.tmp && mv package.json.tmp package.json
     patchShebangs node_modules packages/*/node_modules
+    sed -i 's/this.downloadObject.collection\./this.downloadObject.collection?./g' packages/deemix/src/downloader.ts
     pnpm run build
     runHook postBuild
   '';
