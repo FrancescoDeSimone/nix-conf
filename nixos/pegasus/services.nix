@@ -34,6 +34,7 @@
     # ./services/chatto.nix
     ./services/ytdl-bot.nix
     ./services/deemix.nix
+    ./services/deemix-arr.nix
   ];
 
   services = {

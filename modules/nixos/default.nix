@@ -6,5 +6,5 @@
   speedtest-tracker = import ./speedtest-tracker;
   chatto = import ./chatto;
   deemix = import ./deemix;
-  lidarr-deemix = import ./lidarr-deemix;
+  deemix-arr = import ./deemix-arr;
 }

@@ -6,12 +6,6 @@ in {
 
     package = lib.mkPackageOption pkgs "deemix-arr" {};
 
-    port = lib.mkOption {
-      type = lib.types.port;
-      default = config.my.services.deemix-arr.port;
-      description = "Port to listen on (localhost only).";
-    };
-
     deemixUrl = lib.mkOption {
       type = lib.types.str;
       default = "http://127.0.0.1:${toString config.my.services.deemix.port}";

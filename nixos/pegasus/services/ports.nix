@@ -77,5 +77,6 @@ in {
     bypass = mkService 5000;
     olivetin = mkService 1337;
     deemix = mkService 6595;
+    deemix-arr = mkService 6596;
   };
 }

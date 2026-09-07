@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """deemix-arr: Torznab indexer + qBittorrent-compatible download client
 backed by a native deemix webui. Lets stock Lidarr (no plugin system)
 search Deezer and download through deemix. Stdlib only."""
@@ -11,7 +10,6 @@ import json
 import os
 import re
 import shutil
-import sys
 import threading
 import time
 import urllib.parse
@@ -47,8 +45,9 @@ class Deemix:
         if query:
             url += "?" + urllib.parse.urlencode(query)
         body = json.dumps(data).encode() if data is not None else None
-        req = urllib.request.Request(url, data=body, method=method,
-                                     headers={"Content-Type": "application/json"})
+        req = urllib.request.Request(
+            url, data=body, method=method,
+            headers={"Content-Type": "application/json"})
         with self.lock:
             try:
                 with self.opener.open(req, timeout=60) as r:
@@ -193,7 +192,8 @@ def torznab_caps():
             "<registration available=\"no\"/>"
             "<searching>"
             "<search available=\"yes\" supportedParams=\"q\"/>"
-            "<music-search available=\"yes\" supportedParams=\"q,artist,album,year\"/>"
+            "<music-search available=\"yes\" "
+            "supportedParams=\"q,artist,album,year\"/>"
             "</searching>"
             "<categories>"
             "<category id=\"3000\" name=\"Audio\">"
@@ -202,53 +202,63 @@ def torznab_caps():
             "</category></categories></caps>")
 
 
+NS = "http://torznab.com/schemas/2015/feed"
+XML_HEAD = '<?xml version="1.0" encoding="UTF-8"?>'
+
+
+def tattr(name, value):
+    return '<torznab:attr name="%s" value="%s"/>' % (name, escape(value))
+
+
 def torznab_search(params):
     artist = params.get("artist", "")
     album = params.get("album", "")
     q = params.get("q", "")
     term = " ".join(x for x in (artist, album, q) if x).strip()
     if not term:
-        return ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                "<rss version=\"2.0\" xmlns:torznab=\"http://torznab.com/schemas/2015/feed\">"
-                "<channel><title>deemix-arr</title></channel></rss>")
+        return (XML_HEAD + '<rss version="2.0" xmlns:torznab="'
+                + NS + '"><channel><title>deemix-arr</title>'
+                "</channel></rss>")
     items = []
     for a in dz.search_albums(term):
         try:
-            aid = str(a.get("id"))
             aname = (a.get("artist") or {}).get("name", "")
             atitle = a.get("title", "")
-            genre = ((a.get("genres") or {}).get("data") or [{}])[0].get("name", "")
+            genres = (a.get("genres") or {}).get("data") or [{}]
+            genre = genres[0].get("name", "")
             year = (a.get("release_date") or "")[:4]
             magnet, h = magnet_for(a)
             size = album_size(a)
             cat = "3040" if dz.flac else "3010"
-            title = escape(f"{aname} - {atitle}" + (f" ({year})" if year else ""))
+            disp = f"{aname} - {atitle}"
+            if year:
+                disp += f" ({year})"
+            attrs = [tattr("category", "3000"), tattr("category", cat),
+                     tattr("size", str(size)),
+                     tattr("album", atitle), tattr("artist", aname)]
+            if genre:
+                attrs.append(tattr("genre", genre))
+            if year:
+                attrs.append(tattr("year", year))
+            attrs += [tattr("seeders", "100"), tattr("peers", "50"),
+                      tattr("downloadvolumefactor", "0"),
+                      tattr("uploadvolumefactor", "1"),
+                      tattr("minimumratio", "0")]
             items.append(
-                "<item><title>" + title + "</title>"
+                "<item><title>" + escape(disp) + "</title>"
                 "<guid>" + escape(magnet) + "</guid>"
                 "<link>" + escape(magnet) + "</link>"
-                "<pubDate>" + torznab_date(a.get("release_date")) + "</pubDate>"
+                "<pubDate>" + torznab_date(a.get("release_date")) +
+                "</pubDate>"
                 "<category>3000</category><category>" + cat + "</category>"
-                "<enclosure url=\"" + escape(magnet) + "\" length=\"" + str(size) +
-                "\" type=\"application/x-bittorrent\"/>"
-                "<torznab:attr name=\"category\" value=\"3000\"/>"
-                "<torznab:attr name=\"category\" value=\"" + cat + "\"/>"
-                "<torznab:attr name=\"size\" value=\"" + str(size) + "\"/>"
-                "<torznab:attr name=\"album\" value=\"" + escape(atitle) + "\"/>"
-                "<torznab:attr name=\"artist\" value=\"" + escape(aname) + "\"/>"
-                + ("<torznab:attr name=\"genre\" value=\"" + escape(genre) + "\"/>" if genre else "")
-                + ("<torznab:attr name=\"year\" value=\"" + escape(year) + "\"/>" if year else "") +
-                "<torznab:attr name=\"seeders\" value=\"100\"/>"
-                "<torznab:attr name=\"peers\" value=\"50\"/>"
-                "<torznab:attr name=\"downloadvolumefactor\" value=\"0\"/>"
-                "<torznab:attr name=\"uploadvolumefactor\" value=\"1\"/>"
-                "<torznab:attr name=\"minimumratio\" value=\"0\"/>"
-                "</item>")
+                '<enclosure url="' + escape(magnet) + '" length="'
+                + str(size) + '" type="application/x-bittorrent"/>'
+                + "".join(attrs) + "</item>")
         except Exception as e:
             log("search item failed:", e)
-    return ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            "<rss version=\"2.0\" xmlns:torznab=\"http://torznab.com/schemas/2015/feed\">"
-            "<channel><title>deemix-arr</title>" + "".join(items) + "</channel></rss>")
+    return (XML_HEAD + '<rss version="2.0" xmlns:torznab="' + NS + '">'
+            "<channel><title>deemix-arr</title>" + "".join(items) +
+            "</channel></rss>")
 
 
 def parse_magnet(uri):
@@ -430,7 +440,8 @@ def job_info(h, j):
         "size": j.get("size", 0),
         "progress": j.get("progress", 0.0),
         "state": qstate(j),
-        "save_path": j.get("save_path") or predict_dir(j["artist"], j["album"]),
+        "save_path": (j.get("save_path")
+                      or predict_dir(j["artist"], j["album"])),
         "category": j.get("category", ""),
         "num_seeds": 100,
         "num_leechs": 50,

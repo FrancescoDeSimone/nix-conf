@@ -12,6 +12,7 @@ let
     chatto = pkgs.callPackage ./chatto.nix {inherit inputs;};
     pass-securid = pkgs.callPackage ./pass-securid.nix {inherit inputs;};
     deemix = pkgs.callPackage ./deemix.nix {inherit inputs;};
+    deemix-arr = pkgs.callPackage ./deemix-arr.nix {};
     deemix-cli = inputs.deemix.packages.${pkgs.stdenv.hostPlatform.system}.cli;
   };
 in
