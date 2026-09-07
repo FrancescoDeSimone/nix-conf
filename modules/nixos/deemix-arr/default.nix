@@ -27,13 +27,13 @@ in {
     user = lib.mkOption {
       type = lib.types.str;
       default = "deemix";
-      description = "User to run deemix-arr.";
+      description = "Existing user to run deemix-arr (created by deemix module).";
     };
 
     group = lib.mkOption {
       type = lib.types.str;
       default = "deemix";
-      description = "Group to run deemix-arr.";
+      description = "Existing group to run deemix-arr.";
     };
 
     apiKey = lib.mkOption {
@@ -62,14 +62,6 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    users.users.${cfg.user} = {
-      isSystemUser = true;
-      group = cfg.group;
-      createHome = false;
-    };
-
-    users.groups.${cfg.group} = {};
-
     systemd.tmpfiles.rules = [
       "d ${cfg.stagingDir} 0775 ${cfg.user} ${cfg.group} -"
     ];
