@@ -130,7 +130,7 @@ in {
           COMPANION_PROTOCOL = "https";
           COMPANION_PATH = "/companion";
           COMPANION_DATADIR = "/var/lib/uppy-companion/data";
-          COMPANION_SELF_ENDPOINT = "http://127.0.0.1:3020/companion";
+          COMPANION_SELF_ENDPOINT = "https://opencloud.${private.nginx.internalDomain}/companion";
           COMPANION_CLIENT_ORIGINS = "https://opencloud.${private.nginx.internalDomain}";
           COMPANION_ENABLE_URL_ENDPOINT = "true";
         };
