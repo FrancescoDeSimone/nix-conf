@@ -739,6 +739,15 @@ in {
             upstream = "https://192.168.103.11:${toString config.my.services.opencloud.port}/";
             vhostConfig = largeTransferVhostConfig;
             websockets = true;
+            # Tailnet + the opencloud container itself (OIDC hairpin).
+            accessPolicy = ''
+              allow 100.64.0.0/10;
+              allow fd7a:115c:a1e0::/48;
+              allow 127.0.0.1;
+              allow ::1;
+              allow 192.168.103.11;
+              deny all;
+            '';
             locationExtraConfig = ''
               proxy_ssl_verify off;
               proxy_ssl_server_name on;
