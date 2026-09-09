@@ -351,6 +351,7 @@
     accessPolicy ? null,
     websockets ? false,
     locationExtraConfig ? null,
+    extraLocations ? {},
     tls ? null,
     http2 ? null,
   }:
@@ -362,13 +363,14 @@
           inherit upstream websockets;
           extraConfig = locationExtraConfig;
         };
-      };
+      } // extraLocations;
     };
 
   mkTailnetProxyVhost = args:
     mkProxyVhost (
       {
         accessPolicy = tailnetOnlyAccess;
+        extraLocations = {};
       }
       // args
     );
@@ -769,6 +771,13 @@ in {
               proxy_ssl_verify off;
               proxy_ssl_server_name on;
             '';
+            extraLocations = {
+              "= /companion" = {return = "301 /companion/";};
+              "/companion/" = mkProxyLocation {
+                upstream = "http://127.0.0.1:${toString config.my.services.uppy-companion.port}/companion/";
+                websockets = true;
+              };
+            };
             tls = internalDomain;
           };
 

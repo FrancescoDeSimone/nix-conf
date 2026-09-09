@@ -109,6 +109,13 @@ in {
         allowedTCPPorts = [opencloudPort];
       };
 
+      # Point the importer web app at the local Companion instance.
+      environment.etc."opencloud/apps.yaml".text = ''
+        importer:
+          config:
+            companionUrl: 'https://opencloud.${private.nginx.internalDomain}/companion'
+      '';
+
       # Seed declarative web apps (pastebin, unzip, ...) from the
       # nix store on every boot so version bumps apply cleanly.
       systemd.services.opencloud-web-apps = {
