@@ -774,7 +774,7 @@ in {
             extraLocations = {
               "= /companion" = {return = "301 /companion/";};
               "/companion/" = mkProxyLocation {
-                upstream = "http://127.0.0.1:${toString config.my.services.uppy-companion.port}/companion/";
+                upstream = "http://192.168.103.11:3020/companion/";
                 websockets = true;
               };
             };

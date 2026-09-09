@@ -106,7 +106,60 @@ in {
 
       networking.firewall = {
         enable = true;
-        allowedTCPPorts = [opencloudPort];
+        allowedTCPPorts = [opencloudPort 3020];
+      };
+
+      users.users.uppy-companion = {
+        isSystemUser = true;
+        group = "uppy-companion";
+        home = "/var/lib/uppy-companion";
+        createHome = true;
+      };
+
+      users.groups.uppy-companion = {};
+
+      # Companion backend for the importer web app, same origin as
+      # OpenCloud so no extra CSP rules are needed.
+      systemd.services.uppy-companion = {
+        description = "Uppy Companion";
+        after = ["network.target"];
+        wantedBy = ["multi-user.target"];
+        environment = {
+          COMPANION_PORT = "3020";
+          COMPANION_DOMAIN = "opencloud.${private.nginx.internalDomain}";
+          COMPANION_PROTOCOL = "https";
+          COMPANION_PATH = "/companion";
+          COMPANION_DATADIR = "/var/lib/uppy-companion/data";
+          COMPANION_SELF_ENDPOINT = "http://127.0.0.1:3020/companion";
+          COMPANION_CLIENT_ORIGINS = "https://opencloud.${private.nginx.internalDomain}";
+          COMPANION_ENABLE_URL_ENDPOINT = "true";
+        };
+        serviceConfig = {
+          ExecStartPre = pkgs.writeShellScript "uppy-companion-secret" ''
+            set -euo pipefail
+            mkdir -p /var/lib/uppy-companion /var/lib/uppy-companion/data
+            if [[ ! -f /var/lib/uppy-companion/secret ]]; then
+              ${pkgs.openssl}/bin/openssl rand -hex 32 > /var/lib/uppy-companion/secret
+              chmod 600 /var/lib/uppy-companion/secret
+            fi
+            chown -R uppy-companion:uppy-companion /var/lib/uppy-companion
+          '';
+          ExecStart = pkgs.writeShellScript "uppy-companion-start" ''
+            set -euo pipefail
+            secret="$(tr -d '\r\n' < /var/lib/uppy-companion/secret)"
+            export COMPANION_SECRET="$secret"
+            export COMPANION_PREAUTH_SECRET="$secret"
+            exec "${pkgs.uppy-companion}/bin/companion"
+          '';
+          User = "uppy-companion";
+          Group = "uppy-companion";
+          Restart = "always";
+          RestartSec = 5;
+          StateDirectory = "uppy-companion";
+          StateDirectoryMode = "0750";
+          ReadWritePaths = ["/var/lib/uppy-companion"];
+          UMask = "0007";
+        };
       };
 
       # Point the importer web app at the local Companion instance.
