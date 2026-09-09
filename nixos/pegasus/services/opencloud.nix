@@ -40,7 +40,9 @@ in {
       adminPasswordFile = "${cfg.stateDir}/bootstrap-admin-password";
     in {
       networking.hosts = {
-        "${localAddress}" = ["opencloud.${private.nginx.internalDomain}"];
+        # Hairpin OIDC discovery through host nginx (port 443),
+        # so the proxy can verify tokens against the public URL.
+        "${hostAddress}" = ["opencloud.${private.nginx.internalDomain}"];
       };
 
       services.opencloud = {
