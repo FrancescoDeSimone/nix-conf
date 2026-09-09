@@ -735,9 +735,13 @@ in {
           };
 
           "opencloud.${internalDomain}" = mkTailnetProxyVhost {
-            upstream = "http://192.168.103.11:${toString config.my.services.opencloud.port}/";
+            upstream = "https://192.168.103.11:${toString config.my.services.opencloud.port}/";
             vhostConfig = largeTransferVhostConfig;
             websockets = true;
+            locationExtraConfig = ''
+              proxy_ssl_verify off;
+              proxy_ssl_server_name on;
+            '';
             tls = internalDomain;
           };
 
