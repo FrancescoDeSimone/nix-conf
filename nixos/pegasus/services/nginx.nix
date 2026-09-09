@@ -734,6 +734,13 @@ in {
             tls = internalDomain;
           };
 
+          "opencloud.${internalDomain}" = mkTailnetProxyVhost {
+            upstream = "http://192.168.103.11:${toString config.my.services.opencloud.port}/";
+            vhostConfig = largeTransferVhostConfig;
+            websockets = true;
+            tls = internalDomain;
+          };
+
           "adguard-exporter.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "http://127.0.0.1:9618/metrics";
             vhostConfig = largeTransferVhostConfig;
