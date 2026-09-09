@@ -1,12 +1,36 @@
 {
   config,
   private,
+  pkgs,
+  lib,
   ...
 }: let
   opencloudPort = config.my.services.opencloud.port;
   hostAddress = "192.168.103.10";
   localAddress = "192.168.103.11";
   stateDir = "/var/lib/opencloud";
+  webApps = {
+    pastebin = pkgs.fetchzip {
+      url = "https://github.com/opencloud-eu/web-extensions/releases/download/pastebin-v2.1.0/pastebin-2.1.0.zip";
+      hash = "sha256-1hEStIzHsi6HmmIlg8KWTWHTJPn8BTwaRY4NofYB6g4=";
+      stripRoot = false;
+    };
+    unzip = pkgs.fetchzip {
+      url = "https://github.com/opencloud-eu/web-extensions/releases/download/unzip-v2.1.0/unzip-2.1.0.zip";
+      hash = "sha256-C8h2vmGHCaSioAzwEFKH1KFCgsFgCvh3jqqHz6vW27Y=";
+      stripRoot = false;
+    };
+    importer = pkgs.fetchzip {
+      url = "https://github.com/opencloud-eu/web-extensions/releases/download/importer-v2.0.0/importer-2.0.0.zip";
+      hash = "sha256-H22kLS5z31+S/mM9IGPGqnlw+WdedT0va8S5pZ+zFXc=";
+      stripRoot = false;
+    };
+    "com.github.jankaritech.mdpresentation-viewer" = pkgs.fetchzip {
+      url = "https://github.com/JankariTech/web-app-presentation-viewer/releases/download/3.0.0/mdpresentation-viewer-opencloud-3.0.0.zip";
+      hash = "sha256-CWfRbOOI/Y75x+cztQV5apN9buglh+KVnp3CVNfuMS0=";
+      stripRoot = false;
+    };
+  };
 in {
   networking.nat = {
     enable = true;
@@ -83,6 +107,28 @@ in {
       networking.firewall = {
         enable = true;
         allowedTCPPorts = [opencloudPort];
+      };
+
+      # Seed declarative web apps (pastebin, unzip, ...) from the
+      # nix store on every boot so version bumps apply cleanly.
+      systemd.services.opencloud-web-apps = {
+        description = "Install declarative OpenCloud web apps";
+        before = ["opencloud.service"];
+        wantedBy = ["multi-user.target"];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+        script = ''
+          set -euo pipefail
+          appsDir="${cfg.stateDir}/web/assets/apps"
+          mkdir -p "$appsDir"
+          ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: src: ''
+            rm -rf "$appsDir/${name}"
+            cp -r "${src}/${name}" "$appsDir/${name}"
+          '') webApps)}
+          chown -R ${cfg.user}:${cfg.group} "$appsDir"
+        '';
       };
 
       networking.resolvconf.enable = false;
