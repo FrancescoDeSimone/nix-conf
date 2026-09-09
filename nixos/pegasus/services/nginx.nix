@@ -202,6 +202,22 @@
     rules = defaultAppRules;
   };
 
+  # OpenCloud serves its own strict security headers; an extra nginx CSP
+  # header only conflicts with them, so none is set here (same as nextcloud).
+  opencloudVhostConfig = mkVhostConfig {
+    extraConfig =
+      largeTransferTimeouts
+      + ''
+        client_max_body_size 10G;
+        proxy_request_buffering off;
+      '';
+    rules =
+      hiddenPathRules
+      + scannerBlockRules
+      + nextcloudRobotsRules
+      + rateLimitRules;
+  };
+
   headscaleVhostConfig = mkVhostConfig {rules = defaultAppRules;};
   headscaleProxyConfig = mkStreamingProxyConfig {};
   mkHeadscaleVhost = {
@@ -737,7 +753,7 @@ in {
 
           "opencloud.${internalDomain}" = mkTailnetProxyVhost {
             upstream = "https://192.168.103.11:${toString config.my.services.opencloud.port}/";
-            vhostConfig = largeTransferVhostConfig;
+            vhostConfig = opencloudVhostConfig;
             websockets = true;
             # Tailnet + the opencloud container itself (OIDC hairpin).
             accessPolicy = ''
