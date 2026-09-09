@@ -73,8 +73,9 @@
   '';
 
   hiddenPathRules = ''
-    # Block all hidden files and directories (dotfiles)
-    location ~ /\. {
+    # Block all hidden files and directories (dotfiles),
+    # except RFC 5785 service metadata (OIDC discovery etc.)
+    location ~ /\.(?!well-known($|/)) {
       deny all;
       log_not_found off;
     }
