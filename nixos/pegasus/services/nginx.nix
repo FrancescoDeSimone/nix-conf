@@ -75,7 +75,8 @@
   hiddenPathRules = ''
     # Block all hidden files and directories (dotfiles),
     # except RFC 5785 service metadata (OIDC discovery etc.)
-    location ~ /\.(?!well-known($|/)) {
+    # and OpenCloud app data (pastebin etc. live under .space/).
+    location ~ /\.(?!well-known($|/)|space($|/)) {
       deny all;
       log_not_found off;
     }
