@@ -12,22 +12,22 @@
   webApps = {
     pastebin = pkgs.fetchzip {
       url = "https://github.com/opencloud-eu/web-extensions/releases/download/pastebin-v2.1.0/pastebin-2.1.0.zip";
-      hash = "sha256-1hEStIzHsi6HmmIlg8KWTWHTJPn8BTwaRY4NofYB6g4=";
+      hash = "sha256-0xkr1oOQoMm3yV46B8QeIqfzjOqwoorWdBPWimfIC78=";
       stripRoot = false;
     };
     unzip = pkgs.fetchzip {
       url = "https://github.com/opencloud-eu/web-extensions/releases/download/unzip-v2.1.0/unzip-2.1.0.zip";
-      hash = "sha256-C8h2vmGHCaSioAzwEFKH1KFCgsFgCvh3jqqHz6vW27Y=";
+      hash = "sha256-sDBGSJYw6wXEp1mBorDBTwHR/RJctQZYrAH1fJ4Yqxk=";
       stripRoot = false;
     };
     importer = pkgs.fetchzip {
       url = "https://github.com/opencloud-eu/web-extensions/releases/download/importer-v2.0.0/importer-2.0.0.zip";
-      hash = "sha256-H22kLS5z31+S/mM9IGPGqnlw+WdedT0va8S5pZ+zFXc=";
+      hash = "sha256-Jd8cPtB3ZWad1Th6tHtxuu/k67EnQVM1e7QJXp9m6Q4=";
       stripRoot = false;
     };
     "com.github.jankaritech.mdpresentation-viewer" = pkgs.fetchzip {
       url = "https://github.com/JankariTech/web-app-presentation-viewer/releases/download/3.0.0/mdpresentation-viewer-opencloud-3.0.0.zip";
-      hash = "sha256-CWfRbOOI/Y75x+cztQV5apN9buglh+KVnp3CVNfuMS0=";
+      hash = "sha256-oC6WSGhbnIuPDP1qa/WV0Xp1+TQt1KBXMUMQciqD14s=";
       stripRoot = false;
     };
   };
