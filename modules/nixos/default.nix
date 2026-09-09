@@ -7,4 +7,5 @@
   chatto = import ./chatto;
   deemix = import ./deemix;
   deemix-arr = import ./deemix-arr;
+  uppy-companion = import ./uppy-companion;
 }
