@@ -4,8 +4,8 @@
     openFirewall = false;
     user = "thinkcentre";
     dataDir = "/data/jellyfin";
-    package = pkgs.jellyfin.override {
-      jellyfin-web = pkgs.jellyfin-web.overrideAttrs (_: _: {
+    package = pkgs.unstable.jellyfin.override {
+      jellyfin-web = pkgs.unstable.jellyfin-web.overrideAttrs (_: _: {
         installPhase = ''
           runHook preInstall
           sed -i "s#</head>#<script src=\"configurationpage?name=skip-intro-button.js\"></script></head>#" dist/index.html
