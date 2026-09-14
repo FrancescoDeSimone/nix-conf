@@ -166,7 +166,9 @@
       # Disable error interception so Jellyfin controls its own responses
       proxy_intercept_errors off;
     '';
-    rules = hiddenPathRules + probeExtensionRules + defaultRobotsRules + scannerBlockRules + rateLimitRules;
+    # No rateLimitRules: the web client floods dozens of chunk requests
+    # on load and Jellyfin has its own brute-force protection.
+    rules = hiddenPathRules + probeExtensionRules + defaultRobotsRules + scannerBlockRules;
   };
 
   mkStreamingProxyConfig = {connectTimeout ? null}:
