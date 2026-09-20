@@ -439,12 +439,11 @@
   '';
 
   defaultProxyVhosts = mkSimpleProxyVhosts defaultAppVhostConfig [
-    (mkPublicService "bypass" config.my.services.bypass.port)
   ];
 
   defaultInternalVhosts = mkSimpleProxyVhosts defaultAppVhostConfig [
     (mkCustomTailnetTlsService "192.168.103.11" "opencloud" config.my.services.opencloud.port)
-    (mkTailnetTlsService "bypass" config.my.services.bypass.port)
+    # (mkTailnetTlsService "bypass" config.my.services.bypass.port)
     (mkTailnetTlsService "filebrowser" config.my.services.filebrowser.port)
     (mkTailnetTlsService "homepage" config.my.services.homepage.port)
     (mkTailnetTlsService "headplane" config.my.services.headplane.port)
@@ -711,11 +710,11 @@ in {
             extraConfig = largeTransferVhostConfig;
             locations = gitPublicLocations;
           };
-          "bypass.${domain}" = mkVhost {
-            public = true;
-            extraConfig = defaultAppVhostConfig;
-            locations = bypassPublicLocations;
-          };
+          # "bypass.${domain}" = mkVhost {
+          #   public = true;
+          #   extraConfig = defaultAppVhostConfig;
+          #   locations = bypassPublicLocations;
+          # };
           "jellyfin.${domain}" = mkProxyVhost {
             public = true;
             upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";

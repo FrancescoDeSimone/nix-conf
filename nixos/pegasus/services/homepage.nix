@@ -35,12 +35,12 @@
         password = "";
       };
     };
-    bypass = {
-      name = "Bypass";
-      group = "Network";
-      description = "Routing and access bypass";
-      icon = "mdi-swap-horizontal";
-    };
+    # bypass = {
+    #   name = "Bypass";
+    #   group = "Network";
+    #   description = "Routing and access bypass";
+    #   icon = "mdi-swap-horizontal";
+    # };
     filebrowser = {
       name = "Filebrowser";
       group = "Daily";

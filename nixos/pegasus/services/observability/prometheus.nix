@@ -60,10 +60,10 @@
       name = "karakeep";
       url = "http://127.0.0.1:${toString config.my.services.karakeep.port}";
     }
-    {
-      name = "bypass";
-      url = "http://127.0.0.1:${toString config.my.services.bypass.port}";
-    }
+    # {
+    #   name = "bypass";
+    #   url = "http://127.0.0.1:${toString config.my.services.bypass.port}";
+    # }
     {
       name = "speedtest-tracker";
       url = "http://127.0.0.1:${toString config.my.services.speedtest-tracker.port}";

@@ -28,7 +28,7 @@
     ./services/headscale.nix
     ./services/headplane.nix
     ./services/tailscale-exporter.nix
-    ./services/bypass.nix
+    # ./services/bypass.nix
     ./services/lidarr.nix
     ./services/adguard.nix
     # ./services/chatto.nix
