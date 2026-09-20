@@ -56,12 +56,11 @@
     send_timeout 60s;
   '';
   # Verify the Kasm VM's TLS certificate once its CA is dropped in secrets/kasm-ca.pem
-  kasmTlsVerifyConfig =
-    lib.optionalString (builtins.pathExists ../../../secrets/kasm-ca.pem) ''
-      proxy_ssl_verify on;
-      proxy_ssl_trusted_certificate ${../../../secrets/kasm-ca.pem};
-      proxy_ssl_verify_depth 2;
-    '';
+  kasmTlsVerifyConfig = lib.optionalString (builtins.pathExists ../../../secrets/kasm-ca.pem) ''
+    proxy_ssl_verify on;
+    proxy_ssl_trusted_certificate ${../../../secrets/kasm-ca.pem};
+    proxy_ssl_verify_depth 2;
+  '';
   errorPageRules = ''
     # Custom error page
     error_page 404 /404.html;
@@ -360,12 +359,14 @@
     mkVhost {
       inherit public accessPolicy tls http2;
       extraConfig = vhostConfig;
-      locations = {
-        "/" = mkProxyLocation {
-          inherit upstream websockets;
-          extraConfig = locationExtraConfig;
-        };
-      } // extraLocations;
+      locations =
+        {
+          "/" = mkProxyLocation {
+            inherit upstream websockets;
+            extraConfig = locationExtraConfig;
+          };
+        }
+        // extraLocations;
     };
 
   mkTailnetProxyVhost = args:

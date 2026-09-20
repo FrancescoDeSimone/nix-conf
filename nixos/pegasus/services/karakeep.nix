@@ -1,4 +1,8 @@
-{config, pkgs, ...}: {
+{
+  config,
+  pkgs,
+  ...
+}: {
   services.karakeep = {
     enable = true;
     package = pkgs.unstable.karakeep;

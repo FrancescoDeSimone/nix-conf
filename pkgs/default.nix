@@ -1,7 +1,10 @@
 # Custom packages, that can be defined similarly to ones from nixpkgs
 # You can build them using 'nix build .#example'
-{ pkgs, inputs, ... }:
-let
+{
+  pkgs,
+  inputs,
+  ...
+}: let
   basePackages = {
     "13ft" = pkgs.callPackage ./13ft.nix {inherit inputs;};
     clipvault = pkgs.callPackage ./clipvault.nix {inherit inputs;};
@@ -16,6 +19,7 @@ let
     deemix-cli = inputs.deemix.packages.${pkgs.stdenv.hostPlatform.system}.cli;
   };
 in
-basePackages // {
-  ytdl-bot = pkgs.callPackage ./ytdl_bot.nix {inherit inputs;};
-}
+  basePackages
+  // {
+    ytdl-bot = pkgs.callPackage ./ytdl_bot.nix {inherit inputs;};
+  }

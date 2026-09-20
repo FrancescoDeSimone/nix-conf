@@ -1,4 +1,8 @@
-{config, pkgs, ...}: {
+{
+  config,
+  pkgs,
+  ...
+}: {
   services.olivetin = {
     enable = true;
     package = pkgs.olivetin-3k;

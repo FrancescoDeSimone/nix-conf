@@ -1,4 +1,9 @@
-{config, lib, pkgs, ...}: let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   cfg = config.my.services.deemix;
 in {
   options.my.services.deemix = {
@@ -84,47 +89,54 @@ in {
         DEEMIX_DATA_DIR = cfg.dataDir;
         DEEMIX_MUSIC_DIR = cfg.musicDir;
         DEEMIX_HOST = cfg.host;
-        DEEMIX_SINGLE_USER = if cfg.singleUser then "true" else "false";
+        DEEMIX_SINGLE_USER =
+          if cfg.singleUser
+          then "true"
+          else "false";
         NODE_ENV = "production";
       };
-      serviceConfig = {
-        ExecStart = "${cfg.package}/bin/deemix-webui";
-        User = cfg.user;
-        Group = cfg.group;
-        Restart = "always";
-        RestartSec = 5;
-        UMask = "0002";
-        StateDirectory = "deemix";
-        StateDirectoryMode = "0750";
-        ReadWritePaths = [cfg.dataDir cfg.musicDir];
-      } // lib.optionalAttrs (cfg.arlFile != null) {
-        LoadCredential = "deemix-arl:${cfg.arlFile}";
-      };
-      preStart = ''
-        set -euo pipefail
-        if [[ -f "${cfg.dataDir}/config.json" ]]; then
-          if grep -q '"/downloads' "${cfg.dataDir}/config.json" 2>/dev/null; then
-            ${pkgs.jq}/bin/jq --arg dir "${cfg.musicDir}" '.downloadLocation = $dir' "${cfg.dataDir}/config.json" > "${cfg.dataDir}/config.json.tmp" && mv "${cfg.dataDir}/config.json.tmp" "${cfg.dataDir}/config.json"
-            chown ${cfg.user}:${cfg.group} "${cfg.dataDir}/config.json"
-            chmod 640 "${cfg.dataDir}/config.json"
+      serviceConfig =
+        {
+          ExecStart = "${cfg.package}/bin/deemix-webui";
+          User = cfg.user;
+          Group = cfg.group;
+          Restart = "always";
+          RestartSec = 5;
+          UMask = "0002";
+          StateDirectory = "deemix";
+          StateDirectoryMode = "0750";
+          ReadWritePaths = [cfg.dataDir cfg.musicDir];
+        }
+        // lib.optionalAttrs (cfg.arlFile != null) {
+          LoadCredential = "deemix-arl:${cfg.arlFile}";
+        };
+      preStart =
+        ''
+          set -euo pipefail
+          if [[ -f "${cfg.dataDir}/config.json" ]]; then
+            if grep -q '"/downloads' "${cfg.dataDir}/config.json" 2>/dev/null; then
+              ${pkgs.jq}/bin/jq --arg dir "${cfg.musicDir}" '.downloadLocation = $dir' "${cfg.dataDir}/config.json" > "${cfg.dataDir}/config.json.tmp" && mv "${cfg.dataDir}/config.json.tmp" "${cfg.dataDir}/config.json"
+              chown ${cfg.user}:${cfg.group} "${cfg.dataDir}/config.json"
+              chmod 640 "${cfg.dataDir}/config.json"
+            fi
           fi
-        fi
-      '' + lib.optionalString (cfg.arlFile != null) ''
-        credFile="''${CREDENTIALS_DIRECTORY:-/run/credentials/deemix.service}/deemix-arl"
-        if [[ ! -f "$credFile" ]]; then
-          credFile="${cfg.arlFile}"
-        fi
-        if [[ -f "$credFile" ]]; then
-          arl="$(tr -d '\r\n' < "$credFile" | xargs)"
-          if [[ -n "$arl" ]]; then
-            umask 077
-            printf '{"arl":"%s"}\n' "$arl" > "${cfg.dataDir}/login.json.tmp"
-            mv "${cfg.dataDir}/login.json.tmp" "${cfg.dataDir}/login.json"
-            chown ${cfg.user}:${cfg.group} "${cfg.dataDir}/login.json"
-            chmod 600 "${cfg.dataDir}/login.json"
+        ''
+        + lib.optionalString (cfg.arlFile != null) ''
+          credFile="''${CREDENTIALS_DIRECTORY:-/run/credentials/deemix.service}/deemix-arl"
+          if [[ ! -f "$credFile" ]]; then
+            credFile="${cfg.arlFile}"
           fi
-        fi
-      '';
+          if [[ -f "$credFile" ]]; then
+            arl="$(tr -d '\r\n' < "$credFile" | xargs)"
+            if [[ -n "$arl" ]]; then
+              umask 077
+              printf '{"arl":"%s"}\n' "$arl" > "${cfg.dataDir}/login.json.tmp"
+              mv "${cfg.dataDir}/login.json.tmp" "${cfg.dataDir}/login.json"
+              chown ${cfg.user}:${cfg.group} "${cfg.dataDir}/login.json"
+              chmod 600 "${cfg.dataDir}/login.json"
+            fi
+          fi
+        '';
     };
 
     networking.firewall.allowedTCPPorts = lib.optionals cfg.openFirewall [config.my.services.deemix.port];

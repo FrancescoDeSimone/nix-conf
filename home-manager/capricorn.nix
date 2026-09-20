@@ -75,9 +75,18 @@
   };
 
   recipe_options = builtins.toJSON {
-    "user.Qwen3.8-27B" = {ctx_size = 32768; llamacpp_backend = "vulkan";};
-    "user.Nemotron-3.5-Lightning" = {ctx_size = 32768; llamacpp_backend = "vulkan";};
-    "user.Muse-Glimmer-30B" = {ctx_size = 32768; llamacpp_backend = "vulkan";};
+    "user.Qwen3.8-27B" = {
+      ctx_size = 32768;
+      llamacpp_backend = "vulkan";
+    };
+    "user.Nemotron-3.5-Lightning" = {
+      ctx_size = 32768;
+      llamacpp_backend = "vulkan";
+    };
+    "user.Muse-Glimmer-30B" = {
+      ctx_size = 32768;
+      llamacpp_backend = "vulkan";
+    };
   };
 in {
   imports = [

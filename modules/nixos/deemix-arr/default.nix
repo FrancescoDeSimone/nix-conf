@@ -1,4 +1,9 @@
-{config, lib, pkgs, ...}: let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   cfg = config.my.services.deemix-arr;
 in {
   options.my.services.deemix-arr = {

@@ -184,9 +184,10 @@ in {
           appsDir="${cfg.stateDir}/web/assets/apps"
           mkdir -p "$appsDir"
           ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: src: ''
-            rm -rf "$appsDir/${name}"
-            cp -r "${src}/${name}" "$appsDir/${name}"
-          '') webApps)}
+              rm -rf "$appsDir/${name}"
+              cp -r "${src}/${name}" "$appsDir/${name}"
+            '')
+            webApps)}
           chown -R ${cfg.user}:${cfg.group} "$appsDir"
         '';
       };

@@ -1,9 +1,4 @@
-{
-  lib,
-  config,
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   hostPkgs = pkgs;
   ytdl_bot = hostPkgs.ytdl-bot;
 in {

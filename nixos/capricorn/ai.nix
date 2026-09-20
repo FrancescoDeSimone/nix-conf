@@ -19,17 +19,17 @@
 
   hardware.amd-npu = {
     enable = true;
-    enableNPU = true;             # XDNA2 present
-    gpuTarget = "gfx1150";        # Strix Point
+    enableNPU = true; # XDNA2 present
+    gpuTarget = "gfx1150"; # Strix Point
     enableFastFlowLM = true;
     enableLemonade = true;
     lemonade.user = "fdesi";
-    enableVulkan = true;          # RADV on 880M
-    enableROCm = false;           # repo bench: Vulkan faster on gfx1150
-    enableImageGen = false;       # LLM-only, drops sd-cpp closures (~150MB CPU / 1.5GB ROCm)
-    enableVllm = false;           # default; 7.6GB closure, no Cachix substitute
-    lemonade.desktopApp.enable = false;   # skip Rust/webkit2gtk build; web UI served by lemond
+    enableVulkan = true; # RADV on 880M
+    enableROCm = false; # repo bench: Vulkan faster on gfx1150
+    enableImageGen = false; # LLM-only, drops sd-cpp closures (~150MB CPU / 1.5GB ROCm)
+    enableVllm = false; # default; 7.6GB closure, no Cachix substitute
+    lemonade.desktopApp.enable = false; # skip Rust/webkit2gtk build; web UI served by lemond
     lemonade.flashAttn = "on";
-    lemonade.settings.max_loaded_models = 2;  # NPU model + one GPU model stay resident
+    lemonade.settings.max_loaded_models = 2; # NPU model + one GPU model stay resident
   };
 }
