@@ -133,6 +133,12 @@ in {
       };
       querylog.enabled = true;
       statistics.enabled = true;
+      users = [
+        {
+          name = "admin";
+          password = "$2b$12$H2Jjjbf9tlyfvNka2cODie/UeUF5wmKvedOUahiaQmo8hL4s/TvSe";
+        }
+      ];
     };
   };
 
