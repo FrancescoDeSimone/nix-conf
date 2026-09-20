@@ -47,6 +47,36 @@
       db             /var/lib/fluent-bit/modsec.db
       db.sync        full
 
+    # Systemd journal for units with Loki dashboards (fail2ban, ollama).
+    # One input per unit so the unit label is static and exact.
+    [INPUT]
+      name           systemd
+      tag            journal.fail2ban
+      db             /var/lib/fluent-bit/journal-fail2ban.db
+      systemd_filter _SYSTEMD_UNIT=fail2ban.service
+
+    [INPUT]
+      name           systemd
+      tag            journal.ollama
+      db             /var/lib/fluent-bit/journal-ollama.db
+      systemd_filter _SYSTEMD_UNIT=ollama.service
+
+    [FILTER]
+      name  modify
+      match journal.*
+      add   job systemd-journal
+      add   host pegasus
+
+    [FILTER]
+      name  modify
+      match journal.fail2ban
+      add   unit fail2ban.service
+
+    [FILTER]
+      name  modify
+      match journal.ollama
+      add   unit ollama.service
+
     [FILTER]
       name  modify
       match nginx-access
@@ -71,9 +101,9 @@
       host  127.0.0.1
       port  ${toString config.my.services.loki.port}
       labels job=fluent-bit
-      label_keys $job,$host,$vhost,$method,$status,$request_time
+      label_keys $job,$host,$vhost,$method,$status,$request_time,$unit
       auto_kubernetes_labels off
-      remove_keys job,host,vhost,method,status,request_time
+      remove_keys job,host,vhost,method,status,request_time,unit
   '';
 in {
   services.fluent-bit = {

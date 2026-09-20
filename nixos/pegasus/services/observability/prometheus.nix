@@ -85,6 +85,10 @@
       name = "git";
       url = "http://192.168.200.11:${toString config.my.services.git.port}";
     }
+    {
+      name = "ollama";
+      url = "http://127.0.0.1:${toString config.my.services.ollama.port}";
+    }
     # {
     #   name = "opencloud";
     #   url = "http://192.168.103.11:${toString config.my.services.opencloud.port}";
@@ -252,6 +256,12 @@ in {
         {
           job_name = "tailscale-exporter";
           static_configs = [{targets = ["localhost:${toString config.my.services.tailscale-exporter.port}"];}];
+          scrape_interval = "30s";
+          metrics_path = "/metrics";
+        }
+        {
+          job_name = "headscale";
+          static_configs = [{targets = ["127.0.0.1:9091"];}];
           scrape_interval = "30s";
           metrics_path = "/metrics";
         }
