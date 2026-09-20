@@ -23,4 +23,5 @@ in {
   "gpg-key.age".publicKeys = keys;
   "ytdl-bot.age".publicKeys = keys;
   "deemix-arl.age".publicKeys = keys;
+  "adguard-admin.age".publicKeys = keys;
 }

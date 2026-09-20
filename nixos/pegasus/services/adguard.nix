@@ -9,26 +9,7 @@
   tailDomain = "tail.${private.nginx.domain}";
   pegasusTailName = "pegasus.${tailDomain}";
   exporterPort = config.my.services.adguard.exporter;
-  exporterUserCleanup = pkgs.writeShellScript "adguard-exporter-user-cleanup" ''
-    set -eu
-    config_file="/var/lib/AdGuardHome/AdGuardHome.yaml"
-    if [ ! -f "$config_file" ]; then
-      exit 0
-    fi
-
-    temp_file=$(${pkgs.coreutils}/bin/mktemp)
-
-    ${pkgs.yq-go}/bin/yq 'del(.users[] | select(.name == "exporter"))' "$config_file" > "$temp_file"
-    ${pkgs.coreutils}/bin/cat "$temp_file" > "$config_file"
-
-    users_len="$(${pkgs.yq-go}/bin/yq '.users | length // 0' "$config_file")"
-    if [ "$users_len" -eq 0 ]; then
-      ${pkgs.yq-go}/bin/yq 'del(.users)' "$config_file" > "$temp_file"
-      ${pkgs.coreutils}/bin/cat "$temp_file" > "$config_file"
-    fi
-
-    rm -f "$temp_file"
-  '';
+  uiPort = config.my.services.adguard.port;
   upstreamResolvers = [
     "1.1.1.1"
     "1.0.0.1"
@@ -76,10 +57,14 @@ in {
   services.adguardhome = {
     enable = true;
     openFirewall = false;
+    # The module's preStart merges `settings` over
+    # /var/lib/AdGuardHome/AdGuardHome.yaml on every start (nix values win), so
+    # web-UI-only state (user_rules, blocked_services, ...) survives restarts
+    # while everything declared here is enforced.
     mutableSettings = true;
 
     host = "0.0.0.0";
-    port = config.my.services.adguard.port;
+    port = uiPort;
 
     settings = {
       filters = blocklistFilters;
@@ -136,7 +121,10 @@ in {
       users = [
         {
           name = "admin";
-          password = "$2b$12$H2Jjjbf9tlyfvNka2cODie/UeUF5wmKvedOUahiaQmo8hL4s/TvSe";
+          # This hash is public (it was committed to the public repo) — rotate the
+          # password and put the new hash in nix-conf-secrets; the committed hash
+          # stays only as a bootstrap fallback.
+          password = private.adguard.hash or "$2b$12$H2Jjjbf9tlyfvNka2cODie/UeUF5wmKvedOUahiaQmo8hL4s/TvSe";
         }
       ];
     };
@@ -145,10 +133,6 @@ in {
   systemd.services.adguardhome = {
     after = ["tailscaled.service"];
     wants = ["tailscaled.service"];
-    # serviceConfig.PermissionsStartOnly = true;
-    preStart = ''
-      ${exporterUserCleanup}
-    '';
   };
 
   systemd.services.adguard-exporter = {
@@ -164,10 +148,21 @@ in {
       WorkingDirectory = "/tmp";
       StateDirectory = "adguard-exporter";
       RuntimeDirectory = "adguard-exporter";
+      # `ADGUARD_USER`/`ADGUARD_PASS` come from the agenix secret
+      # `adguard-admin` (`secrets/secrets.nix`); systemd reads the 0400
+      # root-only file before dropping privileges to DynamicUser, so the admin
+      # password stays out of both the repo and the store.
+      # `secrets/adguard-admin.age` ships with placeholder credentials; to
+      # switch to the real password (and update `private.adguard.hash` to its
+      # bcrypt hash):
+      #   read -rsp 'AdGuard admin password: ' AGH_PASS; echo
+      #   printf 'ADGUARD_USER=admin\nADGUARD_PASS=%s\n' "$AGH_PASS" |
+      #     nix shell nixpkgs#age -c age -e -o secrets/adguard-admin.age \
+      #       -R <(nix eval --raw -f secrets/secrets.nix '"provider.age".publicKeys' \
+      #         --apply 'builtins.concatStringsSep "\n"')
+      EnvironmentFile = config.age.secrets."adguard-admin".path;
       Environment = [
         "ADGUARD_HOST=http://127.0.0.1:${toString config.my.services.adguard.port}"
-        "ADGUARD_USER="
-        "ADGUARD_PASS="
         "EXPORTER_PORT=${toString exporterPort}"
         "SCRAPE_INTERVAL=30"
         "LOG_LEVEL=INFO"
@@ -175,13 +170,21 @@ in {
     };
   };
 
-  networking.firewall.interfaces.tailscale0 = {
-    allowedTCPPorts = [53];
-    allowedUDPPorts = [53];
-  };
+  networking.firewall = {
+    interfaces.tailscale0 = {
+      allowedTCPPorts = [53];
+      allowedUDPPorts = [53];
+    };
 
-  networking.firewall.interfaces.eno1 = {
-    allowedTCPPorts = [53 config.my.services.adguard.port];
-    allowedUDPPorts = [53];
+    # eno1 is the only NIC (uplink included), so scope AdGuard to private source
+    # networks instead of exposing DNS and the admin UI on the WAN side too. The
+    # private ranges also cover Incus/Docker containers and the tailnet, and
+    # private source addresses cannot arrive from the internet (see rpfilter).
+    extraInputRules = ''
+      ip  saddr { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 } tcp dport { 53, ${toString uiPort} } accept
+      ip6 saddr fc00::/7 tcp dport { 53, ${toString uiPort} } accept
+      ip  saddr { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 } udp dport 53 accept
+      ip6 saddr fc00::/7 udp dport 53 accept
+    '';
   };
 }

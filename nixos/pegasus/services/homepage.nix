@@ -32,7 +32,10 @@
         type = "adguard";
         url = "http://127.0.0.1:${toString config.my.services.adguard.port}";
         username = "admin";
-        password = "";
+        # Homepage proxies widget requests from the server on this host, so the
+        # password never reaches the browser. It comes from the agenix secret
+        # `adguard-admin` (see `environmentFiles` below).
+        password = "{{HOMEPAGE_VAR_ADGUARD_PASS}}";
       };
     };
     # bypass = {
@@ -298,6 +301,10 @@ in {
     openFirewall = false;
     listenPort = config.my.services.homepage.port;
     package = pkgs.unstable.homepage-dashboard;
+    # `HOMEPAGE_VAR_ADGUARD_PASS`, consumed by the AdGuard widget above, comes
+    # from the agenix secret `adguard-admin`; systemd reads the root-only file
+    # before dropping privileges to DynamicUser.
+    environmentFiles = [config.age.secrets."adguard-admin".path];
 
     settings = {
       title = "Pegasus";

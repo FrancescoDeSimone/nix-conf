@@ -30,6 +30,7 @@
     govd.file = ../../secrets/govd.age;
     qui.file = ../../secrets/qui.age;
     lidarr.file = ../../secrets/lidarr.age;
+    "adguard-admin".file = ../../secrets/adguard-admin.age;
     telegram = {
       file = ../../secrets/telegram.age;
       owner = "grafana";
