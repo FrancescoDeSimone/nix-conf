@@ -3,8 +3,8 @@
   # Labels bot_type/bot_match no longer exist (fluent-bit ships nginx logs
   # without them), so every panel extracts them at query time instead.
   botRe = "(?i)(GPTBot|ChatGPT-User|ClaudeBot|Claude-Web|Anthropic|CCBot|Google-Extended|Googlebot|Bingbot|Bytespider|Amazonbot|FacebookBot|Applebot|DuckDuckBot|Yandex|Sogou|PetalBot|SemrushBot|AhrefsBot|MJ12bot|DotBot|BLEXBot|DataForSeoBot|serpstatbot|Barkrowler|nmap|nikto|sqlmap|dirbuster|masscan|zgrab|python-requests|Go-http-client|curl|wget|scrapy|httpclient)";
-  botFilter = ''| json | http_user_agent =~ "${botRe}"'';
-  humanFilter = ''| json | http_user_agent !~ "${botRe}"'';
+  botFilter = ''| json | http_user_agent =~ ".*${botRe}.*"'';
+  humanFilter = ''| json | http_user_agent !~ ".*${botRe}.*"'';
   botExtract = ''| regexp "(?i)(?P<bot_match>${botRe})"'';
 in {
   uid = "bot-activity";
