@@ -907,11 +907,11 @@
         "password-store-repo": "password-store-repo"
       },
       "locked": {
-        "lastModified": 1779015210,
-        "narHash": "sha256-r9whRkLlCA3O0QeEgO3cFxhpKNk/YxCe2k5pSaY7wxQ=",
+        "lastModified": 1789925506,
+        "narHash": "sha256-TuKqX5C7AepzLyP/bCtdo/29f14OVk3NexuzeLmUOh4=",
         "ref": "refs/heads/master",
-        "rev": "5ace8d8d6f5bb65a68b629f69a099cc00906d355",
-        "revCount": 16,
+        "rev": "6b48efb74fe69bf3376b0f53f69eaa021329d2a6",
+        "revCount": 17,
         "type": "git",
         "url": "ssh://git@github.com/FrancescoDeSimone/nix-conf-secrets"
       },

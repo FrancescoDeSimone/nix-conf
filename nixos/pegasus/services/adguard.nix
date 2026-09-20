@@ -121,9 +121,12 @@ in {
       users = [
         {
           name = "admin";
-          # This hash is public (it was committed to the public repo) — rotate the
-          # password and put the new hash in nix-conf-secrets; the committed hash
-          # stays only as a bootstrap fallback.
+          # Keep in sync with ADGUARD_PASS in `secrets/adguard-admin.age`: the UI
+          # login and the exporter both authenticate as this user. Rotate the
+          # secret (snippet on the exporter below), then update
+          # `adguard.hash` in nix-conf-secrets with the hash of the same password:
+          #   nix shell nixpkgs#apacheHttpd -c htpasswd -B -C 12 -n admin
+          # The committed hash is only a bootstrap fallback for fresh installs.
           password = private.adguard.hash or "$2b$12$H2Jjjbf9tlyfvNka2cODie/UeUF5wmKvedOUahiaQmo8hL4s/TvSe";
         }
       ];
