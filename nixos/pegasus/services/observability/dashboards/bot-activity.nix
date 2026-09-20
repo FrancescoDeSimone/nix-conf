@@ -1,4 +1,12 @@
-{common}: {
+{common}: let
+  # Must stay in sync with the bot list formerly in promtail.nix.
+  # Labels bot_type/bot_match no longer exist (fluent-bit ships nginx logs
+  # without them), so every panel extracts them at query time instead.
+  botRe = "(?i)(GPTBot|ChatGPT-User|ClaudeBot|Claude-Web|Anthropic|CCBot|Google-Extended|Googlebot|Bingbot|Bytespider|Amazonbot|FacebookBot|Applebot|DuckDuckBot|Yandex|Sogou|PetalBot|SemrushBot|AhrefsBot|MJ12bot|DotBot|BLEXBot|DataForSeoBot|serpstatbot|Barkrowler|nmap|nikto|sqlmap|dirbuster|masscan|zgrab|python-requests|Go-http-client|curl|wget|scrapy|httpclient)";
+  botFilter = ''| json | http_user_agent =~ "${botRe}"'';
+  humanFilter = ''| json | http_user_agent !~ "${botRe}"'';
+  botExtract = ''| regexp "(?i)(?P<bot_match>${botRe})"'';
+in {
   uid = "bot-activity";
   title = "Bot & LLM Activity";
   tags = [
@@ -23,11 +31,11 @@
       datasource = common.lokiDatasource;
       targets = [
         {
-          expr = ''sum(rate({job="nginx", bot_type="bot"} [5m]))'';
+          expr = ''sum(rate({job="nginx"} ${botFilter} [5m]))'';
           legendFormat = "Bot";
         }
         {
-          expr = ''sum(rate({job="nginx", bot_type="human"} [5m]))'';
+          expr = ''sum(rate({job="nginx"} ${humanFilter} [5m]))'';
           legendFormat = "Human";
         }
       ];
@@ -44,7 +52,7 @@
       datasource = common.lokiDatasource;
       targets = [
         {
-          expr = ''sum(count_over_time({job="nginx", bot_type="bot"} [1h])) / sum(count_over_time({job="nginx"} [1h])) * 100'';
+          expr = ''sum(count_over_time({job="nginx"} ${botFilter} [1h])) / sum(count_over_time({job="nginx"} [1h])) * 100'';
           legendFormat = "Bot %";
           instant = true;
         }
@@ -88,7 +96,7 @@
       datasource = common.lokiDatasource;
       targets = [
         {
-          expr = ''sum(count_over_time({job="nginx", bot_type="bot"} [1h]))'';
+          expr = ''sum(count_over_time({job="nginx"} ${botFilter} [1h]))'';
           legendFormat = "Bot Requests";
           instant = true;
         }
@@ -128,7 +136,7 @@
       datasource = common.lokiDatasource;
       targets = [
         {
-          expr = ''topk(20, sum by (bot_match) (count_over_time({job="nginx", bot_type="bot"} [1h])))'';
+          expr = ''topk(20, sum by (bot_match) (count_over_time({job="nginx"} ${botFilter} ${botExtract} [1h])))'';
           instant = true;
         }
       ];
@@ -156,7 +164,7 @@
       datasource = common.lokiDatasource;
       targets = [
         {
-          expr = ''topk(20, sum by (remote_addr) (count_over_time({job="nginx", bot_type="bot"} [1h])))'';
+          expr = ''topk(20, sum by (remote_addr) (count_over_time({job="nginx"} ${botFilter} [1h])))'';
           instant = true;
         }
       ];
@@ -184,7 +192,7 @@
       datasource = common.lokiDatasource;
       targets = [
         {
-          expr = ''sum by (vhost) (rate({job="nginx", bot_type="bot"} [5m]))'';
+          expr = ''sum by (vhost) (rate({job="nginx"} ${botFilter} [5m]))'';
           legendFormat = "{{ vhost }}";
         }
       ];
@@ -199,7 +207,77 @@
         y = 26;
       };
       datasource = common.lokiDatasource;
-      targets = [{expr = ''{job="nginx", bot_type="bot"}'';}];
+      targets = [{expr = ''{job="nginx"} ${botFilter}'';}];
+      options = {
+        showTime = true;
+        sortOrder = "Descending";
+        enableLogDetails = true;
+      };
+    }
+    {
+      title = "Ollama Status";
+      type = "stat";
+      gridPos = {
+        h = 6;
+        w = 6;
+        x = 0;
+        y = 36;
+      };
+      datasource = common.datasource;
+      targets = [
+        {
+          expr = ''probe_success{instance="ollama"}'';
+          legendFormat = "Ollama";
+          instant = true;
+        }
+      ];
+      options = {
+        colorMode = "background";
+        graphMode = "none";
+        reduceOptions.calcs = ["lastNotNull"];
+      };
+      fieldConfig.defaults.thresholds = {
+        mode = "absolute";
+        steps = [
+          {
+            color = "red";
+            value = null;
+          }
+          {
+            color = "green";
+            value = 1;
+          }
+        ];
+      };
+    }
+    {
+      title = "Ollama Probe Latency";
+      type = "timeseries";
+      gridPos = {
+        h = 6;
+        w = 18;
+        x = 6;
+        y = 36;
+      };
+      datasource = common.datasource;
+      targets = [
+        {
+          expr = ''probe_duration_seconds{instance="ollama"}'';
+          legendFormat = "probe s";
+        }
+      ];
+    }
+    {
+      title = "Ollama Logs";
+      type = "logs";
+      gridPos = {
+        h = 10;
+        w = 24;
+        x = 0;
+        y = 42;
+      };
+      datasource = common.lokiDatasource;
+      targets = [{expr = ''{unit="ollama.service"}'';}];
       options = {
         showTime = true;
         sortOrder = "Descending";
