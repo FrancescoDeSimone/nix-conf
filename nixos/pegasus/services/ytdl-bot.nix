@@ -9,6 +9,8 @@ in {
     enableIPv6 = true;
   };
 
+  systemd.tmpfiles.rules = ["d /var/lib/ytdl-bot 0700 root root -"];
+
   containers.ytdl-bot = {
     autoStart = true;
     privateNetwork = true;
@@ -20,6 +22,10 @@ in {
         hostPath = "/run/agenix/ytdl-bot";
         isReadOnly = true;
       };
+      # "/var/lib/ytdl-bot" = {
+      #   hostPath = "/var/lib/ytdl-bot";
+      #   isReadOnly = false;
+      # };
     };
 
     config = {pkgs, ...}: {
@@ -85,6 +91,7 @@ in {
         ];
         serviceConfig = {
           EnvironmentFile = "/run/agenix/ytdl-bot";
+          Environment = ["YTDL_COOKIES=/var/lib/ytdl-bot/cookies.txt"];
           ExecStart = "${ytdl_bot}/bin/ytdl_bot";
           Restart = "always";
           RestartSec = 5;
