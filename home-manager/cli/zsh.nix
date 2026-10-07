@@ -1,6 +1,7 @@
 {
   pkgs,
   config,
+  inputs,
   ...
 }: {
   programs.zsh = {
@@ -73,6 +74,7 @@
       setopt EXTENDED_HISTORY
       setopt HIST_FIND_NO_DUPS
       setopt HIST_IGNORE_ALL_DUPS
+      setopt HIST_IGNORE_SPACE # commands starting with a space skip history
 
       zstyle ':completion:*' completer _complete _match _approximate
       zstyle ':completion:*:match:*' original only
@@ -94,6 +96,51 @@
           export LLAMA_CACHE="$HOME/models"
           export HF_HOME="$HOME/models"
       fi
+
+      _pb_post() {
+        local loc
+        loc=$(curl -sS --connect-timeout 10 --max-time 120 -D - -o /dev/null "$@" https://paste.${inputs.private.nginx.domain}/upload \
+          | grep -i '^location:' | tr -d '\r' | awk '{print $2}')
+        if [ -z "$loc" ]; then
+          loc=$(curl -sS --connect-timeout 5 --max-time 120 -D - -o /dev/null "$@" http://192.168.104.11:8093/upload \
+            | grep -i '^location:' | tr -d '\r' | awk '{print $2}')
+        fi
+        printf '%s' "$loc"
+      }
+      _pb_print() {
+        case "$1" in
+          http*) printf '%s\n' "$1" ;;
+          /*) printf 'https://paste.${inputs.private.nginx.domain}%s\n' "$1" ;;
+          *) echo "upload failed (no location header)" >&2; return 1 ;;
+        esac
+      }
+      # Paste stdin, unlisted, 24h expiry. Usage: echo hi | pb
+      pb() {
+        _pb_print "$(_pb_post \
+          -F "content=<-" -F "privacy=unlisted" \
+          -F "expiration=24hour" -F "burn_after=0")"
+      }
+      # Usage: echo secret | pb-secret  |  echo secret | pb-secret "mypass"
+      pb-secret() {
+        local pass loc
+        if [ -n "''${1:-}" ]; then
+          pass="$1" # NOTE: visible in shell history, prefer the prompt
+        else
+          printf 'Password: ' >&2
+          if ! IFS= read -rs pass </dev/tty; then
+            printf '\nterminal read failed (no /dev/tty?); pass password as $1 instead\n' >&2
+            return 1
+          fi
+          printf '\n' >&2
+        fi
+        [ -n "$pass" ] || { echo "empty password, aborting" >&2; return 1; }
+        loc="$(_pb_post \
+          -F "content=<-" -F "privacy=private" \
+          -F "plain_key=$pass" \
+          -F "expiration=24hour" -F "burn_after=0")"
+        unset pass
+        _pb_print "$loc"
+      }
     '';
   };
 }

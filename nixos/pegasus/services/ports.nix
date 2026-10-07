@@ -60,6 +60,7 @@ in {
 
     # Tools & Productivity
     stirling-pdf = mkService 8085;
+    microbin = mkService 8093;
     filebrowser = mkService 8082;
     it-tools = mkService 80;
     scrutiny = mkServiceWithExporter 8081 9900;

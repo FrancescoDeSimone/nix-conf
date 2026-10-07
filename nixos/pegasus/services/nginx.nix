@@ -243,6 +243,10 @@
   pdfUiAnubisUpstream = "http://unix:${
     config.services.anubis.instances.${pdfUiAnubisInstance}.settings.BIND
   }";
+  microbinUiAnubisInstance = "microbin-ui";
+  microbinUiAnubisUpstream = "http://unix:${
+    config.services.anubis.instances.${microbinUiAnubisInstance}.settings.BIND
+  }";
   bypassUiAnubisInstance = "bypass-ui";
   bypassUiAnubisUpstream = "http://unix:${
     config.services.anubis.instances.${bypassUiAnubisInstance}.settings.BIND
@@ -298,6 +302,17 @@
     anubisUpstream = pdfUiAnubisUpstream;
     rootExtraConfig = ''
       client_max_body_size 100M;
+    '';
+  };
+
+  # MicroBin caps 64M unencrypted / 16M encrypted
+  microbinPublicLocations = mkAnubisUiLocations {
+    anubisUpstream = microbinUiAnubisUpstream;
+    rootExtraConfig = ''
+      client_max_body_size 70M;
+      # Let MicroBin serve its own errors: 404 here means "paste not found /
+      # expired", not "vhost missing" (same rationale as the jellyfin vhost).
+      proxy_intercept_errors off;
     '';
   };
 
@@ -732,6 +747,16 @@ in {
               rules = defaultAppRules;
             };
             locations = pdfPublicLocations;
+          };
+
+          "paste.${domain}" = mkVhost {
+            public = true;
+            extraConfig = mkVhostConfig {
+              csp = defaultAppCsp;
+              extraConfig = largeTransferTimeouts;
+              rules = defaultAppRules;
+            };
+            locations = microbinPublicLocations;
           };
 
           "headscale.${domain}" = mkHeadscaleVhost {public = true;};

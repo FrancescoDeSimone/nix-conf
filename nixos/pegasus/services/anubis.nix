@@ -10,6 +10,9 @@
   pdfUiInstance = "pdf-ui";
   pdfUpstream = "http://127.0.0.1:${toString config.my.services.stirling-pdf.port}";
   pdfRuntimeDir = "/run/anubis/anubis-${pdfUiInstance}";
+  microbinUiInstance = "microbin-ui";
+  microbinUpstream = "http://192.168.104.11:${toString config.my.services.microbin.port}";
+  microbinRuntimeDir = "/run/anubis/anubis-${microbinUiInstance}";
   bypassUiInstance = "bypass-ui";
   bypassUpstream = "http://127.0.0.1:${toString config.my.services.bypass.port}";
   bypassRuntimeDir = "/run/anubis/anubis-${bypassUiInstance}";
@@ -43,6 +46,12 @@ in {
       TARGET = pdfUpstream;
       BIND = "${pdfRuntimeDir}/anubis.sock";
       METRICS_BIND = "${pdfRuntimeDir}/anubis-metrics.sock";
+    };
+
+    instances.${microbinUiInstance}.settings = {
+      TARGET = microbinUpstream;
+      BIND = "${microbinRuntimeDir}/anubis.sock";
+      METRICS_BIND = "${microbinRuntimeDir}/anubis-metrics.sock";
     };
 
     instances.${bypassUiInstance}.settings = {
