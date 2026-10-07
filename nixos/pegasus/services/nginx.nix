@@ -949,7 +949,7 @@ in {
     '';
     "fail2ban/filter.d/nginx-auth.conf".text = ''
       [Definition]
-      failregex = ^<HOST> .*"(?:POST|GET) (?:/user/login|/api/v1/users/signin|/api/v1/auth/local|/login)(?:\?[^"]*)? HTTP/[^"]*" (?:401|403)
+      failregex = ^<HOST> .*"(?:POST|GET) (?:/user/login|/api/v1/users/signin|/api/v1/auth/local|/login|/admin)(?:\?[^"]*)? HTTP/[^"]*" (?:401|403)
       ignoreregex =
     '';
   };
