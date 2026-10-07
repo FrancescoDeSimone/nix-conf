@@ -1,6 +1,7 @@
 {
   inputs,
   outputs,
+  lib,
   ...
 }: {
   imports = [inputs.nix-amd-ai.nixosModules.default];
@@ -10,7 +11,17 @@
   # `nixpkgs.overlays`). Guarantees pkgs.llama-cpp-vulkan — and therefore the
   # /etc/lemonade/backends/llamacpp-vulkan symlink lemond uses — is OUR master
   # build, not the nix-amd-ai pinned one.
-  nixpkgs.overlays = [outputs.overlays.llama-cpp-master];
+  nixpkgs.overlays = lib.mkAfter [
+    outputs.overlays.llama-cpp-master
+    # Headless server: omit both Lemonade's Tauri desktop shell and web app.
+    # The OpenAI-compatible API remains available on localhost:13305.
+    (final: prev: {
+      lemonade = prev.lemonade.override {
+        withWebApp = false;
+        withDesktopApp = false;
+      };
+    })
+  ];
 
   nix.settings = {
     substituters = ["https://nix-amd-ai.cachix.org"];

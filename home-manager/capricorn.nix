@@ -117,12 +117,6 @@ in {
     "--release XF86LightsToggle" = "exec ${kbd-backlight}/bin/kbd-backlight toggle";
   };
 
-  home.file.".cache/lemonade/user_models.json" = {
-    text = user_models;
-  };
-  home.file.".cache/lemonade/recipe_options.json" = {
-    text = recipe_options;
-  };
   programs.waybar.settings.mainBar."custom/temperature" =
     lib.mkOptionDefault {
       "return-type" = "json";

@@ -55,19 +55,34 @@
     firmware = with pkgs; [linux-firmware];
   };
 
-  services.blueman.enable = true;
-  services.power-profiles-daemon.enable = true;
+  services = {
+    blueman.enable = true;
 
-  security.tpm2 = {
-    enable = true;
-    pkcs11.enable = true;
-    tctiEnvironment.enable = true;
+    # TLP owns the power policy. Keep the machine in performance mode on both
+    # AC and battery; power-profiles-daemon must stay disabled or it can switch
+    # the Slimbook platform profile back to balanced.
+    power-profiles-daemon.enable = false;
+    tlp = {
+      enable = true;
+      settings = {
+        CPU_SCALING_GOVERNOR_ON_AC = "performance";
+        CPU_SCALING_GOVERNOR_ON_BAT = "performance";
+        CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+        CPU_ENERGY_PERF_POLICY_ON_BAT = "performance";
+        CPU_BOOST_ON_AC = 1;
+        CPU_BOOST_ON_BAT = 1;
+        PLATFORM_PROFILE_ON_AC = "performance";
+        PLATFORM_PROFILE_ON_BAT = "performance";
+      };
+    };
+
+    # Closing the lid is not a suspend action on this always-on inference host.
+    logind.settings.Login = {
+      HandleLidSwitch = "ignore";
+      HandleLidSwitchExternalPower = "ignore";
+      HandleLidSwitchDocked = "ignore";
+    };
+
+    thermald.enable = true;
   };
-
-  environment.systemPackages = with pkgs; [
-    lact
-    lm_sensors
-  ];
-
-  services.thermald.enable = true;
 }
