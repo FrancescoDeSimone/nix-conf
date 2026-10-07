@@ -20,8 +20,10 @@
     ./services/scrutiny.nix
     ./services/sonarr.nix
     ./services/stirling-pdf.nix
+    ./services/microbin.nix
     ./services/qbittorrent.nix
     ./services/ollama.nix
+    ./services/9router.nix
     ./services/karakeep.nix
     ./services/flaresolverr.nix
     ./services/speedtesttracker.nix

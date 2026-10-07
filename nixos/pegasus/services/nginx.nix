@@ -395,7 +395,8 @@
 
   mkSimpleProxyVhosts = vhostConfig: hosts:
     builtins.listToAttrs (
-      map (
+      map
+      (
         {
           name,
           public ? false,
@@ -453,8 +454,9 @@
     } "$out/3x5.flf"
   '';
 
-  defaultProxyVhosts = mkSimpleProxyVhosts defaultAppVhostConfig [
-  ];
+  defaultProxyVhosts =
+    mkSimpleProxyVhosts defaultAppVhostConfig [
+    ];
 
   defaultInternalVhosts = mkSimpleProxyVhosts defaultAppVhostConfig [
     (mkCustomTailnetTlsService "192.168.103.11" "opencloud" config.my.services.opencloud.port)
@@ -905,6 +907,19 @@ in {
                 upstream = "http://127.0.0.1:${toString config.my.services.headplane.port}/";
               };
             };
+          };
+
+          "9router.${internalDomain}" = mkTailnetProxyVhost {
+            upstream = "http://127.0.0.1:${toString config.my.services._9router.port}/";
+            vhostConfig = defaultAppVhostConfig;
+            websockets = true;
+            # Completions stream as SSE and multimodal prompts carry images.
+            locationExtraConfig =
+              ''
+                client_max_body_size 50m;
+              ''
+              + mkStreamingProxyConfig {};
+            tls = internalDomain;
           };
 
           "kasm.${internalDomain}" = mkTailnetProxyVhost {

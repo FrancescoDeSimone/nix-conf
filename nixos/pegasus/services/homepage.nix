@@ -23,6 +23,12 @@
   ];
 
   serviceOverrides = {
+    "9router" = {
+      name = "9Router";
+      group = "Utilities";
+      description = "AI provider router";
+      icon = "mdi-router-wireless";
+    };
     adguard = {
       name = "AdGuard";
       group = "Network";
@@ -223,7 +229,8 @@
 
   serviceHostnames = lib.sort (a: b: a < b) (lib.attrNames lanHosts);
 
-  serviceEntries = lib.sort (a: b: a.displayName < b.displayName) (map (host: let
+  serviceEntries = lib.sort (a: b: a.displayName < b.displayName) (map
+    (host: let
       name = lib.removeSuffix ".${private.nginx.internalDomain}" host;
       override = serviceOverrides.${name} or {};
       displayName = override.name or (titleCase name);

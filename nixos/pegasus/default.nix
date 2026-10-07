@@ -31,6 +31,7 @@
     qui.file = ../../secrets/qui.age;
     lidarr.file = ../../secrets/lidarr.age;
     "adguard-admin".file = ../../secrets/adguard-admin.age;
+    "9router-admin".file = ../../secrets/9router-admin.age;
     telegram = {
       file = ../../secrets/telegram.age;
       owner = "grafana";

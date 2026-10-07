@@ -74,6 +74,7 @@ in {
     headplane = mkService 3080;
     tailscale-exporter = mkService 9250;
     ollama = mkService 11434;
+    _9router = mkService 20128;
     jelly-clipper = mkService 3333;
     bypass = mkService 5000;
     olivetin = mkService 1337;
