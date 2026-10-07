@@ -9,7 +9,7 @@
   localAddress = "192.168.104.11";
   stateDir = "/var/lib/microbin";
 
-  # MicroBin loads served files into RAM, so keep these small. 
+  # MicroBin loads served files into RAM, so keep these small.
   # The nginx client_max_body_size for the public vhost must stay in sync
   maxUnencryptedMB = 64;
   maxEncryptedMB = 16;

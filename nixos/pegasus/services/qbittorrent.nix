@@ -53,7 +53,7 @@
 
   qbOnFinishedScript = pkgs.writeShellScript "qbittorrent-on-finished" ''
     set -eu
-    export PATH=${lib.makeBinPath [ pkgs.curl pkgs.jq pkgs.coreutils pkgs.gnugrep pkgs.gnused ]}:$PATH
+    export PATH=${lib.makeBinPath [pkgs.curl pkgs.jq pkgs.coreutils pkgs.gnugrep pkgs.gnused]}:$PATH
 
     torrent_name="''${1:-unknown}"
     content_path="''${2:-unknown}"
