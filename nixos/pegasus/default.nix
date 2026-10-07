@@ -42,6 +42,11 @@
       owner = "thinkcentre";
       group = "thinkcentre";
     };
+    "qbittorrent-api" = {
+      file = ../../secrets/qbittorrent-api.age;
+      owner = "thinkcentre";
+      group = "thinkcentre";
+    };
     "tailscale-exporter-api-key" = {
       file = ../../secrets/tailscale-exporter-api-key.age;
       owner = "tailscale-exporter";

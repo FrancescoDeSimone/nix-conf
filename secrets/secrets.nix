@@ -26,4 +26,5 @@ in {
   "deemix-arl.age".publicKeys = keys;
   "adguard-admin.age".publicKeys = keys;
   "9router-admin.age".publicKeys = keys;
+  "qbittorrent-api.age".publicKeys = keys;
 }
