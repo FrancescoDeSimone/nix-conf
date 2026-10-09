@@ -10,7 +10,7 @@ buildGoModule {
 
   src = inputs."adguard-exporter";
 
-  vendorHash = "sha256-x1a8y6WmrlGDL87kfozTpUU/RjFsSjNjasiU2QB/Qzo=";
+  vendorHash = "sha256-JCpyjVE40J5V5nGMR+/XKo6gxkTubJQ072NMrSJBtWM=";
 
   ldflags = ["-s" "-w"];
 
