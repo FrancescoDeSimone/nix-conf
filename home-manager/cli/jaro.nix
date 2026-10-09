@@ -58,6 +58,8 @@
     };
   };
 
+  xdg.configFile."mimeapps.list".force = true;
+
   xdg.desktopEntries.jaro = {
     name = "Jaro";
     genericName = "Resource Opener";
