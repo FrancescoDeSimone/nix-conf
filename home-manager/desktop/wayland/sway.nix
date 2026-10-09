@@ -26,12 +26,15 @@
               self.maintain_task = None
               self.event_hint = None
           async def start(self):
-              self.ipc = await Connection(auto_reconnect=True).connect()
+              self.ipc = await Connection().connect()
               self.ipc.on(Event.WINDOW_NEW, self.on_window_new)
               self.ipc.on(Event.WINDOW_CLOSE, self.on_event)
               self.ipc.on(Event.WINDOW_MOVE, self.on_event)
               self.ipc.on(Event.WORKSPACE_FOCUS, self.on_event)
-              await self.ipc.main()
+              try:
+                  await self.ipc.main()
+              except (EOFError, ConnectionError):
+                  pass
           def trigger_maintain(self, hint=None):
               if hint:
                   self.event_hint = hint
