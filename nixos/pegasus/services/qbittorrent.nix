@@ -79,22 +79,37 @@
       esac
     }
 
+    secret_get() {
+      secret_key="$1"
+      secret_line="$(grep -m1 "^''${secret_key}=" "$QBIT_SECRET_FILE" || true)"
+      [ -n "$secret_line" ] || return 1
+      secret_value="''${secret_line#*=}"
+      case "$secret_value" in
+        \"*\") secret_value="''${secret_value:1:''${#secret_value}-2}" ;;
+        \'*\') secret_value="''${secret_value:1:''${#secret_value}-2}" ;;
+      esac
+      printf '%s' "$secret_value"
+      return 0
+    }
+
     QBIT_USER="$QBIT_DEFAULT_USER"
     QBIT_BEARER=""
     QBIT_PASS=""
     if [ -r "$QBIT_SECRET_FILE" ]; then
-      . "$QBIT_SECRET_FILE" || log "warning: could not source $QBIT_SECRET_FILE"
-      if [ -n "''${QBITTORRENT_API_KEY:-}" ] && [ "$QBITTORRENT_API_KEY" != "PLACEHOLDER" ]; then
-        case "$QBITTORRENT_API_KEY" in
-          qbt_*) QBIT_BEARER="$QBITTORRENT_API_KEY" ;;
-          *) QBIT_PASS="$QBITTORRENT_API_KEY" ;;
+      secret_api_key="$(secret_get QBITTORRENT_API_KEY || true)"
+      secret_password="$(secret_get QB_PASSWORD || true)"
+      secret_username="$(secret_get QB_USERNAME || true)"
+      if [ -n "$secret_api_key" ] && [ "$secret_api_key" != "PLACEHOLDER" ]; then
+        case "$secret_api_key" in
+          qbt_*) QBIT_BEARER="$secret_api_key" ;;
+          *) QBIT_PASS="$secret_api_key" ;;
         esac
       fi
-      if [ -n "''${QB_PASSWORD:-}" ] && [ "$QB_PASSWORD" != "PLACEHOLDER" ]; then
-        QBIT_PASS="$QB_PASSWORD"
+      if [ -n "$secret_password" ] && [ "$secret_password" != "PLACEHOLDER" ]; then
+        QBIT_PASS="$secret_password"
       fi
-      if [ -n "''${QB_USERNAME:-}" ]; then
-        QBIT_USER="$QB_USERNAME"
+      if [ -n "$secret_username" ]; then
+        QBIT_USER="$secret_username"
       fi
     fi
 
@@ -151,8 +166,6 @@
       fi
     }
 
-    # Resolve a usable info hash: prefer %I, fall back to %K.
-    # Rejects qBittorrent placeholders passed through literally ("%I"/"%K"/"-").
     HASH=""
     for cand in "$infohash" "$torrent_id"; do
       case "$cand" in
@@ -209,14 +222,16 @@
           | jq -r --arg n "$torrent_name" '[.[] | select(.name == $n) | .hash] | join("|")' 2>/dev/null || true)"
       fi
     fi
-    if [ -n "$delete_hashes" ] && ensure_qbit_auth; then
+    if [ -z "$delete_hashes" ]; then
+      log "no hash found, skipping qBittorrent delete for $torrent_name"
+    elif ensure_qbit_auth; then
       qbit_curl --max-time 15 \
         --data-urlencode "hashes=$delete_hashes" \
         --data-urlencode "deleteFiles=true" \
         "$QBIT_URL/api/v2/torrents/delete" >/dev/null \
-        || printf '%s\n' "qbittorrent-on-finished: qBittorrent delete failed for $torrent_name" >&2
-    elif [ -z "$delete_hashes" ]; then
-      printf '%s\n' "qbittorrent-on-finished: no hash found, skipping qBittorrent delete for $torrent_name" >&2
+        || log "qBittorrent delete failed for $torrent_name"
+    else
+      log "cannot authenticate to qBittorrent API, skipping delete for $torrent_name"
     fi
     if [ -n "$COOKIE_JAR" ]; then rm -f "$COOKIE_JAR"; fi
 
@@ -279,7 +294,14 @@ in {
     serverConfig = {
       AutoRun = {
         enabled = true;
-        program = ''${qbOnFinishedScript} "%N" "%F" "%L" "%I" "%K"'';
+        # Do NOT quote the placeholders. qBittorrent's settings loader
+        # (QSettings INI reader) strips quote characters and eats whitespace
+        # after a closing quote when it reloads its config file, so
+        # `"%N" "%F" ...` becomes a single glued argument `%N%F...` (verified
+        # on qBittorrent 5.2.2). On Linux the daemon splits the command line
+        # before substituting placeholders, so bare space-separated
+        # placeholders survive even with spaces in torrent names/paths.
+        program = ''${qbOnFinishedScript} %N %F %L %I %K'';
       };
 
       LegalNotice.Accepted = true;
