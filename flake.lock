@@ -819,11 +819,11 @@
     "password-store-repo": {
       "flake": false,
       "locked": {
-        "lastModified": 1791407492,
-        "narHash": "sha256-KnKkpMOg+M810w/l9MFNzStCWppH7gMuBEv2A7TIZHA=",
+        "lastModified": 1791555729,
+        "narHash": "sha256-351mkmMXFfHdH45nmXkUbvDkm4vQYdbICROl9OtPYKQ=",
         "ref": "refs/heads/master",
-        "rev": "e20dc5626a5ecf3ee12ea5d2a2a375bb173ce689",
-        "revCount": 612,
+        "rev": "ce9180124519aef5b0dc5352560d34545709048f",
+        "revCount": 613,
         "type": "git",
         "url": "ssh://git@github.com/francescodesimone/password-store"
       },
@@ -914,11 +914,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791535654,
-        "narHash": "sha256-QFgGi6Wgh7AgqPFdAXEmkTgnR0B5M0omheIHvo/02dU=",
+        "lastModified": 1791448976,
+        "narHash": "sha256-HJ4TEF3j7HmLYeEP/PtqjeiBX/6TppXB2qY53HcrWbs=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "4ca2963243427cb86bd6b4d9ca6010db0162a619",
+        "rev": "f91010a5c1b6125b715eb78a84fb5dd8fb74a2b0",
         "type": "github"
       },
       "original": {
@@ -1115,11 +1115,11 @@
         "systems": "systems_5"
       },
       "locked": {
-        "lastModified": 1791548927,
-        "narHash": "sha256-Iccx92QDtW4Ec6eEi0ngtdpGdpWSfQdsVPG4R9k6zBc=",
+        "lastModified": 1791289787,
+        "narHash": "sha256-Tg8TQMc0QWaJ/ZXaFk9O8tqcuL93+d7R7j8p4ulxQs0=",
         "owner": "mitchellh",
         "repo": "zig-overlay",
-        "rev": "940ecf1b56179c7d51e595df0a453410d7249d32",
+        "rev": "7230e5bc95c5e1698d51cdebbfca9752b06b0903",
         "type": "github"
       },
       "original": {
