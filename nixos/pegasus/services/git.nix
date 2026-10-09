@@ -63,7 +63,7 @@
             REPO_INDEXER_EXCLUDE = "resources/bin/**";
           };
           migrations = {
-            ALLOWED_DOMAINS = "github.com,gitlab.com,codeberg.org,git.sr.ht,bitbucket.org";
+            ALLOWED_DOMAINS = "github.com,api.github.com,gitlab.com,codeberg.org,git.sr.ht,bitbucket.org,api.bitbucket.org";
             ALLOW_LOCALNETWORKS = false;
             SKIP_TLS_VERIFY = false;
           };
