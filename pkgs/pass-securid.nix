@@ -1,10 +1,7 @@
-# pass-securid: a pass extension for RSA SecurID software tokens.
-# Sources the engine from the local `pass-securid` flake input; the python3
-# path is baked in because the pass wrapper only carries a fixed PATH.
 {
   lib,
   stdenv,
-  python3,
+  openssl,
   inputs,
   ...
 }:
@@ -15,10 +12,14 @@ stdenv.mkDerivation {
 
   dontBuild = true;
 
-  buildInputs = [python3];
+  buildInputs = [openssl];
 
   patchPhase = ''
-    sed -i -e 's|SECURID_PYTHON=''${PASSWORD_STORE_SECURID_PYTHON:-python3}|SECURID_PYTHON=${python3}/bin/python3|' securid.bash
+    sed -i \
+      -e 's|command -v openssl|command -v ${openssl}/bin/openssl|' \
+      -e 's|openssl kdf|${openssl}/bin/openssl kdf|g' \
+      -e 's|openssl version|${openssl}/bin/openssl version|' \
+      securid.bash
   '';
 
   installFlags = [
