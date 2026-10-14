@@ -910,7 +910,7 @@ in {
           };
 
           "9router.${internalDomain}" = mkTailnetProxyVhost {
-            upstream = "http://127.0.0.1:${toString config.my.services._9router.port}/";
+            upstream = "http://192.168.105.11:${toString config.my.services._9router.port}/";
             vhostConfig = defaultAppVhostConfig;
             websockets = true;
             # Completions stream as SSE and multimodal prompts carry images.
