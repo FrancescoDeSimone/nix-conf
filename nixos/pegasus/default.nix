@@ -67,6 +67,10 @@
       file = ../../secrets/ytdl-bot.age;
       mode = "0400";
     };
+    "telegram-healthbot" = {
+      file = ../../secrets/telegram-healthbot.age;
+      mode = "0400";
+    };
     "deemix-arl" = {
       file = ../../secrets/deemix-arl.age;
       mode = "0400";

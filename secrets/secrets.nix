@@ -23,6 +23,7 @@ in {
   "microbin-admin.age".publicKeys = keys;
   "gpg-key.age".publicKeys = keys;
   "ytdl-bot.age".publicKeys = keys;
+  "telegram-healthbot.age".publicKeys = keys;
   "deemix-arl.age".publicKeys = keys;
   "adguard-admin.age".publicKeys = keys;
   "9router-admin.age".publicKeys = keys;
