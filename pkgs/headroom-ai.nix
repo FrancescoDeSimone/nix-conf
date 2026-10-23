@@ -43,7 +43,10 @@ in
     ];
 
     makeWrapperArgs = [
-      "--prefix PATH : ${lib.makeBinPath [upkgs.ast-grep]}"
+      "--prefix"
+      "PATH"
+      ":"
+      (lib.makeBinPath [upkgs.ast-grep])
     ];
 
     doCheck = false;
