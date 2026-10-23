@@ -20,7 +20,6 @@
     opengym-frontend = pkgs.callPackage ./opengym-frontend.nix {inherit inputs;};
     deemix-arr = pkgs.callPackage ./deemix-arr.nix {};
     deemix-cli = inputs.deemix.packages.${pkgs.stdenv.hostPlatform.system}.cli;
-    healthbot = pkgs.callPackage ./healthbot.nix {inherit inputs;};
   };
 in
   basePackages

@@ -92,10 +92,6 @@
       url = "git+https://git.fdesi.ipv64.net/desi/ytdl_bot.git";
       flake = false;
     };
-    healthbot = {
-      url = "git+https://git.fdesi.ipv64.net/desi/healthbot.git";
-      flake = false;
-    };
     opengym = {
       url = "github:DuarteSantos8/openGym/v1.4.1";
       flake = false;
