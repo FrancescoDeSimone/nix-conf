@@ -95,54 +95,50 @@ in {
         enable = true;
         https = true;
         home = "/nextcloud";
-        package = pkgs.nextcloud33;
+        package = pkgs.nextcloud35;
         hostName = "nextcloud." + domain;
         extraAppsEnable = true;
         configureRedis = true;
         extraApps = {
           deck = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/deck/releases/download/v1.17.1/deck-v1.17.1.tar.gz";
-            sha256 = "sha256-5ayXPoq2E8eIQqL74p/dytqmjAN3vkAZvrgQIqxf7Zo=";
+            url = "https://github.com/nextcloud-releases/deck/releases/download/v1.19.1/deck-v1.19.1.tar.gz";
+            sha256 = "sha256-OC4RE57jmURL36F/AYqpEJN2ko+b02CQ6tjqNAtNPw4";
             license = "agpl3Only";
           };
           memories = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/pulsejet/memories/releases/download/v8.0.1/memories.tar.gz";
-            sha256 = "sha256-B+O78qjBQbmMnFAvH/5a+YBive+rkBG9AKTX7G3qNR0=";
+            url = "https://github.com/pulsejet/memories/releases/download/v10.2.0/memories.tar.gz";
+            sha256 = "sha256-MBY1eCtCDPwpuXOdBM/YUNTK5OMDpufFZELxbdSvxRQ";
             license = "agpl3Only";
           };
           mail = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/mail/releases/download/v5.8.1/mail-v5.8.1.tar.gz";
-            sha256 = "sha256-0IBTi0JVBBCTLEcSDiB1eMj2B31qeT4Yn9+ogY9iAs0=";
+            url = "https://github.com/nextcloud-releases/mail/releases/download/v5.12.5/mail-v5.12.5.tar.gz";
+            sha256 = "sha256-xS2rGKTeFxCFQDjZWBD5rk63aoZW2JgA59zrWv8ANOA";
             license = "agpl3Only";
           };
           contacts = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/contacts/releases/download/v8.5.1/contacts-v8.5.1.tar.gz";
-            sha256 = "sha256-SyBJBSxNe1JM8l9AHgYy8AQ3v3hlZhEgUiiTb6xCk70=";
+            url = "https://github.com/nextcloud-releases/contacts/releases/download/v8.9.2/contacts-v8.9.2.tar.gz";
+            sha256 = "sha256-kvfHnEEScwRe1jRvaYjAWvZzwxcKOtq6kaFQZrjc58U";
             license = "agpl3Only";
           };
-          extract = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/PaulLereverend/NextcloudExtract/releases/download/1.3.6/extract.tar.gz";
-            sha256 = "sha256-y1NacOWnCd/f5sOeEOLeZrWnqwi8q/XezOrhT7AzV/o=";
-            license = "agpl3Only";
-          };
+          # extract app dropped: dead upstream since 2023, max supported Nextcloud 27.
           news = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud/news/releases/download/28.4.1/news.tar.gz";
-            sha256 = "sha256-e2lledOH4LzB+/nWjL+wsCuJJTi50yNgPDnGVkl7FNk=";
+            url = "https://github.com/nextcloud/news/releases/download/29.0.0/news.tar.gz";
+            sha256 = "sha256-5R1ADlcStdxl00masnUuifA8UPfPyiXO3g6B25LEuJo";
             license = "agpl3Only";
           };
           notes = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/notes/releases/download/v5.0.0/notes-v5.0.0.tar.gz";
-            sha256 = "sha256-NCBDtNO6jsqws4BE8sGOnox2xUuODleYodQ5vv6jqEs=";
+            url = "https://github.com/nextcloud-releases/notes/releases/download/v6.1.0/notes-v6.1.0.tar.gz";
+            sha256 = "sha256-A8ST9FyxelAFoNzpHE5ZspTvkdRSDD70SiHV5h5BlSY";
             license = "agpl3Only";
           };
           epubview = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/devnoname120/epubviewer/releases/download/1.9.2/epubviewer-1.9.2.tar.gz";
-            sha256 = "sha256-HQpC0D+Dj5gojIzz+CHUKmUIkxF2qyqoWI787OFbMF8=";
+            url = "https://github.com/devnoname120/epubviewer/releases/download/1.9.17/epubviewer-1.9.17.tar.gz";
+            sha256 = "sha256-cN8CW7122zpfiqJgKJK6q8oKvKszq2t/5KCWtmkOxTc";
             license = "agpl3Only";
           };
           phonetrack = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/julien-nc/phonetrack/releases/download/v1.2.0/phonetrack-1.2.0.tar.gz";
-            sha256 = "sha256-d6vPKCJ1Us0zQIFkIlSQ5cmEgO1zXGtdDniIjfqGh28=";
+            url = "https://github.com/julien-nc/phonetrack/releases/download/v1.4.1/phonetrack-1.4.1.tar.gz";
+            sha256 = "sha256-56GuG9yhL7vSOX8dESjIkH4hSeZNAO6Oi+WmY2zWxXY=";
             license = "agpl3Only";
           };
         };
