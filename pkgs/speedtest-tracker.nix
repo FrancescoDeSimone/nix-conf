@@ -43,7 +43,7 @@ in
     npmDeps = fetchNpmDeps {
       inherit src;
       name = "${pname}-npm-deps";
-      hash = "sha256-IeNhs5YdYtdsezNWTDXpqnaLUL5iJhhdV0vM+IW0opo=";
+      hash = "sha256-4rE6OsFX6GL7p1T+ICcAsWeNaWivWSRRhLBBa23yebY=";
     };
 
     composerNoScripts = true;
