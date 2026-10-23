@@ -95,14 +95,19 @@ in {
         enable = true;
         https = true;
         home = "/nextcloud";
-        package = pkgs.nextcloud35;
+        # NC refuses multi-major jumps ("Updates between multiple major
+        # versions are unsupported"): staged 33 -> 34 -> 35. The 35 bounce is
+        # the follow-up commit.
+        package = pkgs.nextcloud34;
         hostName = "nextcloud." + domain;
         extraAppsEnable = true;
         configureRedis = true;
         extraApps = {
+          # Staged on the NC34 hop (deck 1.19.x is NC35-only); returns to
+          # 1.19.1 with the nextcloud35 bounce.
           deck = pkgs.fetchNextcloudApp rec {
-            url = "https://github.com/nextcloud-releases/deck/releases/download/v1.19.1/deck-v1.19.1.tar.gz";
-            sha256 = "sha256-OC4RE57jmURL36F/AYqpEJN2ko+b02CQ6tjqNAtNPw4";
+            url = "https://github.com/nextcloud-releases/deck/releases/download/v1.18.6/deck-v1.18.6.tar.gz";
+            sha256 = "sha256-V8OyzzZNqzGfmpKO0Fr4vO5W9WMBDr78i8gEmr4dLT8=";
             license = "agpl3Only";
           };
           memories = pkgs.fetchNextcloudApp rec {
