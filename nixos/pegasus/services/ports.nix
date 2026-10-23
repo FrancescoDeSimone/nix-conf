@@ -80,5 +80,6 @@ in {
     olivetin = mkService 1337;
     deemix = mkService 6595;
     deemix-arr = mkService 6596;
+    opengym = mkService 8094;
   };
 }

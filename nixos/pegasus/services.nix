@@ -25,6 +25,7 @@
     ./services/ollama.nix
     ./services/healthbot.nix
     ./services/9router.nix
+    ./services/opengym.nix
     ./services/karakeep.nix
     ./services/flaresolverr.nix
     ./services/speedtesttracker.nix

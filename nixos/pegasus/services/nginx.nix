@@ -761,6 +761,48 @@ in {
             locations = microbinPublicLocations;
           };
 
+          # openGym PWA: static root + /api proxied to the API unit (module:
+          # modules/nixos/opengym). Passkeys need HTTPS (wildcard cert) and
+          # RP_ID/ORIGIN bound to this exact hostname.
+          "opengym.${domain}" = mkVhost {
+            public = true;
+            extraConfig =
+              mkVhostConfig {
+                csp = defaultAppCsp;
+                rules = defaultAppRules;
+              }
+              + ''
+                # Progress photos are uploaded through /api.
+                client_max_body_size 25M;
+              '';
+            root = "${config.my.services.opengym.frontendPackage}/share/opengym";
+            locations = {
+              "/" = {
+                tryFiles = "$uri $uri/ /index.html";
+              };
+              "^~ /api/" = mkProxyLocation {
+                upstream = "http://127.0.0.1:${toString config.my.services.opengym.port}";
+                # Pass JSON errors (sync conflicts, missing profiles) through:
+                # intercepting 404 here would break the app's error handling.
+                extraConfig = "proxy_intercept_errors off;";
+              };
+              # Exercise stills/animations: immutable per build, licensed for
+              # openGym only (catalogue/media/NOTICE.md) — CORP keeps other
+              # sites from embedding them. A location-level add_header drops
+              # the server-level ones, so they are re-declared in full here
+              # (the nginx.conf builder's gixy check enforces the complete
+              # set); caching comes from `expires`, not add_header.
+              "^~ /exercise-media/" = {
+                extraConfig = ''
+                  expires 30d;
+                  ${baseSecurityHeaders}
+                  add_header Content-Security-Policy "${defaultAppCsp}" always;
+                  add_header Cross-Origin-Resource-Policy "same-origin" always;
+                '';
+              };
+            };
+          };
+
           "headscale.${domain}" = mkHeadscaleVhost {public = true;};
 
           # --- Internal TLS vhosts ---
