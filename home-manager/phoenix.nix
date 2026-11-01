@@ -11,6 +11,21 @@
     Exec=env WLR_DRM_DEVICES=/dev/dri/card1:/dev/dri/card2 WLR_NO_HARDWARE_CURSORS=1 /usr/bin/sway --unsupported-gpu
     Type=Application
   '';
+  # Bose AE2 SoundLink: pin Bluetooth audio to A2DP, no HSP/HFP headset profile.
+  # Ubuntu 24.04 ships wireplumber 0.4 -> lua config; the .conf one is for 0.5+.
+  xdg.configFile = {
+    "wireplumber/bluetooth.lua.d/51-bluez-a2dp-only.lua".text = ''
+      bluez_monitor.properties["bluez5.roles"] = "[ a2dp_sink a2dp_source ]"
+    '';
+    "wireplumber/policy.lua.d/51-bluetooth-pin-a2dp.lua".text = ''
+      bluetooth_policy.policy["media-role.use-headset-profile"] = false
+    '';
+    "wireplumber/wireplumber.conf.d/50-bluez-disable-hsp.conf".text = ''
+      monitor.bluez.properties = {
+          bluez5.roles = [ a2dp_sink a2dp_source ]
+      }
+    '';
+  };
   modules.desktop.sway.wallpaper = "/usr/share/backgrounds/ubuntu-default-greyscale-wallpaper.png";
   wayland.windowManager = {
     sway = {
