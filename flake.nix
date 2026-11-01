@@ -76,10 +76,10 @@
       url = "github:dmzoneill/lidarr-youtube-downloader";
       flake = false;
     };
-    chatto = {
-      url = "github:chattocorp/chatto";
-      flake = false;
-    };
+    #chatto = {
+    #  url = "github:chattocorp/chatto";
+    #  flake = false;
+    #};
     p5aint = {
       url = "git+ssh://git@github.com/FrancescoDeSimone/p5aint?ref=single-file-compressed";
       flake = false;
@@ -94,6 +94,12 @@
     };
     opengym = {
       url = "github:DuarteSantos8/openGym/v1.4.1";
+      flake = false;
+    };
+    # TypeType downloader is source-built; the server/token/web bundles come
+    # from digest-pinned official images (pkgs/typetype-*.nix).
+    typetype-downloader = {
+      url = "github:TypeType-Video/TypeType-Downloader";
       flake = false;
     };
 

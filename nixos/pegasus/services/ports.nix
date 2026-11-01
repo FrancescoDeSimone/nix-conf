@@ -50,6 +50,9 @@ in {
     prowlarr = mkServiceWithExporter 9696 9697;
     readarr = mkServiceWithExporter 8787 8788;
     bazarr = mkServiceWithExporter 6767 6768;
+    # Registry label for the container-internal API port; the web UI itself
+    # is host nginx (see typetype.nix).
+    typetype = mkService 8080;
 
     # Downloading
     transmission = mkService 9091;
@@ -64,7 +67,8 @@ in {
     filebrowser = mkService 8082;
     it-tools = mkService 80;
     scrutiny = mkServiceWithExporter 8081 9900;
-    nextcloud = mkService 8010;
+    traccar = mkService 8082;
+    owntracks = mkService 5144;
     duplicati = mkService 8200;
     karakeep = mkService 3002;
     govd = mkService 8083;

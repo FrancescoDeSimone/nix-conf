@@ -106,8 +106,10 @@ in {
           Value = true;
           Status = "locked";
         };
+        # WebGL apps (MapLibre in Traccar) break under RFP; exempt the hosts
+        # that need canvas/WebGL rendering.
         "privacy.resistFingerprinting.exemptedDomains" = {
-          Value = "meet.google.com";
+          Value = "meet.google.com,traccar.internal.lan64.de";
           Status = "locked";
         };
         "webgl.force-enabled" = {

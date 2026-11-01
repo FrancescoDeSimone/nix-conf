@@ -20,6 +20,10 @@
     opengym-frontend = pkgs.callPackage ./opengym-frontend.nix {inherit inputs;};
     deemix-arr = pkgs.callPackage ./deemix-arr.nix {};
     deemix-cli = inputs.deemix.packages.${pkgs.stdenv.hostPlatform.system}.cli;
+    typetype-downloader = pkgs.callPackage ./typetype-downloader.nix {go_1_27 = pkgs.go_1_27; inherit inputs;};
+    typetype-server = pkgs.callPackage ./typetype-server.nix {};
+    typetype-token = pkgs.callPackage ./typetype-token.nix {};
+    typetype-web = pkgs.callPackage ./typetype-web.nix {};
   };
 in
   basePackages

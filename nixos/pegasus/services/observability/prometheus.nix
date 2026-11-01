@@ -77,9 +77,12 @@
       url = "http://127.0.0.1:${toString config.my.services.headscale.port}";
     }
     {
-      name = "nextcloud";
-      url = "https://nextcloud.${domain}";
-      module = "https_2xx";
+      name = "opencloud";
+      url = "http://192.168.103.11:${toString config.my.services.opencloud.port}";
+    }
+    {
+      name = "traccar";
+      url = "http://192.168.101.11:${toString config.my.services.traccar.port}";
     }
     {
       name = "git";
@@ -89,10 +92,6 @@
       name = "ollama";
       url = "http://127.0.0.1:${toString config.my.services.ollama.port}";
     }
-    # {
-    #   name = "opencloud";
-    #   url = "http://192.168.103.11:${toString config.my.services.opencloud.port}";
-    # }
   ];
   mkStaticScrape = name: port: {
     job_name = name;

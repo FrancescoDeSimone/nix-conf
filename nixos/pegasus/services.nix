@@ -9,8 +9,9 @@
     ./services/homepage.nix
     ./services/jellyfin.nix
     ./services/jellyseer.nix
-    ./services/nextcloud.nix
     ./services/opencloud.nix
+    ./services/traccar.nix
+    ./services/typetype.nix
     ./services/nginx.nix
     ./services/prowlarr.nix
     ./services/olivetin.nix

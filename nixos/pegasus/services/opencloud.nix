@@ -9,6 +9,8 @@
   hostAddress = "192.168.103.10";
   localAddress = "192.168.103.11";
   stateDir = "/var/lib/opencloud";
+  duplicatiPort = config.my.services.duplicati.port;
+  duplicatiPasswordExists = builtins.pathExists ../../../secrets/duplicati-password.age;
   webApps = {
     pastebin = pkgs.fetchzip {
       url = "https://github.com/opencloud-eu/web-extensions/releases/download/pastebin-v2.1.0/pastebin-2.1.0.zip";
@@ -39,6 +41,15 @@ in {
     enableIPv6 = true;
   };
 
+  age.secrets = lib.optionalAttrs duplicatiPasswordExists {
+    "duplicati-password" = {
+      file = ../../../secrets/duplicati-password.age;
+      owner = "root";
+      group = "root";
+      mode = "0400";
+    };
+  };
+
   systemd.tmpfiles.rules = [
     "d ${stateDir} 0750 root root -"
   ];
@@ -48,9 +59,37 @@ in {
     privateNetwork = true;
     inherit hostAddress localAddress;
 
-    bindMounts.${stateDir} = {
-      hostPath = stateDir;
-      isReadOnly = false;
+    bindMounts = {
+      # OpenCloud state lives inside the container at ${stateDir}; the host
+      # side moves onto the /nextcloud ext4 partition (once the NC archive
+      # was migrated/reclaimed and the copy landed there) — the fallback
+      # keeps the old location until /nextcloud/opencloud exists.
+      "/var/lib/opencloud" = {
+        hostPath =
+          if builtins.pathExists "/nextcloud/opencloud"
+          then "/nextcloud/opencloud"
+          else stateDir;
+        isReadOnly = false;
+      };
+    }
+    // lib.optionalAttrs duplicatiPasswordExists {
+      "/run/duplicati-password" = {
+        hostPath = config.age.secrets."duplicati-password".path;
+        isReadOnly = true;
+      };
+    }
+    // {
+      # Nextcloud archive: stays mounted read-only until every value has
+      # been migrated to OpenCloud and Phonetrack history exported.
+      "/nextcloud" = {
+        hostPath = "/nextcloud";
+        isReadOnly = true;
+      };
+      # Traccar pg_dump archive (source for backups).
+      "/var/lib/traccar-dumps" = {
+        hostPath = "/var/lib/traccar-dumps";
+        isReadOnly = true;
+      };
     };
 
     config = {
@@ -64,16 +103,20 @@ in {
       adminPasswordFile = "${cfg.stateDir}/bootstrap-admin-password";
     in {
       networking.hosts = {
-        # Hairpin OIDC discovery through host nginx (port 443),
-        # so the proxy can verify tokens against the public URL.
-        "${hostAddress}" = ["opencloud.${private.nginx.internalDomain}"];
+        # Hairpin the canonical URL through host nginx (443), so OIDC
+        # discovery, token verification and companion self-calls inside the
+        # container work even without public DNS reachability.
+        "${hostAddress}" = ["opencloud.${private.nginx.domain}"];
       };
 
       services.opencloud = {
         enable = true;
         address = "0.0.0.0";
         port = opencloudPort;
-        url = "https://opencloud.${private.nginx.internalDomain}";
+        # Canonical public URL: config.json, the OIDC issuer and web client
+        # calls all follow it. The internal vhost stays reachable, but it is
+        # no longer the identity the instance presents to itself.
+        url = "https://opencloud.${private.nginx.domain}";
       };
 
       systemd.services.opencloud-init-config = lib.mkIf (cfg.enable && usesGeneratedConfig) {
@@ -104,9 +147,23 @@ in {
         '';
       };
 
+      services.duplicati =
+        {
+          enable = true;
+          interface = "any";
+          user = "root";
+          port = duplicatiPort;
+          parameters = ''
+            --webservice-allowedhostnames=duplicati.${private.nginx.internalDomain}
+          '';
+        }
+        // lib.optionalAttrs duplicatiPasswordExists {
+          serverPasswordFile = "/run/duplicati-password";
+        };
+
       networking.firewall = {
         enable = true;
-        allowedTCPPorts = [opencloudPort 3020];
+        allowedTCPPorts = [opencloudPort 3020 duplicatiPort];
       };
 
       users.users.uppy-companion = {
@@ -126,12 +183,12 @@ in {
         wantedBy = ["multi-user.target"];
         environment = {
           COMPANION_PORT = "3020";
-          COMPANION_DOMAIN = "opencloud.${private.nginx.internalDomain}";
+          COMPANION_DOMAIN = "opencloud.${private.nginx.domain}";
           COMPANION_PROTOCOL = "https";
           COMPANION_PATH = "/companion";
           COMPANION_DATADIR = "/var/lib/uppy-companion/data";
-          COMPANION_SELF_ENDPOINT = "https://opencloud.${private.nginx.internalDomain}/companion";
-          COMPANION_CLIENT_ORIGINS = "https://opencloud.${private.nginx.internalDomain}";
+          COMPANION_SELF_ENDPOINT = "https://opencloud.${private.nginx.domain}/companion";
+          COMPANION_CLIENT_ORIGINS = "https://opencloud.${private.nginx.domain}";
           COMPANION_ENABLE_URL_ENDPOINT = "true";
         };
         serviceConfig = {
@@ -162,11 +219,12 @@ in {
         };
       };
 
-      # Point the importer web app at the local Companion instance.
+      # Point the importer web app at the local Companion instance (canonical
+      # public URL so it also works off-tailnet).
       environment.etc."opencloud/apps.yaml".text = ''
         importer:
           config:
-            companionUrl: 'https://opencloud.${private.nginx.internalDomain}/companion'
+            companionUrl: 'https://opencloud.${private.nginx.domain}/companion'
       '';
 
       # Seed declarative web apps (pastebin, unzip, ...) from the

@@ -8,6 +8,11 @@
 }: let
   inherit (private.nginx) email domain provider internalDomain;
 
+  # OwnTracks ingest path — acts as the shared secret in the URL the phone
+  # posts to (owntracks.<domain>/<token>). Regenerate with:
+  #   head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n'
+  owntracksIngestToken = "c8e291cef7a5372cb25a46525b297d96";
+
   publicVhostAttrs = {
     forceSSL = true;
     useACMEHost = domain;
@@ -108,22 +113,11 @@
     limit_conn addr 20;
   '';
 
-  nextcloudRobotsRules = ''
+  cloudRobotsRules = ''
     # Crawl prevention
     location = /robots.txt {
       return 200 "User-agent: *\nDisallow: /\n";
     }
-  '';
-
-  nextcloudWellKnownRules = ''
-    # Nextcloud .well-known redirects (must come after dotfile block)
-    location ^~ /.well-known/ {
-      allow all;
-    }
-    location ^~ /.well-known/carddav { return 301 $scheme://$host/remote.php/dav; }
-    location ^~ /.well-known/caldav  { return 301 $scheme://$host/remote.php/dav; }
-    location ^~ /.well-known/webfinger { return 301 $scheme://$host/index.php/.well-known/webfinger; }
-    location ^~ /.well-known/nodeinfo  { return 301 $scheme://$host/index.php/.well-known/nodeinfo; }
   '';
 
   mkVhostConfig = {
@@ -184,28 +178,13 @@
 
   jellyfinProxyConfig = mkStreamingProxyConfig {connectTimeout = "10s";};
 
-  nextcloudVhostConfig = mkVhostConfig {
-    extraConfig =
-      largeTransferTimeouts
-      + ''
-        client_max_body_size 10G;
-        proxy_request_buffering off;
-      '';
-    rules =
-      hiddenPathRules
-      + scannerBlockRules
-      + nextcloudRobotsRules
-      + rateLimitRules
-      + nextcloudWellKnownRules;
-  };
-
   grafanaVhostConfig = mkVhostConfig {
     csp = defaultAppCsp;
     rules = defaultAppRules;
   };
 
   # OpenCloud serves its own strict security headers; an extra nginx CSP
-  # header only conflicts with them, so none is set here (same as nextcloud).
+  # header only conflicts with them, so none is set here.
   opencloudVhostConfig = mkVhostConfig {
     extraConfig =
       largeTransferTimeouts
@@ -216,7 +195,7 @@
     rules =
       hiddenPathRules
       + scannerBlockRules
-      + nextcloudRobotsRules
+      + cloudRobotsRules
       + rateLimitRules;
   };
 
@@ -459,7 +438,6 @@
     ];
 
   defaultInternalVhosts = mkSimpleProxyVhosts defaultAppVhostConfig [
-    (mkCustomTailnetTlsService "192.168.103.11" "opencloud" config.my.services.opencloud.port)
     # (mkTailnetTlsService "bypass" config.my.services.bypass.port)
     (mkTailnetTlsService "filebrowser" config.my.services.filebrowser.port)
     (mkTailnetTlsService "homepage" config.my.services.homepage.port)
@@ -623,6 +601,8 @@ in {
         limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
         limit_req_zone $binary_remote_addr zone=general:10m rate=30r/s;
         limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
+        # GPS pings are small and infrequent (per-device ~1/min)
+        limit_req_zone $binary_remote_addr zone=owntracks:10m rate=30r/m;
         limit_conn_zone $binary_remote_addr zone=addr:10m;
 
         # Limit request size
@@ -692,18 +672,213 @@ in {
             extraConfig = "return 444;";
           };
 
-          "nextcloud.${domain}" = mkVhost {
+          "owntracks.${domain}" = mkVhost {
             public = true;
-            extraConfig = nextcloudVhostConfig;
+            extraConfig = mkVhostConfig {
+              rules =
+                hiddenPathRules
+                + probeExtensionRules
+                + cloudRobotsRules
+                + scannerBlockRules;
+            };
             locations = let
-              nextcloudUpstream = "http://192.168.100.10:${toString config.my.services.nextcloud.port}";
+              owntracksUpstream = "http://192.168.101.11:${toString config.my.services.owntracks.port}/";
+              owntracksThrottle = "limit_req zone=owntracks burst=30 nodelay;";
             in {
-              # Throttle the web login endpoint (Nextcloud adds its own bruteforce protection too)
-              "= /login" = mkProxyLocation {
-                upstream = nextcloudUpstream;
-                extraConfig = "limit_req zone=login burst=10 nodelay;";
+              # The random path is the ingest shared secret; anything else 404s.
+              "= /${owntracksIngestToken}" = mkProxyLocation {
+                upstream = owntracksUpstream;
+                extraConfig = owntracksThrottle;
               };
-              "/" = mkProxyLocation {upstream = nextcloudUpstream;};
+              "= /${owntracksIngestToken}/" = mkProxyLocation {
+                upstream = owntracksUpstream;
+                extraConfig = owntracksThrottle;
+              };
+            };
+          };
+
+          "opencloud.${domain}" = mkVhost {
+            public = true;
+            extraConfig = opencloudVhostConfig;
+            locations = let
+              opencloudUpstream = "https://192.168.103.11:${toString config.my.services.opencloud.port}/";
+            in {
+              # The container presents a self-signed cert; nginx is the only
+              # HTTP client that reaches it.
+              "/" = mkProxyLocation {
+                upstream = opencloudUpstream;
+                websockets = true;
+                extraConfig = ''
+                  proxy_ssl_verify off;
+                  proxy_ssl_server_name on;
+                '';
+              };
+              # Importer companion (uppy): canonical URL is public, so the
+              # importer app pulls from anywhere.
+              "= /companion" = {return = "301 /companion/";};
+              "/companion/" = mkProxyLocation {
+                upstream = "http://192.168.103.11:3020/companion/";
+                websockets = true;
+              };
+            };
+          };
+
+          # TypeType: the frontend dist is static (extracted from the pinned
+          # image), so this vhost has an explicit root; the proxy routes
+          # mirror the upstream web image's nginx.conf.
+          "typetype.${domain}" = mkVhost {
+            public = true;
+            extraConfig = mkVhostConfig {
+              csp = mediaAppCsp;
+              extraConfig =
+                largeTransferTimeouts
+                + ''
+                client_max_body_size 2g;
+
+                gzip on;
+                gzip_static on;
+                gzip_vary on;
+                gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+
+                # The API owns its responses (SPA fallback + JSON errors),
+                # so no proxy error interception.
+                proxy_intercept_errors off;
+              '';
+              # No rateLimitRules: playback and downloads flood requests like
+              # jellyfin (same rationale as jellyfinVhostConfig).
+              rules = hiddenPathRules + probeExtensionRules + defaultRobotsRules + scannerBlockRules;
+            };
+            locations = let
+              serverUpstream = "http://192.168.106.11:${toString config.my.services.typetype.port}";
+              downloaderUpstream = "http://192.168.106.11:18093";
+              versionNoCache = ''
+                default_type application/json;
+                expires -1;
+              '';
+              streamingProxy = ''
+                client_max_body_size 2g;
+                proxy_buffering off;
+                proxy_read_timeout 300s;
+                proxy_send_timeout 300s;
+              '';
+              bilibiliProxy = ''
+                rewrite ^/api/bilibili/(.*)$ /$1 break;
+                proxy_ssl_server_name on;
+                proxy_set_header Host api.bilibili.com;
+                proxy_set_header Referer "https://space.bilibili.com/";
+                proxy_set_header User-Agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+                proxy_set_header Authorization "";
+                proxy_set_header Cookie "";
+                proxy_read_timeout 30s;
+                proxy_send_timeout 30s;
+              '';
+            in {
+              "= /api/version" = {
+                alias = "${pkgs.typetype-web}/html/version.json";
+                extraConfig = versionNoCache;
+              };
+              "= /api/version/web" = {
+                alias = "${pkgs.typetype-web}/html/version-web.json";
+                extraConfig = versionNoCache;
+              };
+              "= /api/version/server" = mkProxyLocation {
+                upstream = serverUpstream + "/version";
+                extraConfig = versionNoCache;
+              };
+              "= /api/version/token" = mkProxyLocation {
+                upstream = "http://192.168.106.11:8081/version";
+                extraConfig = versionNoCache;
+              };
+              "= /api/version/downloader" = mkProxyLocation {
+                upstream = downloaderUpstream + "/version";
+                extraConfig = versionNoCache;
+              };
+
+              "= /api/rss/feeds" = mkProxyLocation {
+                upstream = serverUpstream + "/rss/feeds";
+                extraConfig = streamingProxy;
+              };
+              "^~ /api/rss/feeds/" = mkProxyLocation {
+                upstream = serverUpstream + "/rss/feeds/";
+                extraConfig = streamingProxy;
+              };
+
+              # The five bilibili endpoints the web client fetches directly
+              # (upstream proxies them with fixed headers + GET only).
+              # recommendedProxySettings would re-set Host=$host AFTER our
+              # own header, so it is off here.
+              "= /api/bilibili/x/polymer/web-space/seasons_series_list" = {
+                proxyPass = "https://api.bilibili.com";
+                recommendedProxySettings = false;
+                extraConfig = bilibiliProxy + ''limit_except GET { deny all; }'';
+              };
+              "= /api/bilibili/x/polymer/web-space/seasons_archives_list" = {
+                proxyPass = "https://api.bilibili.com";
+                recommendedProxySettings = false;
+                extraConfig = bilibiliProxy + ''limit_except GET { deny all; }'';
+              };
+              "= /api/bilibili/x/series/archives" = {
+                proxyPass = "https://api.bilibili.com";
+                recommendedProxySettings = false;
+                extraConfig = bilibiliProxy + ''limit_except GET { deny all; }'';
+              };
+              "= /api/bilibili/x/series/recArchivesByKeywords" = {
+                proxyPass = "https://api.bilibili.com";
+                recommendedProxySettings = false;
+                extraConfig = bilibiliProxy + ''limit_except GET { deny all; }'';
+              };
+              "= /api/bilibili/x/web-interface/card" = {
+                proxyPass = "https://api.bilibili.com";
+                recommendedProxySettings = false;
+                extraConfig = bilibiliProxy + ''limit_except GET { deny all; }'';
+              };
+
+              # Generic API: strip /api and serve straight from the JVM.
+              "^~ /api/" = mkProxyLocation {
+                upstream = serverUpstream;
+                websockets = true;
+                extraConfig = ''
+                  rewrite ^/api/(.*)$ /$1 break;
+                  client_max_body_size 2g;
+                  proxy_buffering off;
+                  proxy_read_timeout 300s;
+                  proxy_send_timeout 300s;
+                '';
+              };
+
+              # Prefix-preserving playback paths (upstream routes; SABR and
+              # media proxies keep their path prefix).
+              "^~ /sabr/" = mkProxyLocation {
+                upstream = serverUpstream + "/sabr/";
+                websockets = true;
+                extraConfig = streamingProxy;
+              };
+              "^~ /streams/" = mkProxyLocation {
+                upstream = serverUpstream + "/streams/";
+                extraConfig = streamingProxy;
+              };
+              "= /proxy" = mkProxyLocation {
+                upstream = serverUpstream + "/proxy";
+                extraConfig = streamingProxy;
+              };
+              "^~ /proxy/" = mkProxyLocation {
+                upstream = serverUpstream + "/proxy/";
+                extraConfig = streamingProxy;
+              };
+
+              # The SPA itself.
+              "/" = {
+                tryFiles = "$uri $uri/ /index.html";
+              };
+              "~* \\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$" = {
+                extraConfig = ''
+                  expires 1y;
+                  add_header Cache-Control "public, immutable";
+                  ${baseSecurityHeaders}
+                  # Nested add_header kills parent headers, including this CSP.
+                  add_header Content-Security-Policy "${mediaAppCsp}" always;
+                '';
+              };
             };
           };
 
@@ -784,7 +959,14 @@ in {
                 upstream = "http://127.0.0.1:${toString config.my.services.opengym.port}";
                 # Pass JSON errors (sync conflicts, missing profiles) through:
                 # intercepting 404 here would break the app's error handling.
-                extraConfig = "proxy_intercept_errors off;";
+                # The coach admin "test run" waits synchronously up to 90 s for
+                # a full AI generation — stay past the 60 s default or nginx
+                # answers 504 while the job is still running.
+                extraConfig = ''
+                  proxy_intercept_errors off;
+                  proxy_read_timeout 300s;
+                  proxy_send_timeout 300s;
+                '';
               };
               # Exercise stills/animations: immutable per build, licensed for
               # openGym only (catalogue/media/NOTICE.md) — CORP keeps other
@@ -813,7 +995,7 @@ in {
             tls = internalDomain;
           };
           "duplicati.${internalDomain}" = mkTailnetProxyVhost {
-            upstream = "http://192.168.100.11:${toString config.my.services.duplicati.port}/";
+            upstream = "http://192.168.103.11:${toString config.my.services.duplicati.port}/";
             vhostConfig = defaultAppVhostConfig;
             websockets = true;
             tls = internalDomain;
@@ -825,30 +1007,10 @@ in {
             tls = internalDomain;
           };
 
-          "opencloud.${internalDomain}" = mkTailnetProxyVhost {
-            upstream = "https://192.168.103.11:${toString config.my.services.opencloud.port}/";
-            vhostConfig = opencloudVhostConfig;
+          "traccar.${internalDomain}" = mkTailnetProxyVhost {
+            upstream = "http://192.168.101.11:${toString config.my.services.traccar.port}/";
+            vhostConfig = defaultAppVhostConfig;
             websockets = true;
-            # Tailnet + the opencloud container itself (OIDC hairpin).
-            accessPolicy = ''
-              allow 100.64.0.0/10;
-              allow fd7a:115c:a1e0::/48;
-              allow 127.0.0.1;
-              allow ::1;
-              allow 192.168.103.11;
-              deny all;
-            '';
-            locationExtraConfig = ''
-              proxy_ssl_verify off;
-              proxy_ssl_server_name on;
-            '';
-            extraLocations = {
-              "= /companion" = {return = "301 /companion/";};
-              "/companion/" = mkProxyLocation {
-                upstream = "http://192.168.103.11:3020/companion/";
-                websockets = true;
-              };
-            };
             tls = internalDomain;
           };
 

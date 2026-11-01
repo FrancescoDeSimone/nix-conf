@@ -19,7 +19,6 @@
     "adguard-exporter"
     "homepage"
     "headscale"
-    "opencloud"
   ];
 
   serviceOverrides = {
@@ -92,6 +91,12 @@
       description = "Media streaming";
       icon = "mdi-play-box-multiple-outline";
     };
+    typetype = {
+      name = "TypeType";
+      group = "Media";
+      description = "Self-hosted video platform";
+      icon = "mdi-youtube-tv";
+    };
     karakeep = {
       name = "Karakeep";
       group = "Daily";
@@ -103,12 +108,6 @@
       group = "Media";
       description = "Music library automation";
       icon = "mdi-music-note-eighth";
-    };
-    nextcloud = {
-      name = "Nextcloud";
-      group = "Daily";
-      description = "Files, sync, and collaboration";
-      icon = "mdi-cloud-sync-outline";
     };
     opencloud = {
       name = "OpenCloud";
@@ -178,6 +177,12 @@
       description = "Internet performance history";
       icon = "mdi-speedometer";
     };
+    traccar = {
+      name = "Traccar";
+      group = "Daily";
+      description = "Phone location history";
+      icon = "mdi-map-marker-radius";
+    };
   };
 
   groupOrder = [
@@ -227,11 +232,20 @@
     };
   };
 
-  serviceHostnames = lib.sort (a: b: a < b) (lib.attrNames lanHosts);
+  # Canonical public URLs without an internal twin get cards through here.
+  extraHosts = [
+    "opencloud.${private.nginx.domain}"
+    "typetype.${private.nginx.domain}"
+  ];
+
+  serviceHostnames =
+    lib.sort (a: b: a < b) ((lib.attrNames lanHosts) ++ extraHosts);
 
   serviceEntries = lib.sort (a: b: a.displayName < b.displayName) (map
     (host: let
-      name = lib.removeSuffix ".${private.nginx.internalDomain}" host;
+      # First label: identical to before for internal hosts, and lets
+      # public canonical URLs match their serviceOverride too.
+      name = lib.head (lib.splitString "." host);
       override = serviceOverrides.${name} or {};
       displayName = override.name or (titleCase name);
       widgetConfig = override.widget or {};
