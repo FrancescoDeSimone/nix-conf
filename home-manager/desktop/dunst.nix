@@ -1,4 +1,63 @@
-{...}: {
+{pkgs, ...}: let
+  autopause = pkgs.writeShellApplication {
+    name = "dunst-autopause";
+    runtimeInputs = with pkgs; [dunst pipewire gnugrep procps coreutils];
+    text = ''
+      state="''${XDG_RUNTIME_DIR:?}/dunst-autopause.state"
+      poll=5
+      sharing=0
+
+      # pw-dump, not `pw-cli ls Node`: the latter omits media.name
+      is_sharing() {
+        pw-dump 2>/dev/null |
+          grep -qE '"(media\.name|node\.name)": "xdp[wh]-stream'
+      }
+
+      # waybar's custom/dunst module only redraws on RTMIN+8
+      refresh_bar() { pkill -RTMIN+8 waybar || true; }
+
+      while :; do
+        if is_sharing; then
+          if [ "$sharing" = 0 ]; then
+            sharing=1
+            # only claim ownership of the pause if dunst was not already paused
+            if [ "$(dunstctl is-paused 2>/dev/null)" = "false" ]; then
+              : > "$state"
+              dunstctl set-paused true || true
+              refresh_bar
+            fi
+          fi
+        elif [ "$sharing" = 1 ]; then
+          sharing=0
+          if [ -e "$state" ]; then
+            dunstctl set-paused false || true
+            rm -f "$state"
+            refresh_bar
+          fi
+        fi
+        sleep "$poll"
+      done
+    '';
+  };
+in {
+  home.packages = [autopause];
+
+  systemd.user.services.dunst-autopause = {
+    Unit = {
+      Description = "Pause dunst notifications while the screen is shared";
+      After = ["graphical-session.target"];
+      PartOf = ["graphical-session.target"];
+    };
+    Install = {
+      WantedBy = ["graphical-session.target"];
+    };
+    Service = {
+      ExecStart = "${autopause}/bin/dunst-autopause";
+      Restart = "always";
+      RestartSec = "2";
+    };
+  };
+
   services.dunst = {
     enable = true;
     settings = {

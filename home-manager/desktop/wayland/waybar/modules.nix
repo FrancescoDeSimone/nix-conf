@@ -115,10 +115,9 @@ in {
     "custom/dunst" = {
       "return-type" = "json";
       "exec" = pkgs.writeShellScript "dunst-status" ''
-        COUNT=$(${pkgs.dunst}/bin/dunstctl count waiting)
         ENABLED=""
         DISABLED=""
-        if ${pkgs.dunst}/bin/dunstctl is-paused | grep -q "true"; then
+        if [ "$(${pkgs.dunst}/bin/dunstctl is-paused)" = "true" ]; then
           printf '{"text": "%s", "tooltip": "Dunst is Paused", "class": "paused"}\n' "$DISABLED"
         else
           printf '{"text": "%s", "tooltip": "Dunst is Active", "class": "active"}\n' "$ENABLED"
@@ -126,7 +125,7 @@ in {
       '';
       "on-click" = "${pkgs.dunst}/bin/dunstctl set-paused toggle; ${pkgs.procps}/bin/pkill -RTMIN+8 waybar";
       "signal" = 8;
-      "restart-interval" = 2;
+      "interval" = 10;
     };
 
     "custom/wotw" = {
