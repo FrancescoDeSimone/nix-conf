@@ -53,23 +53,6 @@
         "type": "github"
       }
     },
-<<<<<<< HEAD
-    "chatto": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1793548168,
-        "narHash": "sha256-Tbr9xb6nBiVwvra1ny8MU1c6mZsnXDH1cgLP2+27yTU=",
-        "owner": "chattocorp",
-        "repo": "chatto",
-        "rev": "1c3b77bb43c46c34f72d966e2ef4445ff6727e5a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "chattocorp",
-        "repo": "chatto",
-        "type": "github"
-      }
-    },
     "clipvault": {
       "flake": false,
       "locked": {
@@ -78,16 +61,6 @@
         "owner": "rolv-apneseth",
         "repo": "clipvault",
         "rev": "56842b43b4bd21895baf7bf34778c7f47b686ec6",
-=======
-    "clipvault": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1793543897,
-        "narHash": "sha256-NLGTGnUQJtKHhpnbJqNGSZo/ghF/mo6nn971QcUeDDg=",
-        "owner": "rolv-apneseth",
-        "repo": "clipvault",
-        "rev": "56842b43b4bd21895baf7bf34778c7f47b686ec6",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
@@ -102,27 +75,11 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1793133657,
         "narHash": "sha256-uSy0oOGTroUZMgThxsBpslp7hy6LnHiouCBUHklvvKs=",
         "owner": "bambanah",
         "repo": "deemix",
         "rev": "1e34d4ff2195ed40aa04d774cff39d9e7b64b555",
-=======
-        "lastModified": 1792542881,
-        "narHash": "sha256-XZRuk2PBzhZL7aFlES7SpN7uUP+dCcor8azLW4f48oM=",
-        "owner": "bambanah",
-        "repo": "deemix",
-        "rev": "5840455778abc6ff5089ce8667d9bff6c7a395f6",
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1793133657,
-        "narHash": "sha256-uSy0oOGTroUZMgThxsBpslp7hy6LnHiouCBUHklvvKs=",
-        "owner": "bambanah",
-        "repo": "deemix",
-        "rev": "1e34d4ff2195ed40aa04d774cff39d9e7b64b555",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
@@ -341,49 +298,17 @@
         ]
       },
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1793223454,
         "narHash": "sha256-tbl4dQRcA+72PsI9YC3UBIa2oAJ2+HHqyMNEBbyYmMg=",
         "owner": "tale",
         "repo": "headplane",
         "rev": "c8c192dbf0ade31f5947777fa4f46e45885edb49",
-=======
-        "lastModified": 1792436018,
-        "narHash": "sha256-Xz85Yh/ZPo4sMUy5CxEZ/kXYe9Cv+Pxh2C+0QRN9iJA=",
-        "owner": "tale",
-        "repo": "headplane",
-        "rev": "fc6f6ce4f6006d3eff50f042c41f9a1cf928dc6c",
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1793223454,
-        "narHash": "sha256-tbl4dQRcA+72PsI9YC3UBIa2oAJ2+HHqyMNEBbyYmMg=",
-        "owner": "tale",
-        "repo": "headplane",
-        "rev": "c8c192dbf0ade31f5947777fa4f46e45885edb49",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
         "owner": "tale",
         "repo": "headplane",
         "type": "github"
-      }
-    },
-    "healthbot": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1792015492,
-        "narHash": "sha256-iSmqt46sJtNxiHERaTlD1wPnXAdLXaF8Pked3HOUN+k=",
-        "ref": "refs/heads/main",
-        "rev": "5daf76db2ecefe5742fd25e0a7b90e79fddf631f",
-        "revCount": 5,
-        "type": "git",
-        "url": "https://git.fdesi.ipv64.net/desi/healthbot.git"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.fdesi.ipv64.net/desi/healthbot.git"
       }
     },
     "home-manager": {
@@ -393,27 +318,11 @@
         ]
       },
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1792818383,
         "narHash": "sha256-199i7ubVSXTMl+0AAlL7cVCXSjcI+jWByMcimYjeMX0=",
         "owner": "nix-community",
         "repo": "home-manager",
         "rev": "24f2190587513b9c2f73db112a17844ae912d965",
-=======
-        "lastModified": 1792438572,
-        "narHash": "sha256-5mQQOcggBRBXB7NlzUxO0dbvQN4euJOISjNybrtfxPk=",
-        "owner": "nix-community",
-        "repo": "home-manager",
-        "rev": "24f8f8e786f87d6a818e1746cb2389bf922afdab",
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1792818383,
-        "narHash": "sha256-199i7ubVSXTMl+0AAlL7cVCXSjcI+jWByMcimYjeMX0=",
-        "owner": "nix-community",
-        "repo": "home-manager",
-        "rev": "24f2190587513b9c2f73db112a17844ae912d965",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
@@ -479,27 +388,11 @@
     "lidarr-youtube-downloader": {
       "flake": false,
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1793320542,
         "narHash": "sha256-UxlPop5Fqv0mHL3K2/gj2rMo1aEQihK7cbEGCLJSpEY=",
         "owner": "dmzoneill",
         "repo": "lidarr-youtube-downloader",
         "rev": "3b7fd6de9ef89114eb8f3afbd022056659884e32",
-=======
-        "lastModified": 1792436814,
-        "narHash": "sha256-AiBajj2a8nKNlXHieg6TFDUGRG91GlzXIurtPB1qLVU=",
-        "owner": "dmzoneill",
-        "repo": "lidarr-youtube-downloader",
-        "rev": "015ce08d876546aef758698b3acba0b89d18da45",
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1793320542,
-        "narHash": "sha256-UxlPop5Fqv0mHL3K2/gj2rMo1aEQihK7cbEGCLJSpEY=",
-        "owner": "dmzoneill",
-        "repo": "lidarr-youtube-downloader",
-        "rev": "3b7fd6de9ef89114eb8f3afbd022056659884e32",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
@@ -537,27 +430,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1793179879,
         "narHash": "sha256-X3SPgcTtCJzb1zovtp9i5SOyMMcLH42+Dn4tokt4TSA=",
         "owner": "noamsto",
         "repo": "nix-amd-ai",
         "rev": "37f15b864118d1ba7db05f5d1812b82dc06687e8",
-=======
-        "lastModified": 1792730820,
-        "narHash": "sha256-sp98tiXXrrNPqCsI6DhJeyDZ5b1YTIn5+F+p/u3dRB4=",
-        "owner": "noamsto",
-        "repo": "nix-amd-ai",
-        "rev": "0aaeba78c628b90eede7dea7eccb1a17b826ef5c",
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1793179879,
-        "narHash": "sha256-X3SPgcTtCJzb1zovtp9i5SOyMMcLH42+Dn4tokt4TSA=",
-        "owner": "noamsto",
-        "repo": "nix-amd-ai",
-        "rev": "37f15b864118d1ba7db05f5d1812b82dc06687e8",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
@@ -641,27 +518,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1793355509,
         "narHash": "sha256-/Zs18x+IW4LuVH0rKxra0WPRgsk0DQsi0Bwkf8sOC5c=",
         "owner": "NixOS",
         "repo": "nixos-hardware",
         "rev": "04c6b94fa104bc23650983a4513aea196794d321",
-=======
-        "lastModified": 1792697326,
-        "narHash": "sha256-2UBK0jdmPANGaeAIoVOZY+hSPB2Gy13ZuZeSxP3vF8k=",
-        "owner": "NixOS",
-        "repo": "nixos-hardware",
-        "rev": "1b418b8f203e49a92f250f8babdd19af1b6f7a7f",
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1793355509,
-        "narHash": "sha256-/Zs18x+IW4LuVH0rKxra0WPRgsk0DQsi0Bwkf8sOC5c=",
-        "owner": "NixOS",
-        "repo": "nixos-hardware",
-        "rev": "04c6b94fa104bc23650983a4513aea196794d321",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
@@ -752,27 +613,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1793341285,
         "narHash": "sha256-Y1CiZ4SoBUjLQyQM/pY+rS2dXD3CHLPstF0lmOc73D4=",
         "owner": "nixos",
         "repo": "nixpkgs",
         "rev": "1c89083e451e891152365b799595cf7790a43325",
-=======
-        "lastModified": 1792502884,
-        "narHash": "sha256-IoNisKcGbUjdd45qCqywGMCYmZ5EnkxezvLII0FWwNA=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "02c087f3fe673c9e317f206a627cb6b910336dbe",
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1793341285,
-        "narHash": "sha256-Y1CiZ4SoBUjLQyQM/pY+rS2dXD3CHLPstF0lmOc73D4=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "1c89083e451e891152365b799595cf7790a43325",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
@@ -809,27 +654,11 @@
     },
     "nixpkgs_4": {
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1792773339,
         "narHash": "sha256-rZLrzrC6i+jnTAlvPZHogKDulY7WWDEv9hJeHieO7Zw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
         "rev": "3ec636362e1816bc2f0888fa0fa2c69f1bc9e504",
-=======
-        "lastModified": 1792094642,
-        "narHash": "sha256-zp8ToDMnqZcu4o4IH9pdwXFXGp7yLm/M0dEnNWnyd7I=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "fe13242281a67641c0102cdb1087f0ebe586c7df",
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1792773339,
-        "narHash": "sha256-rZLrzrC6i+jnTAlvPZHogKDulY7WWDEv9hJeHieO7Zw=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "3ec636362e1816bc2f0888fa0fa2c69f1bc9e504",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
@@ -854,27 +683,11 @@
     },
     "nixpkgs_6": {
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1793410479,
         "narHash": "sha256-HzgjxrLY4AEc0044ZuM5CHbLSWLZgDlay1idmzvvpJs=",
         "owner": "nixos",
         "repo": "nixpkgs",
         "rev": "fa1373130d5a21c040a47c5dbe1913d59ed91808",
-=======
-        "lastModified": 1792615934,
-        "narHash": "sha256-MlvRfa1O5Cqc2/a+gG+l9TSuowEoCKCmrJ1d9oAVm0I=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "da6dc0e7b26060f2f71ce3ef7088fb56ee44fa36",
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1793410479,
-        "narHash": "sha256-HzgjxrLY4AEc0044ZuM5CHbLSWLZgDlay1idmzvvpJs=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "fa1373130d5a21c040a47c5dbe1913d59ed91808",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
@@ -1007,27 +820,11 @@
     "password-store-repo": {
       "flake": false,
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1793022790,
         "narHash": "sha256-H/WXMx6K00ir4wpBk527ghQL5Ylw3gklUuZ8tks7J5Q=",
         "ref": "refs/heads/master",
         "rev": "7b1850d589f89100e5ef38fd8f78cf49c4d870bd",
         "revCount": 617,
-=======
-        "lastModified": 1792243665,
-        "narHash": "sha256-2PjDET6+ZCcUJa1wtWb2ngGpMrYPmv0khwQyhemWN2I=",
-        "ref": "refs/heads/master",
-        "rev": "91ac1b833a58d6913c069a3a2dbfe964f0dfd74c",
-        "revCount": 614,
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1793022790,
-        "narHash": "sha256-H/WXMx6K00ir4wpBk527ghQL5Ylw3gklUuZ8tks7J5Q=",
-        "ref": "refs/heads/master",
-        "rev": "7b1850d589f89100e5ef38fd8f78cf49c4d870bd",
-        "revCount": 617,
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "git",
         "url": "ssh://git@github.com/francescodesimone/password-store"
       },
@@ -1088,7 +885,6 @@
         "disko": "disko",
         "flake-utils": "flake-utils_2",
         "headplane": "headplane",
-        "healthbot": "healthbot",
         "home-manager": "home-manager",
         "jaro": "jaro",
         "kickstart-nvim": "kickstart-nvim",
@@ -1120,27 +916,11 @@
         ]
       },
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1793523538,
         "narHash": "sha256-vHPjEGxtV+StSLW9DJpa3c3gt0UD0s1q4nC98AZ0N0c=",
         "owner": "oxalica",
         "repo": "rust-overlay",
         "rev": "c85ccd343087c57da6021cafa1647142ad03e32e",
-=======
-        "lastModified": 1792739799,
-        "narHash": "sha256-M2rr/yPbTHvgAzCyZ+zHJHflFM0XU7t42Sw2skA3TQM=",
-        "owner": "oxalica",
-        "repo": "rust-overlay",
-        "rev": "b0829a2cc9f7b596583331d78a942c1e5170d8a0",
->>>>>>> b4932f3 (update flake)
-=======
-        "lastModified": 1793523538,
-        "narHash": "sha256-vHPjEGxtV+StSLW9DJpa3c3gt0UD0s1q4nC98AZ0N0c=",
-        "owner": "oxalica",
-        "repo": "rust-overlay",
-        "rev": "c85ccd343087c57da6021cafa1647142ad03e32e",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
@@ -1184,27 +964,11 @@
     "speedtest-tracker": {
       "flake": false,
       "locked": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "lastModified": 1793055015,
         "narHash": "sha256-/27jO+jN3iX8+hBPJT0bKeiSuY5Y4qGfR99aEgXl3ug=",
         "owner": "alexjustesen",
         "repo": "speedtest-tracker",
         "rev": "3ee5a587da5af686898ce4d4d124eb80a906be38",
-=======
-        "lastModified": 1792666183,
-        "narHash": "sha256-LgGbe3/8CoD9HGbk4sAJOH1YbB+bkQuzJufrb3m97+8=",
-        "owner": "alexjustesen",
-        "repo": "speedtest-tracker",
-        "rev": "4ae47e263a8f728775b14825d277787557a2e6f4",
->>>>>>> 2e9f019 (update flake)
-=======
-        "lastModified": 1793055015,
-        "narHash": "sha256-/27jO+jN3iX8+hBPJT0bKeiSuY5Y4qGfR99aEgXl3ug=",
-        "owner": "alexjustesen",
-        "repo": "speedtest-tracker",
-        "rev": "3ee5a587da5af686898ce4d4d124eb80a906be38",
->>>>>>> 93cf6ef (pegasus: add TypeType video platform + ride maintenance edits)
         "type": "github"
       },
       "original": {
