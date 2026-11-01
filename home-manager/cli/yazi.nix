@@ -19,37 +19,56 @@
       preview = {
         max_width = 1000;
         max_height = 1000;
+        image_filter = "lanczos3";
       };
       opener = {
         edit = [
           {
-            run = "nvim %*";
             block = true;
             desc = "Edit";
+            run = "nvim %*";
+          }
+        ];
+        # default play opener is `xdg-open` (and a `mediainfo` entry that is not installed)
+        play = [
+          {
+            block = true;
+            desc = "Play with mpv";
+            run = "mpv %*";
           }
         ];
       };
       plugin = {
         prepend_previewers = [
           {
-            name = "*.md";
+            url = "*.md";
             run = "rich-preview";
           }
           {
-            name = "*.json";
+            url = "*.json";
             run = "rich-preview";
           }
           {
-            name = "*.csv";
+            url = "*.csv";
             run = "rich-preview";
           }
+          # ouch handles zip/gzip/bzip2/7z/rar/xz/zstd/jar by mime
           {
-            name = "*.tar.gz";
+            mime = "application/{*zip,tar,bzip2,7z*,rar,xz,zstd,java-archive}";
             run = "ouch";
           }
+        ];
+        # git.yazi needs explicit fetchers, otherwise it silently renders nothing
+        prepend_fetchers = [
           {
-            name = "*.zip";
-            run = "ouch";
+            url = "*";
+            run = "git";
+            group = "git";
+          }
+          {
+            url = "*/";
+            run = "git";
+            group = "git";
           }
         ];
       };
@@ -58,8 +77,24 @@
     initLua = ''
       require("full-border"):setup()
       require("git"):setup {
-        	order = 1500,
-       }
+        order = 1500,
+      }
+
+      local catppuccin_theme = require("yatline-catppuccin"):setup("mocha")
+      require("yatline"):setup {
+        theme = catppuccin_theme,
+      }
+
+      th.dupes = th.dupes or {}
+      th.dupes.mark_style = ui.Style():fg("blue")
+      th.dupes.mark_sign = "X"
+
+      require("dupes"):setup {
+        profiles = {
+          interactive = { args = { "-r" } },
+          apply = { args = { "-r", "-N", "-d" }, save_op = true },
+        },
+      }
     '';
 
     keymap = {
@@ -84,6 +119,41 @@
           run = "leave";
           desc = "Go back";
         }
+        {
+          on = ["l"];
+          run = "plugin smart-enter";
+          desc = "Enter the child directory, or open the file";
+        }
+        {
+          on = ["T"];
+          run = "plugin toggle-pane min-preview";
+          desc = "Show or hide the preview pane";
+        }
+        {
+          on = ["M"];
+          run = "plugin mount";
+          desc = "Mount / unmount / eject partitions";
+        }
+        {
+          on = ["<C-d>"];
+          run = "plugin diff";
+          desc = "Diff the selected with the hovered file";
+        }
+        {
+          on = ["<A-j>" "i"];
+          run = "plugin dupes interactive";
+          desc = "Find duplicates";
+        }
+        {
+          on = ["<A-j>" "d"];
+          run = "plugin dupes dry";
+          desc = "Find duplicates (dry run)";
+        }
+        {
+          on = ["<A-j>" "a"];
+          run = "plugin dupes apply";
+          desc = "Find duplicates and delete them";
+        }
       ];
     };
 
@@ -93,6 +163,13 @@
       compress = pkgs.yaziPlugins.compress;
       ouch = pkgs.yaziPlugins.ouch;
       rich-preview = pkgs.yaziPlugins.rich-preview;
+      smart-enter = pkgs.yaziPlugins.smart-enter;
+      toggle-pane = pkgs.yaziPlugins.toggle-pane;
+      mount = pkgs.yaziPlugins.mount;
+      diff = pkgs.yaziPlugins.diff;
+      dupes = pkgs.yaziPlugins.dupes;
+      yatline = pkgs.yaziPlugins.yatline;
+      yatline-catppuccin = pkgs.yaziPlugins.yatline-catppuccin;
     };
   };
 }
