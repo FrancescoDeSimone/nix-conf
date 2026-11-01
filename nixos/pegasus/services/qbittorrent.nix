@@ -72,9 +72,9 @@
 
     lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 
-    is_exe_path() {
+    is_junk_path() {
       case "$(lower "$1")" in
-        *.exe) return 0 ;;
+        *.exe | *.iso | *.7z) return 0 ;;
         *) return 1 ;;
       esac
     }
@@ -179,9 +179,9 @@
       esac
     done
 
-    # Fast path: name or content path ends with .exe (case-insensitive).
+    # name or content path ends with .exe/.iso/.7z
     junk_by_name=0
-    if is_exe_path "$torrent_name" || is_exe_path "$content_path"; then
+    if is_junk_path "$torrent_name" || is_junk_path "$content_path"; then
       junk_by_name=1
     fi
 
@@ -193,24 +193,23 @@
       if [ -n "$files_json" ] \
         && printf '%s' "$files_json" | jq -e 'type == "array"' >/dev/null 2>&1; then
         total="$(printf '%s' "$files_json" | jq -r 'length')"
-        has_exe="$(printf '%s' "$files_json" \
-          | jq -r '[.[] | select(.name | test("\\.exe$"; "i"))] | length')"
+        has_junk="$(printf '%s' "$files_json" \
+          | jq -r '[.[] | select(.name | test("\\.(exe|iso|7z)$"; "i"))] | length')"
         has_video="$(printf '%s' "$files_json" \
           | jq -r '[.[] | select(.name | test("\\.(mkv|mp4|avi|mov|m4v|ts|m2ts|wmv|flv|webm)$"; "i"))] | length')"
-        if [ "$total" -gt 0 ] && [ "$has_video" -eq 0 ] && [ "$has_exe" -gt 0 ]; then
+        if [ "$total" -gt 0 ] && [ "$has_video" -eq 0 ] && [ "$has_junk" -gt 0 ]; then
           is_junk=1
         fi
       fi
     fi
 
-    # Not junk: keep previous behaviour (Telegram notification).
     if [ "$is_junk" -eq 0 ]; then
       display_id="$torrent_id"
       if [ -z "$display_id" ] || [ "$display_id" = "-" ]; then display_id="$infohash"; fi
       exec "$NOTIFY" "$torrent_name" "$content_path" "$category" "$display_id"
     fi
 
-    printf '%s\n' "qbittorrent-on-finished: junk .exe detected, cleaning up: $torrent_name (hash=''${HASH:-none})" >&2
+    printf '%s\n' "qbittorrent-on-finished: junk .exe/.iso/.7z detected, cleaning up: $torrent_name (hash=''${HASH:-none})" >&2
 
     delete_hashes="$HASH"
     if [ -z "$delete_hashes" ] && ensure_qbit_auth; then
@@ -235,8 +234,8 @@
     fi
     if [ -n "$COOKIE_JAR" ]; then rm -f "$COOKIE_JAR"; fi
 
-    # Belt and braces: remove a leftover .exe file if one exists on disk.
-    if is_exe_path "$content_path" && [ -e "$content_path" ]; then
+    # remove a leftover junk file if one exists on disk.
+    if is_junk_path "$content_path" && [ -e "$content_path" ]; then
       rm -f -- "$content_path" \
         || printf '%s\n' "qbittorrent-on-finished: could not rm $content_path" >&2
     fi
@@ -359,6 +358,7 @@ in {
             "*.app"
             "*.ipa"
             "*.iso"
+            "*.7z"
             "*.jar"
             "*.bin"
             "*.tmp"
