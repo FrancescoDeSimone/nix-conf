@@ -728,6 +728,7 @@ in {
           # mirror the upstream web image's nginx.conf.
           "typetype.${domain}" = mkVhost {
             public = true;
+            root = "${pkgs.typetype-web}/html";
             extraConfig = mkVhostConfig {
               csp = mediaAppCsp;
               extraConfig =
