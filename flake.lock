@@ -57,6 +57,7 @@
       "flake": false,
       "locked": {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "lastModified": 1793548168,
         "narHash": "sha256-Tbr9xb6nBiVwvra1ny8MU1c6mZsnXDH1cgLP2+27yTU=",
         "owner": "chattocorp",
@@ -69,6 +70,13 @@
         "repo": "chatto",
         "rev": "bfbc23b30c0753a93a4e6d4d1e19e1edb4e40098",
 >>>>>>> b4932f3 (update flake)
+=======
+        "lastModified": 1792767050,
+        "narHash": "sha256-XxRqw4y0/NOEldkPcCE6ppvnEoBJJ+m6OvKO+LPNIO4=",
+        "owner": "chattocorp",
+        "repo": "chatto",
+        "rev": "ddc9649d76d6a5375b2ea2a02583bf765ab93bc1",
+>>>>>>> 2e9f019 (update flake)
         "type": "github"
       },
       "original": {
@@ -1101,11 +1109,19 @@
     "speedtest-tracker": {
       "flake": false,
       "locked": {
+<<<<<<< HEAD
         "lastModified": 1793055015,
         "narHash": "sha256-/27jO+jN3iX8+hBPJT0bKeiSuY5Y4qGfR99aEgXl3ug=",
         "owner": "alexjustesen",
         "repo": "speedtest-tracker",
         "rev": "3ee5a587da5af686898ce4d4d124eb80a906be38",
+=======
+        "lastModified": 1792666183,
+        "narHash": "sha256-LgGbe3/8CoD9HGbk4sAJOH1YbB+bkQuzJufrb3m97+8=",
+        "owner": "alexjustesen",
+        "repo": "speedtest-tracker",
+        "rev": "4ae47e263a8f728775b14825d277787557a2e6f4",
+>>>>>>> 2e9f019 (update flake)
         "type": "github"
       },
       "original": {
@@ -1254,19 +1270,11 @@
         "systems": "systems_5"
       },
       "locked": {
-<<<<<<< HEAD
         "lastModified": 1793535341,
         "narHash": "sha256-et6tBWFwY9IBPNPwTVriBn6XtNHaMB5wLeKEO6WZO38=",
         "owner": "mitchellh",
         "repo": "zig-overlay",
         "rev": "a1453f732a4970aad607a3ec4a1ce0130242dfb7",
-=======
-        "lastModified": 1792585651,
-        "narHash": "sha256-Kg8Qdi6ur+K5hNJwav0pEqdylGd7vXxEPeBvaKW5nxA=",
-        "owner": "mitchellh",
-        "repo": "zig-overlay",
-        "rev": "98819174f1bb7c9961c3ebbb00d19fc4e1c1960d",
->>>>>>> b4932f3 (update flake)
         "type": "github"
       },
       "original": {
