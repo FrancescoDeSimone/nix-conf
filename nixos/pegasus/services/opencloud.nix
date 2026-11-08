@@ -60,10 +60,6 @@ in {
     inherit hostAddress localAddress;
 
     bindMounts = {
-      # OpenCloud state lives inside the container at ${stateDir}; the host
-      # side moves onto the /nextcloud ext4 partition (once the NC archive
-      # was migrated/reclaimed and the copy landed there) — the fallback
-      # keeps the old location until /nextcloud/opencloud exists.
       "/var/lib/opencloud" = {
         hostPath =
           if builtins.pathExists "/nextcloud/opencloud"
@@ -83,11 +79,6 @@ in {
       # been migrated to OpenCloud and Phonetrack history exported.
       "/nextcloud" = {
         hostPath = "/nextcloud";
-        isReadOnly = true;
-      };
-      # Traccar pg_dump archive (source for backups).
-      "/var/lib/traccar-dumps" = {
-        hostPath = "/var/lib/traccar-dumps";
         isReadOnly = true;
       };
     };

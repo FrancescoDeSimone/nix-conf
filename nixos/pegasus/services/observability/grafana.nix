@@ -54,7 +54,7 @@ in {
       unified_alerting = {
         enabled = true;
       };
-      security.secret_key = "SW2YcwTIb9zpOOhoPsMm";
+      security.secret_key = "$__file{${config.age.secrets."grafana-secret-key".path}}";
     };
   };
 

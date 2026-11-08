@@ -8,11 +8,6 @@
 }: let
   inherit (private.nginx) email domain provider internalDomain;
 
-  # OwnTracks ingest path — acts as the shared secret in the URL the phone
-  # posts to (owntracks.<domain>/<token>). Regenerate with:
-  #   head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n'
-  owntracksIngestToken = "c8e291cef7a5372cb25a46525b297d96";
-
   publicVhostAttrs = {
     forceSSL = true;
     useACMEHost = domain;
@@ -675,25 +670,17 @@ in {
           "owntracks.${domain}" = mkVhost {
             public = true;
             extraConfig = mkVhostConfig {
+              extraConfig = ''
+                # The ingest locations (the random path IS the shared token;
+                # anything else 404s) come from the agenix-decrypted snippet —
+                # see the note at the top of this file.
+                include ${config.age.secrets."owntracks-ingest".path};
+              '';
               rules =
                 hiddenPathRules
                 + probeExtensionRules
                 + cloudRobotsRules
                 + scannerBlockRules;
-            };
-            locations = let
-              owntracksUpstream = "http://192.168.101.11:${toString config.my.services.owntracks.port}/";
-              owntracksThrottle = "limit_req zone=owntracks burst=30 nodelay;";
-            in {
-              # The random path is the ingest shared secret; anything else 404s.
-              "= /${owntracksIngestToken}" = mkProxyLocation {
-                upstream = owntracksUpstream;
-                extraConfig = owntracksThrottle;
-              };
-              "= /${owntracksIngestToken}/" = mkProxyLocation {
-                upstream = owntracksUpstream;
-                extraConfig = owntracksThrottle;
-              };
             };
           };
 
@@ -903,11 +890,6 @@ in {
             extraConfig = largeTransferVhostConfig;
             locations = gitPublicLocations;
           };
-          # "bypass.${domain}" = mkVhost {
-          #   public = true;
-          #   extraConfig = defaultAppVhostConfig;
-          #   locations = bypassPublicLocations;
-          # };
           "jellyfin.${domain}" = mkProxyVhost {
             public = true;
             upstream = "http://127.0.0.1:${toString config.my.services.jellyfin.port}";
@@ -937,9 +919,6 @@ in {
             locations = microbinPublicLocations;
           };
 
-          # openGym PWA: static root + /api proxied to the API unit (module:
-          # modules/nixos/opengym). Passkeys need HTTPS (wildcard cert) and
-          # RP_ID/ORIGIN bound to this exact hostname.
           "opengym.${domain}" = mkVhost {
             public = true;
             extraConfig =
@@ -958,11 +937,6 @@ in {
               };
               "^~ /api/" = mkProxyLocation {
                 upstream = "http://127.0.0.1:${toString config.my.services.opengym.port}";
-                # Pass JSON errors (sync conflicts, missing profiles) through:
-                # intercepting 404 here would break the app's error handling.
-                # The coach admin "test run" waits synchronously up to 90 s for
-                # a full AI generation — stay past the 60 s default or nginx
-                # answers 504 while the job is still running.
                 extraConfig = ''
                   proxy_intercept_errors off;
                   proxy_read_timeout 300s;

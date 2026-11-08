@@ -121,13 +121,7 @@ in {
       users = [
         {
           name = "admin";
-          # Keep in sync with ADGUARD_PASS in `secrets/adguard-admin.age`: the UI
-          # login and the exporter both authenticate as this user. Rotate the
-          # secret (snippet on the exporter below), then update
-          # `adguard.hash` in nix-conf-secrets with the hash of the same password:
-          #   nix shell nixpkgs#apacheHttpd -c htpasswd -B -C 12 -n admin
-          # The committed hash is only a bootstrap fallback for fresh installs.
-          password = private.adguard.hash or "$2b$12$H2Jjjbf9tlyfvNka2cODie/UeUF5wmKvedOUahiaQmo8hL4s/TvSe";
+          password = private.adguard.hash;
         }
       ];
     };
@@ -151,18 +145,6 @@ in {
       WorkingDirectory = "/tmp";
       StateDirectory = "adguard-exporter";
       RuntimeDirectory = "adguard-exporter";
-      # `ADGUARD_USER`/`ADGUARD_PASS` come from the agenix secret
-      # `adguard-admin` (`secrets/secrets.nix`); systemd reads the 0400
-      # root-only file before dropping privileges to DynamicUser, so the admin
-      # password stays out of both the repo and the store.
-      # `secrets/adguard-admin.age` ships with placeholder credentials; to
-      # switch to the real password (and update `private.adguard.hash` to its
-      # bcrypt hash):
-      #   read -rsp 'AdGuard admin password: ' AGH_PASS; echo
-      #   printf 'ADGUARD_USER=admin\nADGUARD_PASS=%s\n' "$AGH_PASS" |
-      #     nix shell nixpkgs#age -c age -e -o secrets/adguard-admin.age \
-      #       -R <(nix eval --raw -f secrets/secrets.nix '"provider.age".publicKeys' \
-      #         --apply 'builtins.concatStringsSep "\n"')
       EnvironmentFile = config.age.secrets."adguard-admin".path;
       Environment = [
         "ADGUARD_HOST=http://127.0.0.1:${toString config.my.services.adguard.port}"

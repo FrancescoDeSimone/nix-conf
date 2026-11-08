@@ -18,10 +18,6 @@
 
   cfg = config.my.services.opengym;
 
-  # The public vhost (defined in the host's nginx config) serves the PWA
-  # from frontendPackage and proxies /api here. Passkeys (WebAuthn RP_ID)
-  # and the API's CSRF origin check are bound to the public hostname, so
-  # rpId/origin must match it — hence the derived defaults.
   defaultHost = "opengym.${private.nginx.domain}";
 
   apiEnv =

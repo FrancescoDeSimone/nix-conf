@@ -21,10 +21,6 @@ in {
   # You can change versions, add patches, set compilation flags, anything really.
   # https://nixos.wiki/wiki/Overlays
   modifications = _final: prev: {
-    # example = prev.example.overrideAttrs (oldAttrs: rec {
-    # ...
-    # });
-    # neovim = inputs.nixvim.packages.${prev.system}.default;
     rofi-calc = prev.rofi-calc.override {rofi-unwrapped = prev.rofi-unwrapped;};
     rofi-top = prev.rofi-top.override {rofi-unwrapped = prev.rofi-unwrapped;};
     rofi-vpn = prev.rofi-vpn.override {rofi-unwrapped = prev.rofi-unwrapped;};

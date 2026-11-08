@@ -68,18 +68,10 @@
       url = "github:znandev/adguardexporter";
       flake = false;
     };
-    "speedtest-tracker" = {
-      url = "github:alexjustesen/speedtest-tracker";
-      flake = false;
-    };
     "lidarr-youtube-downloader" = {
       url = "github:dmzoneill/lidarr-youtube-downloader";
       flake = false;
     };
-    #chatto = {
-    #  url = "github:chattocorp/chatto";
-    #  flake = false;
-    #};
     p5aint = {
       url = "git+ssh://git@github.com/FrancescoDeSimone/p5aint?ref=single-file-compressed";
       flake = false;
