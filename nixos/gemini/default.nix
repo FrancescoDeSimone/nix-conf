@@ -22,5 +22,9 @@
     PermitRootLogin = "yes";
   };
 
-  services.tailscale.enable = true;
+  networking.firewall.checkReversePath = "loose";
+  services.tailscale = {
+    enable = true;
+    useRoutingFeatures = "both";
+  };
 }

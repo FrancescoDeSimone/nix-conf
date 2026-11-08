@@ -27,5 +27,7 @@ in {
   "adguard-admin.age".publicKeys = keys;
   "9router-admin.age".publicKeys = keys;
   "qbittorrent-api.age".publicKeys = keys;
+  "owntracks-ingest.age".publicKeys = keys;
+  "grafana-secret-key.age".publicKeys = keys;
   "speedtest-admin.age".publicKeys = keys;
 }

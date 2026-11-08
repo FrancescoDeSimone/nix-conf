@@ -87,26 +87,49 @@ in {
 
   environment.etc."headscale/acl.hujson".text = ''
     {
-      "groups": {},
-      "tagOwners": {},
+      "tagOwners": {
+        "tag:subnet-router": ["personal@"]
+      },
       "acls": [
-        // Pegasus (control node) may reach every tailnet node on every port (admin).
         {
           "action": "accept",
-          "src": ["100.64.0.1"],
-          "dst": ["*:*"],
+          "src": ["personal@"],
+          "dst": ["*:*"]
         },
-        // Everything else gets default-deny: only pegasus's DNS, web front, and SSH.
         {
           "action": "accept",
-          "src": ["*"],
+          "src": ["ema@"],
           "dst": [
+            "autogroup:internet:*",
             "100.64.0.1:53",
-            "100.64.0.1:80,443",
-            "100.64.0.1:22",
-          ],
-        },
-      ],
+          ]
+        }
+      ]
     }
   '';
+
+  # environment.etc."headscale/acl.hujson".text = ''
+  #   {
+  #     "groups": {},
+  #     "tagOwners": {},
+  #     "acls": [
+  #       // Pegasus (control node) may reach every tailnet node on every port (admin).
+  #       {
+  #         "action": "accept",
+  #         "src": ["100.64.0.1"],
+  #         "dst": ["*:*"],
+  #       },
+  #       // Everything else gets default-deny: only pegasus's DNS, web front, and SSH.
+  #       {
+  #         "action": "accept",
+  #         "src": ["*"],
+  #         "dst": [
+  #           "100.64.0.1:53",
+  #           "100.64.0.1:80,443",
+  #           "100.64.0.1:22",
+  #         ],
+  #       },
+  #     ],
+  #   }
+  # '';
 }

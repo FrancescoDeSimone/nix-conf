@@ -71,6 +71,24 @@
       file = ../../secrets/deemix-arl.age;
       mode = "0400";
     };
+    "owntracks-ingest" = {
+      file = ../../secrets/owntracks-ingest.age;
+      owner = "nginx";
+      group = "nginx";
+      mode = "0400";
+    };
+    "grafana-secret-key" = {
+      file = ../../secrets/grafana-secret-key.age;
+      owner = "grafana";
+      group = "grafana";
+      mode = "0400";
+    };
+    "speedtest-admin" = {
+      file = ../../secrets/speedtest-admin.age;
+      owner = "speedtest-tracker";
+      group = "speedtest-tracker";
+      mode = "0400";
+    };
   };
 
   systemd = {
