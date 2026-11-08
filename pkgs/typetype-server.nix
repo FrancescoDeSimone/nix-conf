@@ -1,8 +1,3 @@
-# TypeType API server (Kotlin/Ktor + PipePipeExtractor). Upstream publishes
-# no release assets and the gradle build cannot be vendored, so the shadowJar
-# is extracted from the digest-pinned official image and run on a Nix JDK
-# inside the typetype container. See pkgs/typetype-rootfs.nix for digest
-# bumping instructions.
 {
   lib,
   pkgs,

@@ -1,9 +1,3 @@
-# TypeType token microservice: a bun-built JS bundle that drives Playwright
-# Chromium (BotGuard PO tokens, remote login, subtitle decoding). The
-# mcr.microsoft.com/playwright runner image ships exactly the browser builds
-# expected by the bundled node_modules, so the needed subsets are linked out
-# of the digest-pinned image instead of rebuilding playwright in Nix. See
-# pkgs/typetype-rootfs.nix for digest bumping instructions.
 {
   lib,
   pkgs,
@@ -18,6 +12,10 @@
     # pkgs/typetype-rootfs.nix.
     imageDigest = "sha256:f1d9d022490b7ebbc6e5dc06f0b24692939bcd43e08d8084b0ffe51c2f94ab22";
     sha256 = "sha256-739exjcXfquaRXA6j2Bv7JRM2o/EXx+ycHC5ftt6fPI=";
+    # The writable-bind target (<image>/.cache, see passthru.image below):
+    # it has to pre-exist in the store output because nspawn cannot create it
+    # once /nix/store is mounted read-only in the container.
+    extraDirs = [".cache"];
   };
 in
   stdenvNoCC.mkDerivation {
@@ -47,8 +45,9 @@ in
     passthru = {
       browserEnv = {
         PLAYWRIGHT_BROWSERS_PATH = "${rootfs}/ms-playwright";
-        LD_LIBRARY_PATH = "${rootfs}/usr/lib/x86_64-linux-gnu";
       };
+      syslibs = "${rootfs}/usr/lib/x86_64-linux-gnu";
+      image = rootfs;
     };
 
     meta = {

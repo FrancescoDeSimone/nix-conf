@@ -1,14 +1,3 @@
-# Shared helper for the TypeType packages: there are no release assets, and
-# the gradle (server) and bun (token) stacks cannot be vendored for Nix, so
-# the official container images are the authoritative artifact. They are
-# pinned by digest, pulled in a fixed-output derivation via skopeo and
-# unpacked layer by layer (applying OCI whiteouts).
-#
-# To bump an image:
-#   nix shell nixpkgs#skopeo --command skopeo inspect \
-#     --format '{{.Digest}}' docker://ghcr.io/typetype-video/<repo>:latest
-# then paste the digest below, run `nix build .#typetype-<name>` and update
-# the fixed-output hash from the mismatch error.
 {
   lib,
   stdenvNoCC,
@@ -58,6 +47,7 @@ in {
     imageName,
     imageDigest,
     sha256,
+    extraDirs ? [],
   }: let
     image = stdenvNoCC.mkDerivation {
       name = "${name}-image";
@@ -77,13 +67,14 @@ in {
       image = image;
       nativeBuildInputs = [python3];
       dontUnpack = true;
-      # Extracted image rootfs contains dangling absolute symlinks while
-      # stored alone (e.g. /etc/ssl/certs/<hash>.0, /etc/mtab); skip the
-      # fixup broken-symlink scan.
       dontFixup = true;
       installPhase = ''
         runHook preInstall
         python3 ${unpackScript} "${image}" "$out"
+        ${lib.concatMapStrings (dir: ''
+          mkdir -p "$out/${dir}"
+        '')
+        extraDirs}
         runHook postInstall
       '';
     };

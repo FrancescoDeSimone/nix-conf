@@ -1,27 +1,10 @@
-# TypeType — self-hosted video platform for YouTube/BiliBili/NicoNico
-# (github.com/TypeType-Video). Everything runs inside one nspawn container:
-# PostgreSQL 17 (main + downloader DB), valkey (redis-compatible cache/queue
-# instead of upstream's dragonfly), Garage (S3 for download artifacts, like
-# upstream) and the three services. The host nginx serves the extracted
-# frontend dist and proxies /api to the container (services/nginx.nix).
-#
-# Packaging lives in pkgs/typetype-*.nix:
-#   - typetype-server  = shadowJar extracted from the digest-pinned image,
-#                        run on JDK 25 exactly like the upstream entrypoint
-#     (`java -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -jar app.jar`)
-#   - typetype-token   = bun bundle + Playwright chromium from the pinned
-#                        mcr playwright runner image (BotGuard needs a real
-#                        browser under Xvfb, remote login disabled by default)
-#   - typetype-web     = frontend dist, served by host nginx
-#   - typetype-downloader = source build (buildGoModule); upstream image
-#       pins Go 1.27 + CGO/ffmpeg, mirrored here via go_1_27
 {
   config,
+  lib,
   private,
   pkgs,
   ...
 }: let
-  # Registry entry (ports.nix) labels the container-internal API port.
   serverPort = config.my.services.typetype.port;
   tokenPort = 8081;
   downloaderPort = 18093;
@@ -38,8 +21,6 @@
 
   publicDomain = "typetype.${private.nginx.domain}";
 in {
-  # Outbound NAT for container services hitting YouTube/BiliBili/NicoNico
-  # (same arrangement as the traccar/opencloud containers).
   networking.nat = {
     enable = true;
     internalInterfaces = ["ve-typetype"];
@@ -48,11 +29,11 @@ in {
   };
 
   systemd.tmpfiles.rules = [
-    # Only the shared state (secrets, garage bootstrap state) is host-visible.
-    # Service persistence (postgres, valkey, garage data) lives inside the
-    # container's rootfs like traccar/opencloud.
     "d ${stateDir} 0750 root root -"
+    "d /var/lib/typetype/token-cache 0777 root root -"
   ];
+
+  systemd.services."container@typetype".serviceConfig.TimeoutStartSec = lib.mkForce "15min";
 
   containers.typetype = {
     autoStart = true;
@@ -63,6 +44,11 @@ in {
       hostPath = stateDir;
       isReadOnly = false;
     };
+    bindMounts.token-image-dot-cache = {
+      hostPath = "/var/lib/typetype/token-cache";
+      mountPoint = "${token.image}/.cache";
+      isReadOnly = false;
+    };
 
     config = {
       config,
@@ -71,9 +57,16 @@ in {
     }: let
       secrets = "${stateDir}/secrets";
     in {
-      # --- Shared group + dedicated service users: static UIDs keep /tmp X
-      # lock cleanup safe across restarts (sticky bit) ---
       users.groups.typetype-runtime = {};
+      programs.nix-ld.enable = lib.mkForce false;
+      # The Debian-based token image's binaries (bun, Playwright Chromium)
+      # use /lib64/ld-linux-x86-64.so.2 as interpreter. NixOS stubs that
+      # path with the unresolvable "stub-ld"; point it at the image's own
+      # loader (matches the Debian libc in syslibs) at every boot. "L+"
+      # replaces the existing symlink (verified: plain "L!" did not).
+      systemd.tmpfiles.rules = [
+        "L+ /lib64/ld-linux-x86-64.so.2 - - - - ${token.syslibs}/ld-linux-x86-64.so.2"
+      ];
       users.users.typetype-server = {
         isSystemUser = true;
         group = "typetype-runtime";
@@ -87,7 +80,6 @@ in {
         group = "typetype-runtime";
       };
 
-      # --- Secrets: generated once, referenced by env files afterwards ---
       systemd.services.typetype-secrets = {
         description = "Generate TypeType secrets";
         before = [
@@ -126,14 +118,11 @@ in {
             printf 'GK%s' "$(${pkgs.openssl}/bin/openssl rand -hex 12)" > "$s/s3_access_key"
           fi
 
-          # Service-contained file secrets (read via _FILE by the JVM/token
-          # services): group-readable, root-owned.
           for f in youtube_session_encryption_key youtube_remote_login_internal_token; do
             chgrp typetype-runtime "$s/$f"
             chmod 0640 "$s/$f"
           done
 
-          # systemd EnvironmentFiles (parsed by root before dropping privileges).
           cat > "$s/garage.env" <<EOF
           GARAGE_RPC_SECRET=$(${pkgs.coreutils}/bin/tr -d '\r\n' < "$s/garage_rpc_secret")
           GARAGE_ADMIN_TOKEN=$(${pkgs.coreutils}/bin/tr -d '\r\n' < "$s/garage_admin_token")
@@ -150,8 +139,6 @@ in {
         '';
       };
 
-      # --- PostgreSQL 17: main DB + downloader DB (trust auth, container-
-      # local only; same pattern as the traccar container) ---
       services.postgresql = {
         enable = true;
         package = pkgs.postgresql_17;
@@ -169,8 +156,6 @@ in {
         ];
       };
 
-      # Upstream's init container creates the downloader DB owned by the
-      # same role; ensureUsers only owns the matching-name database.
       systemd.services.typetype-db-init = {
         description = "Initialize TypeType databases";
         after = ["postgresql.service"];
@@ -194,8 +179,6 @@ in {
         '';
       };
 
-      # --- valkey (dragonfly replacement): cache for the server and the
-      # download job queue (no persistence, like dragonfly --cache_mode) ---
       users.users.typetype-valkey = {
         isSystemUser = true;
         group = "typetype-valkey";
@@ -230,7 +213,6 @@ in {
         };
       };
 
-      # --- Garage (S3): download artifact storage, like upstream ---
       services.garage = {
         enable = true;
         package = pkgs.garage;
@@ -254,8 +236,6 @@ in {
         requires = ["typetype-secrets.service"];
       };
 
-      # Mirror of upstream scripts/bootstrap-garage.sh: layout, bucket,
-      # importer key, permissions — all idempotent.
       systemd.services.typetype-garage-init = {
         description = "Bootstrap TypeType Garage layout/bucket/keys";
         after = ["garage.service" "typetype-secrets.service"];
@@ -265,15 +245,28 @@ in {
         serviceConfig.Type = "oneshot";
         script = ''
           set -euo pipefail
+          # Unit PATHs inside the container may lack coreutils/grep; make the
+          # helpers explicit so the wait loop never depends on defaults.
+          PATH="${pkgs.coreutils}/bin:${pkgs.gnugrep}/bin:$PATH"
+          g="${pkgs.garage}/bin/garage"
+          # Semantic: the CLI needs the RPC secret in its environment.
+          # Plain sourcing does not export, so flip on set -a around both
+          # environment files.
+          set -a
           . "${secrets}/garage.env"
           . "${secrets}/downloader.env"
-          g="${pkgs.garage}/bin/garage"
+          set +a
 
-          for _ in $(seq 1 60); do
-            if $g status >/dev/null 2>&1; then break; fi
+          retries=0
+          until $g status >/dev/null 2>&1; do
+            retries=$((retries + 1))
+            if [ "$retries" -ge 60 ]; then
+              echo "garage status did not become ready after $retries attempts" >&2
+              $g status
+              exit 1
+            fi
             sleep 1
           done
-          $g status >/dev/null
 
           status_output="$($g status || true)"
           if printf '%s' "$status_output" | grep -q "NO ROLE ASSIGNED"; then
@@ -293,7 +286,6 @@ in {
         '';
       };
 
-      # --- The three application services ---
       systemd.services.typetype-server = {
         description = "TypeType API server";
         # Downloader access is attempted lazily, so it only needs to be up for
@@ -342,8 +334,6 @@ in {
         };
       };
 
-      # Chromium (BotGuard) runs non-headless under Xvfb exactly like the
-      # upstream docker-entrypoint.sh.
       systemd.services.typetype-token = {
         description = "TypeType token service (BotGuard / PO tokens / subtitles)";
         after = ["typetype-secrets.service"];
@@ -373,9 +363,12 @@ in {
           ExecStart = "${
             pkgs.writeShellScript "typetype-token-start" ''
               set -euo pipefail
+              unset LD_LIBRARY_PATH
               rm -f /tmp/.X99-lock /tmp/.X11-unix/X99 /tmp/.X11-unix/X99a
-              mkdir -p /tmp/.X11-unix
-              chmod 1777 /tmp/.X11-unix
+              if [ ! -d /tmp/.X11-unix ]; then
+                mkdir -p /tmp/.X11-unix
+                chmod 1777 /tmp/.X11-unix
+              fi
               ${pkgs.xorg.xvfb}/bin/Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp -ac >/var/lib/typetype-token/xvfb.log 2>&1 &
               xvfb_pid=$!
               attempt=0
@@ -391,7 +384,7 @@ in {
                 fi
                 sleep 0.1
               done
-              exec "${token}/bin/bun" dist/index.js
+              exec ${pkgs.coreutils}/bin/env LD_LIBRARY_PATH="${token.syslibs}" "${token}/bin/bun" dist/index.js
             ''
           }";
           User = "typetype-token";
@@ -445,6 +438,10 @@ in {
           EnvironmentFile = "${secrets}/downloader.env";
           User = "typetype-downloader";
           Group = "typetype-runtime";
+          # The app creates ./data relative to its working directory
+          # ("mkdir data: permission denied" was hit with cwd=/).
+          WorkingDirectory = "/var/lib/typetype-downloader";
+          StateDirectory = "typetype-downloader";
           Restart = "always";
           RestartSec = "5";
           NoNewPrivileges = true;
@@ -457,9 +454,6 @@ in {
 
       networking.firewall = {
         enable = true;
-        # Host nginx reaches the server (public API/UI) and downloader
-        # (/api/downloader); the token stays container-internal except its
-        # /api/version endpoint, which is also served publicly.
         allowedTCPPorts = [serverPort tokenPort downloaderPort];
       };
 

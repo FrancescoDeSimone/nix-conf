@@ -1,8 +1,3 @@
-# TypeType web frontend: the built SPA serves from
-# ${out}/html (including version.json) on the public nginx vhost, which also
-# proxies the /api routes to the container services (replicating upstream
-# nginx.conf). No release assets exist, so the dist comes from the
-# digest-pinned official image; see pkgs/typetype-rootfs.nix for bumping.
 {
   lib,
   pkgs,
