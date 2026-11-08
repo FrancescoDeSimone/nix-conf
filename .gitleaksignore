@@ -1,0 +1,16 @@
+# Historical secrets that have been rotated or whose deployments are retired.
+# Keep this list minimal: every entry corresponds to a dead value. New leaks
+# must never be added here — rotate instead.
+#
+# OwnTracks ingest token — rotated + moved to agenix (secrets/owntracks-ingest.age)
+47f3c2d184160ab5988d661f5233d6ba8551c8f3:nixos/pegasus/services/nginx.nix:generic-api-key:14
+# Grafana sample secret_key — replaced by secrets/grafana-secret-key.age
+0f0d58810f7f04df4304a8051f5bf6019869a9e1:nixos/pegasus/services/observability/grafana.nix:generic-api-key:54
+# Wealthfolio WF_SECRET_KEY — service retired
+59b008216f7c241321eadd88657329d6de2ab20d:nixos/pegasus/services/docker.nix:generic-api-key:34
+# OpenCloud container-era jwt_secret — replaced by runtime-generated secret
+3372d775bfab92fc0b2aa0cb1a06018e081fb6d8:nixos/pegasus/services/opencloud.nix:generic-api-key:34
+c470341201088d44d797a169ed02a95075a740dd:nixos/pegasus/services/opencloud.nix:generic-api-key:35
+a8f2a7da77c7d95b02eb95d41da40ad58641c72b:nixos/pegasus/services/opencloud.nix:generic-api-key:34
+# Linkwarden NEXTAUTH_SECRET — service retired
+9bcfcffa88d5450a3fbf367ba3d4db5e7027cf8b:nixos/pegasus/services/linkwarden.nix:generic-api-key:18
